@@ -6,7 +6,6 @@
 ;; Where NAME is the name of the package;
 ;;
 ;; KIND can be one of:
-;;  :subtree  = a "git subtree" in the `master' branch.
 ;;  :external = kept in a separate `externals/<name>' branch.
 ;;  :core     = part of GNU Emacs repository.
 ;;
@@ -14,8 +13,7 @@
 ;; For KIND :external URL is the URL of the remote git repository that we want
 ;; to track, or `nil' if there is no upstream, i.e., if development of this
 ;; package takes place directly on the `externals/<name>' branch of the
-;; `elpa.git' repository.  In the case of :subtree URL is useless.  For packages
-;; of KIND :core URL must be a list of:
+;; `elpa.git' repository.  For packages of KIND :core URL must be a list of:
 ;;    STRING = A file-name to copy from Emacs repo.
 ;;    (STRING STRING) = A file-name to copy renamed from Emacs repo.
 
@@ -40,7 +38,7 @@
  ("bluetooth"		:external "https://gitlab.com/rstocker/emacs-bluetooth")
  ("bnf-mode"		:external "https://github.com/sergeyklay/bnf-mode")
  ("buffer-expose"	:external "https://github.com/clemera/buffer-expose")
- ("bug-hunter"		:subtree "https://github.com/Malabarba/elisp-bug-hunter")
+ ("bug-hunter"		:external "https://github.com/Malabarba/elisp-bug-hunter")
  ;;FIXME:("cedet"	:external "??")
  ;; ("cc-mode"		:core ("lisp/progmodes/cc-align.el"
  ;;                               "lisp/progmodes/cc-awk.el"
@@ -59,7 +57,7 @@
  ;;                               ;; the .info file from this texi file!
  ;;                               "doc/misc/cc-mode.texi"))
  ("chess"		:external nil) ;; Was https://github.com/jwiegley/emacs-chess.git
- ;; ("cobol-mode"          :subtree "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
+ ("cobol-mode"          :external "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
  ("cl-print"		:core "lisp/emacs-lisp/cl-print.el")
  ("clipboard-collector" :external "https://github.com/clemera/clipboard-collector")
  ("coffee-mode"		:external "https://github.com/defunkt/coffee-mode")
@@ -70,7 +68,7 @@
  ("cpio-mode"		:external "https://github.com/dlewan/cpio-mode")
  ("darkroom"            :external "https://github.com/capitaomorte/darkroom.git")
  ("dash"                :external "https://github.com/magnars/dash.el.git")
- ("dbus-codegen"	:subtree "https://github.com/ueno/dbus-codegen-el.git")
+ ("dbus-codegen"	:external "https://github.com/ueno/dbus-codegen-el.git")
  ("delight"		:external "https://git.savannah.gnu.org/r/delight.git")
  ("diffview"            :external "https://github.com/mgalgs/diffview-mode.git")
  ("diff-hl"		:external "https://github.com/dgutov/diff-hl.git")
@@ -86,7 +84,7 @@
  ("eldoc-eval"		:external "https://github.com/thierryvolpiatto/eldoc-eval.git")
  ("elisp-benchmarks"	:external nil)
  ("emms"		:external "https://git.savannah.gnu.org/git/emms.git")
- ("enwc"		:subtree "bzr::bzr://bzr.savannah.nongnu.org/enwc/trunk")
+ ("enwc"		:external "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
  ("ergoemacs-mode"	:external "https://github.com/ergoemacs/ergoemacs-mode.git")
  ("expand-region"	:external "https://github.com/magnars/expand-region.el")
  ("exwm"		:external "https://github.com/ch11ng/exwm.git")
@@ -96,7 +94,7 @@
  ("gcmh"		:external "https://gitlab.com/koral/gcmh")
  ("ggtags"		:external "https://github.com/leoliu/ggtags")
  ("gnome-c-style"	:external "https://github.com/ueno/gnome-c-style.git")
- ("gnorb"               :subtree "https://github.com/girzel/gnorb")
+ ("gnorb"               :external nil) ;; Was "https://github.com/girzel/gnorb"
  ("gnu-elpa"		:external nil)
  ("gpastel"		:external "https://gitlab.petton.fr/DamienCassou/gpastel")
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
@@ -115,7 +113,7 @@
  ("mmm-mode"            :external "https://github.com/purcell/mmm-mode.git")
  ("modus-operandi-theme":external "https://gitlab.com/protesilaos/modus-themes")
  ("modus-vivendi-theme"	:external "https://gitlab.com/protesilaos/modus-themes")
- ("muse"		:subtree "https://github.com/alexott/muse")
+ ("muse"		:external "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
  ("nameless"		:external "https://github.com/Malabarba/Nameless")
  ("names"		:external "http://github.com/Malabarba/names")
  ("objed"        	:external "https://github.com/clemera/objed")
@@ -129,7 +127,7 @@
  ("peg"			:external) ;Was in "https://github.com/ellerh/peg.el"
  ("persist"             :external "https://gitlab.com/phillord/persist.git")
  ("phps-mode"		:external "https://github.com/cjohansson/emacs-phps-mode")
- ("pinentry"		:subtree "https://github.com/ueno/pinentry-el.git")
+ ("pinentry"		:external "https://github.com/ueno/pinentry-el.git")
  ("posframe"		:external "https://github.com/tumashu/posframe")
  ("prefixed-core"	:external nil)
  ("project"		:core "lisp/progmodes/project.el")
@@ -139,7 +137,7 @@
  ;;         --index-filter "git read-tree --empty;                  \
  ;;                         git reset \$GIT_COMMIT -- pspp-mode.el" \
  ;;         -- -- pspp-mode.el
- ("pspp-mode"		:external "https://git.sv.gnu.org/r/pspp.git")
+ ("pspp-mode"		:external nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
  ("python"		:core "lisp/progmodes/python.el")
  ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("realgud"             :external "https://github.com/realgud/realgud")
@@ -173,7 +171,7 @@
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
  ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
  ("transient"		:external "https://github.com/magit/transient")
- ;;FIXME:("vlf"		:subtree ??)
+ ("vlf"			:external "https://github.com/m00natic/vlfi")
  ("verilog-mode"        :core "lisp/progmodes/verilog-mode.el")
  ("wcheck-mode"		:external "https://github.com/tlikonen/wcheck-mode")
  ("web-server"		:external "https://github.com/eschulte/emacs-web-server.git")
