@@ -155,6 +155,7 @@
  ("scanner"		:external "https://gitlab.com/rstocker/scanner.git")
  ("shell-command+"	:external "https://git.sr.ht/~zge/bang/tree/shell-command+")
  ("slime-volleyball"	:external nil)
+ ("sm-c-mode" :external nil)
  ("smalltalk-mode"	:external "git://git.sv.gnu.org/smalltalk")
  ("so-long"             :core "lisp/so-long.el")
  ("soap-client"		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
