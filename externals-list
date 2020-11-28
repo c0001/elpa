@@ -175,6 +175,7 @@
  ("vlf"			:external "https://github.com/m00natic/vlfi")
  ("verilog-mode"        :core "lisp/progmodes/verilog-mode.el")
  ("wcheck-mode"		:external "https://github.com/tlikonen/wcheck-mode")
+ ("wconf" :external "https://github.com/ilohmar/wconf")
  ("web-server"		:external "https://github.com/eschulte/emacs-web-server.git")
  ("webfeeder"		:external "https://gitlab.com/ambrevar/emacs-webfeeder.git")
  ("websocket"		:external "https://github.com/ahyatt/emacs-websocket.git")
