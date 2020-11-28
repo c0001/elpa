@@ -140,6 +140,7 @@
  ("pspp-mode"		:external nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
  ("python"		:core "lisp/progmodes/python.el")
  ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
+ ("rbit" :external nil)
  ("realgud"             :external "https://github.com/realgud/realgud")
  ("realgud-ipdb"        :external "https://github.com/realgud/realgud-ipdb")
  ("realgud-jdb"         :external "https://github.com/realgud/jdb")
@@ -150,7 +151,7 @@
  ("rec-mode"		:external "https://git.savannah.gnu.org/git/recutils/rec-mode.git")
  ("relint"		:external "https://github.com/mattiase/relint")
  ("rich-minority"	:external "https://github.com/Malabarba/rich-minority")
- ("rnc-mode" :external nil)
+ ("rnc-mode"		:external nil)
  ("rt-liberation"	:external "https://git.savannah.nongnu.org/git/rtliber")
  ("rudel"		:external nil) ;; Was bzr::bzr://rudel.bzr.sourceforge.net/bzrroot/rudel/trunk
  ("scanner"		:external "https://gitlab.com/rstocker/scanner.git")
