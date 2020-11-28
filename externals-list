@@ -168,6 +168,7 @@
  ("temp-buffer-browse"  :external "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :external "https://github.com/rocky/emacs-test-simple")
  ("undo-tree"		:external "http://www.dr-qubit.org/git/undo-tree.git")
+ ("uni-confusables" :external nil)
  ("url-http-ntlm" 	:external nil)
  ("vdiff"               :external "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
