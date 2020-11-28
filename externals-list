@@ -167,6 +167,7 @@
  ("system-packages"	:external "https://gitlab.com/jabranham/system-packages")
  ("temp-buffer-browse"  :external "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :external "https://github.com/rocky/emacs-test-simple")
+ ("undo-tree"		:external "http://www.dr-qubit.org/git/undo-tree.git")
  ("vdiff"               :external "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
  ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
