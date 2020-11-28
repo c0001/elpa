@@ -116,7 +116,8 @@
  ("muse"		:external "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
  ("nameless"		:external "https://github.com/Malabarba/Nameless")
  ("names"		:external "http://github.com/Malabarba/names")
- ("nhexl-mode" :external nil)
+ ("nhexl-mode"		:external nil)
+ ("nlinum" :external nil)
  ("objed"        	:external "https://github.com/clemera/objed")
  ("omn-mode"            :external nil)
  ("orgalist"            :external nil)
