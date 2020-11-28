@@ -182,6 +182,7 @@
  ("wisitoken-grammar-mode" :external nil)
  ("which-key"           :external "https://github.com/justbur/emacs-which-key")
  ("xelb"		:external "https://github.com/ch11ng/xelb.git")
+ ("xpm" :external nil)
  ("xr"			:external "https://github.com/mattiase/xr")
  ("xref"		:core "lisp/progmodes/xref.el")
  ("yasnippet"		:external "https://github.com/capitaomorte/yasnippet.git")
