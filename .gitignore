@@ -12,3 +12,6 @@ core
 /archive
 *.log
 *.buildlog
+
+# generated html
+html/readme.html
