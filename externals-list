@@ -91,6 +91,7 @@
  ("f90-interface-browser" :external "https://github.com/wence-/f90-iface")
  ("flymake"		:core "lisp/progmodes/flymake.el")
  ("frog-menu"		:external "https://github.com/clemera/frog-menu")
+ ("fsm" :external nil)
  ("gcmh"		:external "https://gitlab.com/koral/gcmh")
  ("ggtags"		:external "https://github.com/leoliu/ggtags")
  ("gited"		:external nil)
