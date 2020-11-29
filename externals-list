@@ -100,6 +100,7 @@
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
  ("guess-language"	:external "https://github.com/tmalsburg/guess-language.el")
  ("highlight-escape-sequences" :external "https://github.com/dgutov/highlight-escape-sequences/")
+ ("html5-schema" :external nil)
  ("hyperbole"           :external "http://git.savannah.gnu.org/r/hyperbole.git")
  ("ioccur"		:external "https://github.com/thierryvolpiatto/ioccur.git")
  ("ivy-explorer"        :external "https://github.com/clemera/ivy-explorer")
