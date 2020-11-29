@@ -172,6 +172,7 @@
  ("scanner"		:external "https://gitlab.com/rstocker/scanner.git")
  ("shell-command+"	:external "https://git.sr.ht/~zge/bang/tree/shell-command+")
  ("shen-mode"		:external nil)
+ ("sisu-mode" :external nil)
  ("slime-volleyball"	:external nil)
  ("sm-c-mode" 		:external nil)
  ("smalltalk-mode"	:external "git://git.sv.gnu.org/smalltalk")
