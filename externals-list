@@ -78,6 +78,7 @@
  ("dts-mode"		:external "https://github.com/bgamari/dts-mode.git")
  ("easy-kill"		:external "https://github.com/leoliu/easy-kill")
  ("ebdb"                :external "https://github.com/girzel/ebdb.git")
+ ("ediprolog" :external nil)
  ("eev"			:external "https://github.com/edrx/eev.git") ;branch UTF-8
  ("eglot"               :external "https://github.com/joaotavora/eglot.git")
  ("eldoc"		:core "lisp/emacs-lisp/eldoc.el")
@@ -86,7 +87,7 @@
  ("emms"		:external "https://git.savannah.gnu.org/git/emms.git")
  ("enwc"		:external "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
  ("ergoemacs-mode"	:external "https://github.com/ergoemacs/ergoemacs-mode.git")
- ("excorporate" :external nil)
+ ("excorporate"		:external nil)
  ("expand-region"	:external "https://github.com/magnars/expand-region.el")
  ("exwm"		:external "https://github.com/ch11ng/exwm.git")
  ("f90-interface-browser" :external "https://github.com/wence-/f90-iface")
