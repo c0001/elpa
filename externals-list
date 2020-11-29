@@ -86,6 +86,7 @@
  ("emms"		:external "https://git.savannah.gnu.org/git/emms.git")
  ("enwc"		:external "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
  ("ergoemacs-mode"	:external "https://github.com/ergoemacs/ergoemacs-mode.git")
+ ("excorporate" :external nil)
  ("expand-region"	:external "https://github.com/magnars/expand-region.el")
  ("exwm"		:external "https://github.com/ch11ng/exwm.git")
  ("f90-interface-browser" :external "https://github.com/wence-/f90-iface")
@@ -99,7 +100,7 @@
  ("gnome-c-style"	:external "https://github.com/ueno/gnome-c-style.git")
  ("gnorb"               :external nil) ;; Was "https://github.com/girzel/gnorb"
  ("gnu-elpa"		:external nil)
- ("gnugo" :external nil)
+ ("gnugo"		:external nil)
  ("gpastel"		:external "https://gitlab.petton.fr/DamienCassou/gpastel")
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
  ("guess-language"	:external "https://github.com/tmalsburg/guess-language.el")
