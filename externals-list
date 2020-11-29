@@ -154,7 +154,7 @@
  ("python"		:core "lisp/progmodes/python.el")
  ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("rbit"		:external nil)
- ("rcirc-color" :external nil)
+ ("rcirc-color"		:external nil)
  ("realgud"             :external "https://github.com/realgud/realgud")
  ("realgud-ipdb"        :external "https://github.com/realgud/realgud-ipdb")
  ("realgud-jdb"         :external "https://github.com/realgud/jdb")
@@ -171,6 +171,7 @@
  ("rudel"		:external nil) ;; Was bzr::bzr://rudel.bzr.sourceforge.net/bzrroot/rudel/trunk
  ("scanner"		:external "https://gitlab.com/rstocker/scanner.git")
  ("shell-command+"	:external "https://git.sr.ht/~zge/bang/tree/shell-command+")
+ ("shen-mode"		:external nil)
  ("slime-volleyball"	:external nil)
  ("sm-c-mode" 		:external nil)
  ("smalltalk-mode"	:external "git://git.sv.gnu.org/smalltalk")
