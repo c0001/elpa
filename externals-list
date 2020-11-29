@@ -69,6 +69,7 @@
  ("darkroom"            :external "https://github.com/capitaomorte/darkroom.git")
  ("dash"                :external "https://github.com/magnars/dash.el.git")
  ("dbus-codegen"	:external "https://github.com/ueno/dbus-codegen-el.git")
+ ("debbugs" :external nil)
  ("delight"		:external "https://git.savannah.gnu.org/r/delight.git")
  ("diffview"            :external "https://github.com/mgalgs/diffview-mode.git")
  ("diff-hl"		:external "https://github.com/dgutov/diff-hl.git")
