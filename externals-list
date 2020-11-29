@@ -104,7 +104,7 @@
  ("ioccur"		:external "https://github.com/thierryvolpiatto/ioccur.git")
  ("ivy-explorer"        :external "https://github.com/clemera/ivy-explorer")
  ("ivy-posframe"        :external "https://github.com/tumashu/ivy-posframe")
- ("jgraph-mode" :external nil)
+ ("jgraph-mode"		:external nil)
  ("js2-mode"		:external "https://github.com/mooz/js2-mode.git")
  ("jsonrpc"		:core "lisp/jsonrpc.el")
  ("leaf"		:external "https://github.com/conao3/leaf.el")
@@ -115,6 +115,7 @@
  ("modus-operandi-theme":external "https://gitlab.com/protesilaos/modus-themes")
  ("modus-vivendi-theme"	:external "https://gitlab.com/protesilaos/modus-themes")
  ("muse"		:external "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
+ ("myers" :external nil)
  ("nameless"		:external "https://github.com/Malabarba/Nameless")
  ("names"		:external "http://github.com/Malabarba/names")
  ("nhexl-mode"		:external nil)
