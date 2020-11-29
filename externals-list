@@ -37,6 +37,7 @@
  ("bbdb"		:external "git://git.savannah.nongnu.org/bbdb.git")
  ("bluetooth"		:external "https://gitlab.com/rstocker/emacs-bluetooth")
  ("bnf-mode"		:external "https://github.com/sergeyklay/bnf-mode")
+ ("brief" :external nil)
  ("buffer-expose"	:external "https://github.com/clemera/buffer-expose")
  ("bug-hunter"		:external "https://github.com/Malabarba/elisp-bug-hunter")
  ;;FIXME:("cedet"	:external "??")
