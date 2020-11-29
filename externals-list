@@ -91,7 +91,7 @@
  ("f90-interface-browser" :external "https://github.com/wence-/f90-iface")
  ("flymake"		:core "lisp/progmodes/flymake.el")
  ("frog-menu"		:external "https://github.com/clemera/frog-menu")
- ("fsm" :external nil)
+ ("fsm"			:external nil)
  ("gcmh"		:external "https://gitlab.com/koral/gcmh")
  ("ggtags"		:external "https://github.com/leoliu/ggtags")
  ("gited"		:external nil)
@@ -99,6 +99,7 @@
  ("gnome-c-style"	:external "https://github.com/ueno/gnome-c-style.git")
  ("gnorb"               :external nil) ;; Was "https://github.com/girzel/gnorb"
  ("gnu-elpa"		:external nil)
+ ("gnugo" :external nil)
  ("gpastel"		:external "https://gitlab.petton.fr/DamienCassou/gpastel")
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
  ("guess-language"	:external "https://github.com/tmalsburg/guess-language.el")
@@ -115,7 +116,7 @@
  ("leaf"		:external "https://github.com/conao3/leaf.el")
  ("let-alist"		:core "lisp/emacs-lisp/let-alist.el")
  ("lmc"			:external nil)
- ("load-dir" :external nil)
+ ("load-dir"		:external nil)
  ("map"                 :core "lisp/emacs-lisp/map.el")
  ("markchars"		:external nil)
  ("math-symbol-lists" 	:external "https://github.com/vspinu/math-symbol-lists.git")
@@ -130,13 +131,14 @@
  ("names"		:external "http://github.com/Malabarba/names")
  ("nhexl-mode"		:external nil)
  ("nlinum"		:external nil)
+ ("ntlm"		:core "lisp/net/ntlm.el")
  ("num3-mode"		:external nil)
  ("objed"        	:external "https://github.com/clemera/objed")
  ("omn-mode"            :external nil)
+ ("on-screen"           :external "https://github.com/michael-heerdegen/on-screen.el.git")
+ ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("orgalist"            :external nil)
  ("org-edna"		:external "https://savannah.nongnu.org/projects/org-edna-el") ;URL?
- ("ntlm"		:core "lisp/net/ntlm.el")
- ("on-screen"           :external "https://github.com/michael-heerdegen/on-screen.el.git")
  ("pabbrev"             :external "https://github.com/phillord/pabbrev.git")
  ("parsec"              :external "https://github.com/cute-jumper/parsec.el.git")
  ("peg"			:external) ;Was in "https://github.com/ellerh/peg.el"
@@ -154,7 +156,6 @@
  ;;         -- -- pspp-mode.el
  ("pspp-mode"		:external nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
  ("python"		:core "lisp/progmodes/python.el")
- ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("rbit"		:external nil)
  ("rcirc-color"		:external nil)
  ("realgud"             :external "https://github.com/realgud/realgud")
