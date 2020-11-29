@@ -66,6 +66,7 @@
  ("company-math"	:external "https://github.com/vspinu/company-math.git")
  ("context-coloring"	:external "https://github.com/jacksonrayhamilton/context-coloring.git")
  ("cpio-mode"		:external "https://github.com/dlewan/cpio-mode")
+ ("csv-mode" :external nil)
  ("darkroom"            :external "https://github.com/capitaomorte/darkroom.git")
  ("dash"                :external "https://github.com/magnars/dash.el.git")
  ("dbus-codegen"	:external "https://github.com/ueno/dbus-codegen-el.git")
