@@ -34,6 +34,7 @@
  ("aggressive-indent"	:external "https://github.com/Malabarba/aggressive-indent-mode")
  ("async"		:external "https://github.com/jwiegley/emacs-async")
  ("auctex"		:external "git://git.sv.gnu.org/auctex.git")
+ ("aumix-mode" :external nil)
  ("bbdb"		:external "git://git.savannah.nongnu.org/bbdb.git")
  ("bluetooth"		:external "https://gitlab.com/rstocker/emacs-bluetooth")
  ("bnf-mode"		:external "https://github.com/sergeyklay/bnf-mode")
