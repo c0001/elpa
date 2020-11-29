@@ -93,7 +93,7 @@
  ("frog-menu"		:external "https://github.com/clemera/frog-menu")
  ("gcmh"		:external "https://gitlab.com/koral/gcmh")
  ("ggtags"		:external "https://github.com/leoliu/ggtags")
- ("gited" :external nil)
+ ("gited"		:external nil)
  ("gle-mode"		:external nil)
  ("gnome-c-style"	:external "https://github.com/ueno/gnome-c-style.git")
  ("gnorb"               :external nil) ;; Was "https://github.com/girzel/gnorb"
@@ -154,6 +154,7 @@
  ("python"		:core "lisp/progmodes/python.el")
  ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("rbit"		:external nil)
+ ("rcirc-color" :external nil)
  ("realgud"             :external "https://github.com/realgud/realgud")
  ("realgud-ipdb"        :external "https://github.com/realgud/realgud-ipdb")
  ("realgud-jdb"         :external "https://github.com/realgud/jdb")
