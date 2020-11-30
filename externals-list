@@ -32,6 +32,7 @@
 
 (("ack"			:external "https://github.com/leoliu/ack-el")
  ("ada-ref-man" :external nil)
+ ("adaptive-wrap" :external nil)
  ("aggressive-indent"	:external "https://github.com/Malabarba/aggressive-indent-mode")
  ("arbitools" :external nil)
  ("ascii-art-to-unicode" :external nil)
