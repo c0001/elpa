@@ -139,6 +139,7 @@
  ("mmm-mode"            :external "https://github.com/purcell/mmm-mode.git")
  ("modus-operandi-theme":external "https://gitlab.com/protesilaos/modus-themes")
  ("modus-vivendi-theme"	:external "https://gitlab.com/protesilaos/modus-themes")
+ ("multishell"		:external "https://github.com/kenmanheimer/EmacsMultishell")
  ("muse"		:external "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
  ("myers"		:external nil)
  ("nameless"		:external "https://github.com/Malabarba/Nameless")
@@ -153,6 +154,7 @@
  ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
  ("orgalist"            :external nil)
  ("org-edna"		:external "https://savannah.nongnu.org/projects/org-edna-el") ;URL?
+ ("paced"		:external "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk")
  ("pabbrev"             :external "https://github.com/phillord/pabbrev.git")
  ("parsec"              :external "https://github.com/cute-jumper/parsec.el.git")
  ("peg"			:external) ;Was in "https://github.com/ellerh/peg.el"
@@ -201,10 +203,11 @@
  ("sql-smie"            :external nil)
  ("ssh-deploy"		:external "https://github.com/cjohansson/emacs-ssh-deploy")
  ("svg"			:core ("lisp/svg.el"))
+ ("swiper"		:external "https://github.com/abo-abo/swiper")
  ("system-packages"	:external "https://gitlab.com/jabranham/system-packages")
  ("temp-buffer-browse"  :external "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :external "https://github.com/rocky/emacs-test-simple")
- ("timerfunctions" :external nil)
+ ("timerfunctions"	:external nil)
  ("undo-tree"		:external "http://www.dr-qubit.org/git/undo-tree.git")
  ("uni-confusables" 	:external nil)
  ("url-http-ntlm" 	:external nil)
