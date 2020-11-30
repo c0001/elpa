@@ -33,6 +33,7 @@
 (("ack"			:external "https://github.com/leoliu/ack-el")
  ("ada-ref-man"		:external nil)
  ("adaptive-wrap"	:external nil)
+ ("advice-patch" :external nil)
  ("aggressive-indent"	:external "https://github.com/Malabarba/aggressive-indent-mode")
  ("ampc" :external nil)
  ("arbitools"		:external nil)
