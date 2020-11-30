@@ -32,6 +32,7 @@
 
 (("ack"			:external "https://github.com/leoliu/ack-el")
  ("aggressive-indent"	:external "https://github.com/Malabarba/aggressive-indent-mode")
+ ("arbitools" :external nil)
  ("ascii-art-to-unicode" :external nil)
  ("async"		:external "https://github.com/jwiegley/emacs-async")
  ("auctex"		:external "git://git.sv.gnu.org/auctex.git")
