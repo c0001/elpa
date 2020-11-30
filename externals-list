@@ -31,6 +31,7 @@
 ;; diverged).
 
 (("ack"			:external "https://github.com/leoliu/ack-el")
+ ("ada-mode" :external nil)
  ("ada-ref-man"		:external nil)
  ("adaptive-wrap"	:external nil)
  ("advice-patch"	:external nil)
