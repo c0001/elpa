@@ -88,6 +88,7 @@
  ("delight"		:external "https://git.savannah.gnu.org/r/delight.git")
  ("diffview"            :external "https://github.com/mgalgs/diffview-mode.git")
  ("diff-hl"		:external "https://github.com/dgutov/diff-hl.git")
+ ("dired-du" :external nil)
  ("dired-git-info"	:external "https://github.com/clemera/dired-git-info")
  ("disk-usage"		:external "https://gitlab.com/ambrevar/emacs-disk-usage")
  ("dismal"		:external nil)
