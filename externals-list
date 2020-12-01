@@ -223,6 +223,7 @@
  ("undo-tree"		:external "http://www.dr-qubit.org/git/undo-tree.git")
  ("uni-confusables" 	:external nil)
  ("url-http-ntlm" 	:external nil)
+ ("vcard" :external nil)
  ("vdiff"               :external "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
  ("tiny" :external "https://github.com/abo-abo/tiny")
@@ -249,6 +250,7 @@
  ("xr"			:external "https://github.com/mattiase/xr")
  ("xref"		:core "lisp/progmodes/xref.el")
  ("yasnippet"		:external "https://github.com/capitaomorte/yasnippet.git")
+ ("yasnippet-classic-snippets" :external nil)
  ("zones"		:external nil)  ;https://www.emacswiki.org/emacs/zones.el
  ("ztree"		:external "https://github.com/fourier/ztree")
  )
