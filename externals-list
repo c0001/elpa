@@ -35,6 +35,61 @@
  ("ada-mode" :external nil)
  ("ada-ref-man"		:external nil)
  ("adaptive-wrap"	:external nil)
+ ("adjust-parens
+all
+auto-correct
+caps-lock
+captain
+cl-generic
+cl-lib
+company-ebdb
+crisp
+cycle-quotes
+docbook
+ebdb-gnorb
+electric-spacing
+el-search
+epoch-view
+filladapt
+flylisp
+frame-tabs
+gnu-elpa-keyring-update
+greenbar
+iterators
+jumpc
+kmb
+landmark
+lex
+memory-usage
+minibuffer-line
+minimap
+nadvice
+oauth2
+org-translate
+osc
+other-frame-window
+package-fixes
+path-iterator
+poker
+quarter-plane
+rainbow-mode
+rcirc-menu
+scroll-restore
+sed-mode
+seq
+shelisp
+shell-quasiquote
+smart-yank
+sokoban
+sql-beeline
+stream
+svg-clock
+systemd
+tramp-theme
+transcribe
+uniquify-files
+validate
+visual-fill" :external nil)
  ("advice-patch"	:external nil)
  ("aggressive-indent"	:external "https://github.com/Malabarba/aggressive-indent-mode")
  ("ahungry-theme"	:external "https://github.com/ahungry/color-theme-ahungry")
