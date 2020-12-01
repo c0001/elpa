@@ -131,6 +131,7 @@
  ("ioccur"		:external "https://github.com/thierryvolpiatto/ioccur.git")
  ("ivy-explorer"        :external "https://github.com/clemera/ivy-explorer")
  ("ivy-posframe"        :external "https://github.com/tumashu/ivy-posframe")
+ ("javaimp" :external nil)
  ("jgraph-mode"		:external nil)
  ("js2-mode"		:external "https://github.com/mooz/js2-mode.git")
  ("json-mode"		:external nil)
