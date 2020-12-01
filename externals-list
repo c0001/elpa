@@ -207,6 +207,7 @@
  ("slime-volleyball"	:external nil)
  ("sm-c-mode" 		:external nil)
  ("smalltalk-mode"	:external "git://git.sv.gnu.org/smalltalk")
+ ("sml-mode" :external nil)
  ("so-long"             :core "lisp/so-long.el")
  ("soap-client"		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
  ("sotlisp"		:external "https://github.com/Malabarba/speed-of-thought-lisp")
