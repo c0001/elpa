@@ -158,6 +158,7 @@
  ("names"		:external "http://github.com/Malabarba/names")
  ("nhexl-mode"		:external nil)
  ("nlinum"		:external nil)
+ ("notes-mode" :external nil)
  ("ntlm"		:core "lisp/net/ntlm.el")
  ("num3-mode"		:external nil)
  ("objed"        	:external "https://github.com/clemera/objed")
