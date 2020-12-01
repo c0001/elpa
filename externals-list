@@ -120,6 +120,7 @@
  ("gnorb"               :external nil) ;; Was "https://github.com/girzel/gnorb"
  ("gnu-elpa"		:external nil)
  ("gnugo"		:external nil)
+ ("gnus-mock" :external nil)
  ("gpastel"		:external "https://gitlab.petton.fr/DamienCassou/gpastel")
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
  ("guess-language"	:external "https://github.com/tmalsburg/guess-language.el")
