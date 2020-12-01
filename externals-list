@@ -288,6 +288,7 @@
  ("tiny"		:external "https://github.com/abo-abo/tiny")
  ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
  ("transient"		:external "https://github.com/magit/transient")
+ ("valign"		:external "https://github.com/casouri/valign")
  ("vigenere" 		:external nil)
  ("visual-filename-abbrev" :external nil)
  ("visual-fill"		:external nil)
