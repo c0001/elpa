@@ -281,7 +281,7 @@
  ("uni-confusables" 	:external nil)
  ("uniquify-files"	:external nil)
  ("url-http-ntlm" 	:external nil)
- ("validate"		:external nil)
+ ("validate"		:external "https://github.com/Malabarba/validate.el")
  ("vcard"		:external nil)
  ("vdiff"               :external "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
