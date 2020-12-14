@@ -234,6 +234,7 @@
  ("pspp-mode"		:external nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
  ("python"		:core "lisp/progmodes/python.el")
  ("quarter-plane"	:external nil)
+ ("queue"		:external "http://www.dr-qubit.org/git/predictive.git")
  ("rainbow-mode"	:external nil)
  ("rbit"		:external nil)
  ("rcirc-color"		:external nil)
