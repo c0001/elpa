@@ -46,6 +46,8 @@
  ("async"		:external "https://github.com/jwiegley/emacs-async")
  ("auctex"		:external "git://git.sv.gnu.org/auctex.git")
  ("aumix-mode"		:external nil)
+ ("auto-overlays"	:external "http://www.dr-qubit.org/git/predictive.git"
+  :doc "docs/auto-overlay-manual.texinfo")
  ("auto-correct"	:external nil)
  ("avy"			:external "https://github.com/abo-abo/avy")
  ("bbdb"		:external "git://git.savannah.nongnu.org/bbdb.git")
