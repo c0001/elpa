@@ -146,6 +146,7 @@
  ("greader"		:external "https://gitlab.com/michelangelo-rodriguez/greader")
  ("greenbar"		:external nil)
  ("guess-language"	:external "https://github.com/tmalsburg/guess-language.el")
+ ("heap"		:external "http://www.dr-qubit.org/git/predictive.git")
  ("highlight-escape-sequences" :external "https://github.com/dgutov/highlight-escape-sequences/")
  ("hook-helpers"	:external "https://git.savannah.nongnu.org/git/hook-helpers-el.git")
  ("html5-schema"	:external nil)
