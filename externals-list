@@ -97,6 +97,7 @@
  ("dbus-codegen"	:external "https://github.com/ueno/dbus-codegen-el.git")
  ("debbugs"		:external nil)
  ("delight"		:external "https://git.savannah.gnu.org/r/delight.git")
+ ("dict-tree"		:external "http://www.dr-qubit.org/git/predictive.git")
  ("diffview"            :external "https://github.com/mgalgs/diffview-mode.git")
  ("diff-hl"		:external "https://github.com/dgutov/diff-hl.git")
  ("dired-du"		:external nil)
