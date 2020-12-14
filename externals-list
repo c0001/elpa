@@ -199,11 +199,18 @@
  ("objed"        	:external "https://github.com/clemera/objed")
  ("omn-mode"            :external nil)
  ("on-screen"           :external "https://github.com/michael-heerdegen/on-screen.el.git")
- ;;FIXME:("org"		:external ??) ;; Need to introduce snapshots!!
+ ;; ("org"
+ ;;  :external "https://code.orgmode.org/bzg/org-mode"
+ ;;  :main-file "lisp/org.el"
+ ;;  :release-branch "maint"
+ ;;  :ignored-files ("etc/schema" "contrib" "mk" "testing" "lisp/org-install.el")
+ ;;  :renames (("lisp/" ""))
+ ;;  :news "etc/ORG-NEWS"
+ ;;  :doc "doc/org-manual.org")
  ("org-translate"	:external nil)
  ("orgalist"            :external nil)
  ("org-edna"		:external "https://savannah.nongnu.org/projects/org-edna-el") ;URL?
- ("osc" :external nil)
+ ("osc"			:external nil)
  ("other-frame-window"	:external nil)
  ("paced"		:external "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk")
  ("pabbrev"             :external "https://github.com/phillord/pabbrev.git")
@@ -277,20 +284,21 @@
  ("temp-buffer-browse"  :external "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :external "https://github.com/rocky/emacs-test-simple")
  ("timerfunctions"	:external nil)
+ ("tiny"		:external "https://github.com/abo-abo/tiny")
+ ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
  ("tramp-theme"		:external nil)
  ("transcribe"		:external nil)
+ ("transient"		:external "https://github.com/magit/transient")
+ ("trie"		:external "http://www.dr-qubit.org/git/predictive.git")
  ("undo-tree"		:external "http://www.dr-qubit.org/git/undo-tree.git")
  ("uni-confusables" 	:external nil)
  ("uniquify-files"	:external nil)
  ("url-http-ntlm" 	:external nil)
  ("validate"		:external "https://github.com/Malabarba/validate.el")
+ ("valign"		:external "https://github.com/casouri/valign")
  ("vcard"		:external nil)
  ("vdiff"               :external "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :external "git://git.gnu.org.ua/vcl-mode")
- ("tiny"		:external "https://github.com/abo-abo/tiny")
- ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
- ("transient"		:external "https://github.com/magit/transient")
- ("valign"		:external "https://github.com/casouri/valign")
  ("vigenere" 		:external nil)
  ("visual-filename-abbrev" :external nil)
  ("visual-fill"		:external nil)
