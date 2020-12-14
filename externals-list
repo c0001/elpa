@@ -286,6 +286,7 @@
  ("test-simple"         :external "https://github.com/rocky/emacs-test-simple")
  ("timerfunctions"	:external nil)
  ("tiny"		:external "https://github.com/abo-abo/tiny")
+ ("tNFA"		:external "http://www.dr-qubit.org/git/predictive.git")
  ("tramp"		:external "https://git.savannah.gnu.org/cgit/tramp.git/?h=elpa")
  ("tramp-theme"		:external nil)
  ("transcribe"		:external nil)
