@@ -5,7 +5,6 @@
 \#*\#
 ChangeLog
 core
-/emacs
 
 # Generated during deployment
 /.pkg-descs.mk
