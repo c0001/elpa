@@ -1729,5 +1729,16 @@ More at " (elpaa--default-url pkgname))
       (write-region (point-min) (point-max)
                     dstfile nil 'silent))))
 
+(defun entropy/elpaa--patch-elpaa--make-one-package
+    (orig-func &rest orig-args)
+  (let ((pkgname (caar orig-args)))
+    (cond
+     ((string-match-p "^org" pkgname)
+      (message "Skip for %s" pkgname))
+     (t
+      (apply orig-func orig-args)))))
+(advice-add 'elpaa--make-one-package
+            :around #'entropy/elpaa--patch-elpaa--make-one-package)
+
 (provide 'elpa-admin)
 ;;; elpa-admin.el ends here
