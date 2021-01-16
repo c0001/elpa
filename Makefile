@@ -6,4 +6,4 @@ GNUmakefile: admin
 	ln -s admin/GNUmakefile ./
 
 admin:
-	git worktree add -b elpa-admin admin origin/elpa-admin
+	git worktree add -b elpa-admin admin origin/entropy-elpa-admin
