@@ -1740,5 +1740,14 @@ More at " (elpaa--default-url pkgname))
 (advice-add 'elpaa--make-one-package
             :around #'entropy/elpaa--patch-elpaa--make-one-package)
 
+(defun entropy/elpaa--patc-elpaa--copyright-check
+    (orig-func &rest orig-args)
+  "Ignore copyright check while building tarball since its
+unnecessary while local building for eemacs. "
+  (ignore-errors (apply orig-func orig-args)))
+(advice-add 'elpaa--copyright-check
+            :around
+            #'entropy/elpaa--patc-elpaa--copyright-check)
+
 (provide 'elpa-admin)
 ;;; elpa-admin.el ends here
