@@ -1,3 +1,15 @@
+/* Copyright (C) 2010-2021 Free Software Foundation, Inc.
+
+This file is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This file is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details. */
+
 /* Begin of reset */
 
 html, body, div, span, applet, object, iframe,
@@ -47,7 +59,7 @@ table {
 /* End of reset */
 
 body {
-  font-family: "fira sans", sans;
+  font-family: "Fira Sans", sans-serif;
   line-height: 1.5em;
   font-size: 1.2em;
   color: #333;
@@ -92,17 +104,19 @@ a:hover {
 }
 
 tt, code {
+  font-family: "Fira Mono", monospace;
   background-color: rgb(238, 238, 238);
   border: 1px solid rgb(187, 187, 187);
   padding: 0px 6px;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 pre {
-  font-family: "Fira Mono";
+  font-family: "Fira Mono", monospace;
   font-size: 14px;
   background: #fafafa;
-  padding: 15px;
+  padding: 1em;
   border: 1px solid #dadada;
   overflow-y: auto;
 }
@@ -134,7 +148,10 @@ dt {
 }
 
 dd {
-  margin-bottom: 10px;
+  /* We should reduce vertical space use in the "header".
+     Yuan Fu <casouri@gmail.com> suggested to do that simply by
+     commenting this out:
+     margin-bottom: 10px; */
   width: 460px;
   display: inline-block;
 }

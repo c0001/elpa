@@ -33,18 +33,20 @@
 
 (("ace-window"		:url "https://github.com/abo-abo/ace-window")
  ("ack"			:url "https://github.com/leoliu/ack-el")
- ("ada-mode"		:url nil)
+ ("ada-mode"		:url nil :doc ("ada-mode.texi" "gpr-mode.texi"))
  ("ada-ref-man"		:url nil)
  ("adaptive-wrap"	:url nil)
  ("adjust-parens"	:url nil)
  ("advice-patch"	:url nil)
+ ("aggressive-completion" :url nil)
  ("aggressive-indent"	:url "https://github.com/Malabarba/aggressive-indent-mode")
  ("ahungry-theme"	:url "https://github.com/ahungry/color-theme-ahungry")
  ("all"			:url nil)
  ("ampc"		:url nil)
  ("arbitools"		:url nil)
  ("ascii-art-to-unicode" :url nil)
- ("async"		:url "https://github.com/jwiegley/emacs-async")
+ ("async"		:url "https://github.com/jwiegley/emacs-async"
+  :auto-sync t)
  ("auctex"		:url "git://git.sv.gnu.org/auctex.git")
  ("aumix-mode"		:url nil)
  ("auto-overlays"	:url "http://www.dr-qubit.org/git/predictive.git"
@@ -62,29 +64,28 @@
  ("bug-hunter"		:url "https://github.com/Malabarba/elisp-bug-hunter")
  ;;FIXME:("cedet"	:url "??")
  ;; ("cc-mode"		:core ("lisp/progmodes/cc-align.el"
- ;;                               "lisp/progmodes/cc-awk.el"
- ;;                               "lisp/progmodes/cc-bytecomp.el"
- ;;                               "lisp/progmodes/cc-cmds.el"
- ;;                               "lisp/progmodes/cc-defs.el"
- ;;                               "lisp/progmodes/cc-engine.el"
- ;;                               "lisp/progmodes/cc-fonts.el"
- ;;                               "lisp/progmodes/cc-guess.el"
- ;;                               "lisp/progmodes/cc-langs.el"
- ;;                               "lisp/progmodes/cc-menus.el"
- ;;                               "lisp/progmodes/cc-mode.el"
- ;;                               "lisp/progmodes/cc-styles.el"
- ;;                               "lisp/progmodes/cc-vars.el"
- ;;                               ;; FIXME: elpa.gnu.org doesn't know how to build
- ;;                               ;; the .info file from this texi file!
- ;;                               "doc/misc/cc-mode.texi"))
+ ;;                            "lisp/progmodes/cc-awk.el"
+ ;;                            "lisp/progmodes/cc-bytecomp.el"
+ ;;                            "lisp/progmodes/cc-cmds.el"
+ ;;                            "lisp/progmodes/cc-defs.el"
+ ;;                            "lisp/progmodes/cc-engine.el"
+ ;;                            "lisp/progmodes/cc-fonts.el"
+ ;;                            "lisp/progmodes/cc-guess.el"
+ ;;                            "lisp/progmodes/cc-langs.el"
+ ;;                            "lisp/progmodes/cc-menus.el"
+ ;;                            "lisp/progmodes/cc-mode.el"
+ ;;                            "lisp/progmodes/cc-styles.el"
+ ;;                            "lisp/progmodes/cc-vars.el"
+ ;;                            "doc/misc/cc-mode.texi"
+ ;;                      :doc "cc-mode.texi"))
  ("caps-lock"		:url nil)
  ("captain"		:url nil)
  ("chess"		:url nil) ;; Was https://github.com/jwiegley/emacs-chess.git
  ("cl-generic"		:url nil)
  ("cl-lib"		:url nil)
- ("cobol-mode"          :url "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
  ("cl-print"		:core "lisp/emacs-lisp/cl-print.el")
  ("clipboard-collector" :url "https://github.com/clemera/clipboard-collector")
+ ("cobol-mode"          :url "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
  ("coffee-mode"		:url "https://github.com/defunkt/coffee-mode")
  ("compact-docstrings"  :url "https://github.com/cpitclaudel/compact-docstrings")
  ("company"
@@ -93,17 +94,36 @@
  ("company-ebdb"	:url nil)
  ("company-math"	:url "https://github.com/vspinu/company-math.git")
  ("company-statistics"	:url "https://github.com/company-mode/company-statistics")
+ ("consult"
+  :url "https://github.com/minad/consult"
+  :doc "README.org"
+  :ignored-files ("images")
+  :auto-sync t)
  ("context-coloring"	:url "https://github.com/jacksonrayhamilton/context-coloring.git")
+ ("corfu"		:url "https://github.com/minad/corfu"
+  :doc "README.org" :auto-sync t)
  ("counsel"		:url "https://github.com/abo-abo/swiper")
  ("cpio-mode"		:url "https://github.com/dlewan/cpio-mode")
  ("crisp"		:url nil)
+ ("crdt"		:url "https://code.librehq.com/qhong/crdt.el"
+  :auto-sync t)
+ ;; ("crossword"		:url "https://github.com/Boruch-Baum/emacs-crossword")
+ ("csharp-mode"		:url "https://github.com/emacs-csharp/csharp-mode"
+  :readme "README.org"
+  :auto-sync t)
  ("csv-mode"		:url nil)
  ("cycle-quotes"	:url nil)
  ("darkroom"            :url "https://github.com/capitaomorte/darkroom.git")
- ("dash"                :url "https://github.com/magnars/dash.el.git")
+ ("dash"
+  :url "https://github.com/magnars/dash.el.git"
+  :doc "dash.texi"
+  :auto-sync t)
  ("dbus-codegen"	:url "https://github.com/ueno/dbus-codegen-el.git")
  ("debbugs"		:url nil :doc ("debbugs.texi" "debbugs-ug.texi"))
- ("delight"		:url "https://git.savannah.gnu.org/r/delight.git")
+ ("delight"		:url "https://git.savannah.gnu.org/r/delight.git"
+  :auto-sync t)
+ ("devdocs"		:url "https://github.com/astoff/devdocs.el"
+  :auto-sync t)
  ("dict-tree"		:url "http://www.dr-qubit.org/git/predictive.git")
  ("diffview"            :url "https://github.com/mgalgs/diffview-mode.git")
  ("diff-hl"
@@ -121,27 +141,36 @@
  ("ebdb-gnorb"		:url nil)
  ("ebdb-i18n-chn"	:url nil)
  ("ediprolog"		:url nil)
- ("eev"			:url "https://github.com/edrx/eev.git" :branch "UTF-8")
+ ("eev"			:url "https://github.com/edrx/eev.git"
+  :branch "UTF-8" :auto-sync t)
  ("eglot"               :url "https://github.com/joaotavora/eglot.git")
  ("el-search"		:url nil)
  ("eldoc"		:core "lisp/emacs-lisp/eldoc.el")
  ("eldoc-eval"		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  ("electric-spacing"	:url nil)
  ("elisp-benchmarks"	:url nil)
- ("emms"		:url "https://git.savannah.gnu.org/git/emms.git")
+ ("emms"		:url "https://git.savannah.gnu.org/git/emms.git"
+  :doc "doc/emms.texinfo"
+  :auto-sync t)
+ ("engrave-faces"	:url "https://github.com/tecosaur/engrave-faces.git"
+  :auto-sync t)
  ("enwc"		:url "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
  ("epoch-view"		:url nil)
  ("ergoemacs-mode"	:url "https://github.com/ergoemacs/ergoemacs-mode.git")
  ("excorporate"		:url nil)
  ("expand-region"	:url "https://github.com/magnars/expand-region.el")
  ("exwm"		:url "https://github.com/ch11ng/exwm.git")
- ("f90-interface-browser" :url "https://github.com/wence-/f90-iface")
+ ("f90-interface-browser" :url nil) ;; Was "https://github.com/wence-/f90-iface"
  ("filladapt"		:url nil)
  ("flylisp"		:url nil)
  ("flymake"		:core "lisp/progmodes/flymake.el")
+ ("flymake-proselint"	:url "https://github.com/manuel-uberti/flymake-proselint"
+  :auto-sync t)
  ("frame-tabs"		:url nil)
  ("frog-menu"		:url "https://github.com/clemera/frog-menu")
  ("fsm"			:url nil)
+ ("ftable"		:url "https://github.com/casouri/ftable"
+  :auto-sync t)
  ("gcmh"		:url "https://gitlab.com/koral/gcmh")
  ("ggtags"		:url "https://github.com/leoliu/ggtags")
  ("gited"		:url nil)
@@ -157,18 +186,32 @@
  ("greenbar"		:url nil)
  ("guess-language"	:url "https://github.com/tmalsburg/guess-language.el")
  ("heap"		:url "http://www.dr-qubit.org/git/predictive.git")
+ ("hiddenquote"	:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote")
  ("highlight-escape-sequences"
   :url "https://github.com/dgutov/highlight-escape-sequences/"
   :auto-sync t)
  ("hook-helpers"	:url "https://git.savannah.nongnu.org/git/hook-helpers-el.git")
  ("html5-schema"	:url nil)
  ("hydra"		:url "https://github.com/abo-abo/hydra")
- ("hyperbole"           :url "http://git.savannah.gnu.org/r/hyperbole.git")
+ ("hyperbole"           :url "https://git.savannah.gnu.org/r/hyperbole.git"
+  :make ("kotl/kotl-autoloads.el")
+  :auto-sync t)
+ ;; ("infix-notation-calculator"
+ ;;  :url "https://github.com/cjohansson/emacs-infix-notation-calculator")
  ("ioccur"		:url "https://github.com/thierryvolpiatto/ioccur.git")
+ ("isearch-mb"		:url "https://github.com/astoff/isearch-mb"
+  :auto-sync t)
  ("iterators"		:url nil)
- ("ivy"			:url "https://github.com/abo-abo/swiper")
+ ("ivy"
+  :url "https://github.com/abo-abo/swiper"
+  :renames (("doc/" ""))
+  :doc "doc/ivy.texi")
+ ("ivy-avy"		:url "https://github.com/abo-abo/swiper")
  ("ivy-explorer"        :url "https://github.com/clemera/ivy-explorer")
- ("ivy-posframe"        :url "https://github.com/tumashu/ivy-posframe")
+ ("ivy-hydra"		:url "https://github.com/abo-abo/swiper")
+ ("ivy-posframe"
+  :url "https://github.com/tumashu/ivy-posframe"
+  :auto-sync t)
  ("javaimp"		:url nil)
  ("jgraph-mode"		:url nil)
  ("js2-mode"
@@ -186,10 +229,12 @@
  ("lex"			:url nil)
  ("lmc"			:url nil)
  ("load-dir"		:url nil)
- ("load-relative"	:url "http://github.com/rocky/emacs-load-relative")
- ("loc-changes"		:url "http://github.com/rocky/emacs-loc-changes")
+ ("load-relative"	:url "https://github.com/rocky/emacs-load-relative")
+ ("loc-changes"		:url "https://github.com/rocky/emacs-loc-changes")
  ("loccur"		:url "https://github.com/fourier/loccur")
  ("map"                 :core "lisp/emacs-lisp/map.el")
+ ("marginalia"		:url "https://github.com/minad/marginalia"
+  :doc "README.org" :auto-sync t)
  ("markchars"		:url nil)
  ("math-symbol-lists" 	:url "https://github.com/vspinu/math-symbol-lists.git")
  ("memory-usage"	:url nil)
@@ -201,20 +246,25 @@
  ("mmm-mode"
   :url "https://github.com/purcell/mmm-mode.git"
   :auto-sync t)
- ("modus-operandi-theme":url "https://gitlab.com/protesilaos/modus-themes")
- ("modus-vivendi-theme"	:url "https://gitlab.com/protesilaos/modus-themes")
+ ("modus-themes"	:core ("etc/themes/modus-themes.el"
+                               "etc/themes/modus-operandi-theme.el"
+                               "etc/themes/modus-vivendi-theme.el"
+                               "doc/misc/modus-themes.org"
+                               "doc/misc/doclicense.texi")
+  :doc "modus-themes.org")
  ("multishell"		:url "https://github.com/kenmanheimer/EmacsMultishell")
  ("muse"		:url "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
  ("myers"		:url nil)
  ("nadvice"		:url nil)
  ("nameless"		:url "https://github.com/Malabarba/Nameless")
- ("names"		:url "http://github.com/Malabarba/names")
+ ("names"		:url "https://github.com/Malabarba/names")
  ("nhexl-mode"		:url nil)
  ("nlinum"		:url nil)
  ("notes-mode"		:url nil)
  ("ntlm"		:core "lisp/net/ntlm.el")
  ("num3-mode"		:url nil)
  ("oauth2"		:url nil)
+ ("ob-haxe"		:url "https://github.com/ianxm/ob-haxe.el")
  ("objed"        	:url "https://github.com/clemera/objed")
  ("omn-mode"            :url nil)
  ("on-screen"           :url "https://github.com/michael-heerdegen/on-screen.el.git")
@@ -224,12 +274,12 @@
   :release-branch "maint"
   :ignored-files ("etc/schema" "contrib" "mk" "testing" "lisp/org-install.el")
   :news "etc/ORG-NEWS"
-  :shell-command "make autoloads info; mv doc/org org.info; mv doc/orgguide orgguide.info"
+  :shell-command "make autoloads info; mv doc/org.info org.info; mv doc/orgguide.info orgguide.info"
   :doc ("org.info" "orgguide.info")
   :auto-sync t)
  ("org-translate"	:url nil)
  ("orgalist"            :url nil)
- ("org-edna"		:url "https://savannah.nongnu.org/projects/org-edna-el") ;URL?
+ ("org-edna"		:url "bzr::https://bzr.savannah.gnu.org/r/org-edna-el") ;URL?
  ("osc"			:url nil)
  ("other-frame-window"	:url nil)
  ("paced"		:url "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk")
@@ -242,7 +292,9 @@
  ("phps-mode"		:url "https://github.com/cjohansson/emacs-phps-mode")
  ("pinentry"		:url "https://github.com/ueno/pinentry-el.git")
  ("poker"		:url nil)
- ("posframe"		:url "https://github.com/tumashu/posframe")
+ ("posframe"
+  :url "https://github.com/tumashu/posframe"
+  :auto-sync t)
  ("prefixed-core"	:url nil)
  ("project"		:core "lisp/progmodes/project.el")
  ("psgml"               :url "https://github.com/lenst/psgml.git")
@@ -252,6 +304,12 @@
  ;;                         git reset \$GIT_COMMIT -- pspp-mode.el" \
  ;;         -- -- pspp-mode.el
  ("pspp-mode"		:url nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
+ ("pyim"
+  :url "https://github.com/tumashu/pyim.git"
+  :auto-sync t)
+ ("pyim-basedict"
+  :url "https://github.com/tumashu/pyim-basedict.git"
+  :auto-sync t)
  ("python"		:core "lisp/progmodes/python.el")
  ("quarter-plane"	:url nil)
  ("queue"		:url "http://www.dr-qubit.org/git/predictive.git")
@@ -262,30 +320,39 @@
  ("rcirc-menu"		:url nil)
  ("realgud"             :url "https://github.com/realgud/realgud")
  ("realgud-ipdb"        :url "https://github.com/realgud/realgud-ipdb")
- ("realgud-jdb"         :url "https://github.com/realgud/jdb")
+ ("realgud-jdb"         :url "https://github.com/realgud/realgud-jdb")
  ("realgud-lldb"        :url "https://github.com/realgud/realgud-lldb")
  ("realgud-node-debug"  :url "https://github.com/realgud/realgud-node-debug")
  ("realgud-node-inspect" :url "https://github.com/realgud/realgud-node-inspect")
- ("realgud-trepan-ni"   :url "https://github.com/realgud/realgud-ni")
- ("rec-mode"		:url "https://git.savannah.gnu.org/git/recutils/rec-mode.git")
+ ("realgud-trepan-ni"   :url "https://github.com/realgud/realgud-trepan-ni")
+ ("rec-mode"		:url "https://git.savannah.gnu.org/git/recutils/rec-mode.git"
+  :auto-sync t)
  ("register-list"	:url nil)
- ("relint"		:url "https://github.com/mattiase/relint")
+ ("relint"		:url "https://github.com/mattiase/relint"
+  :auto-sync t)
+ ("repology"		:url nil)
  ("rich-minority"	:url "https://github.com/Malabarba/rich-minority")
  ("rnc-mode"		:url nil)
- ("rt-liberation"	:url "https://git.savannah.nongnu.org/git/rtliber")
+ ("rt-liberation"	:url "https://git.savannah.nongnu.org/git/rtliber"
+  :auto-sync t)
  ("rudel"		:url nil) ;; Was bzr::bzr://rudel.bzr.sourceforge.net/bzrroot/rudel/trunk
  ("scanner"		:url "https://gitlab.com/rstocker/scanner.git")
  ("scroll-restore"	:url nil)
  ("sed-mode"		:url nil)
  ("seq"			:url nil)
+ ("setup"		:url "https://git.sr.ht/~pkal/setup"
+  :auto-sync t)
  ("shelisp"		:url nil)
- ("shell-command+"	:url "https://git.sr.ht/~zge/bang/tree/shell-command+")
+ ("shell-command+"	:url "https://git.sr.ht/~pkal/shell-command-plus"
+  :auto-sync t)
  ("shell-quasiquote"	:url nil)
  ("shen-mode"		:url nil)
  ("sisu-mode"		:url nil)
+ ;; ("sketch-mode"		:url "https://github.com/dalanicolai/sketch-mode"
+ ;;  :auto-sync t)
  ("slime-volleyball"	:url nil)
  ("sm-c-mode" 		:url nil)
- ("smalltalk-mode"	:url "git://git.sv.gnu.org/smalltalk")
+ ("smalltalk-mode"	:url nil) ;; Was "git://git.sv.gnu.org/smalltalk"
  ("smart-yank"		:url nil)
  ("sml-mode"		:url nil)
  ("so-long"             :core "lisp/so-long.el")
@@ -303,6 +370,8 @@
  ("swiper"		:url "https://github.com/abo-abo/swiper")
  ("system-packages"	:url "https://gitlab.com/jabranham/system-packages")
  ("systemd"		:url nil)
+ ("taxy"                :url "https://github.com/alphapapa/taxy.el.git"
+  :auto-sync t)
  ("temp-buffer-browse"  :url "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :url "https://github.com/rocky/emacs-test-simple")
  ("timerfunctions"	:url nil)
@@ -312,7 +381,8 @@
   :branch "externals/tramp"
   :main-file "trampver.el"
   :make ("autoloads" "info")
-  :doc "tramp.info")
+  :doc "tramp.info"
+  :auto-sync t)
  ("tramp-theme"		:url nil)
  ("transcribe"		:url nil)
  ("transient"		:url "https://github.com/magit/transient"
@@ -327,6 +397,14 @@
  ("url-http-ntlm" 	:url nil)
  ("validate"		:url "https://github.com/Malabarba/validate.el")
  ("valign"		:url "https://github.com/casouri/valign")
+ ("vc-got"		:url "https://git.omarpolo.com/vc-got"
+  ;; Mirror: https://github.com/omar-polo/vc-got/
+  :ignored-files ("targets")
+  :auto-sync t)
+ ("vc-hgcmd"		:url "https://github.com/muffinmad/emacs-vc-hgcmd"
+  :auto-sync t)
+ ("vc-backup"		:url "https://git.sr.ht/~pkal/vc-backup"
+  :auto-sync t) 
  ("vcard"		:url nil)
  ("vdiff"               :url "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :url "git://git.gnu.org.ua/vcl-mode")
@@ -335,6 +413,11 @@
  ("visual-fill"		:url nil)
  ("vlf"			:url "https://github.com/m00natic/vlfi")
  ("verilog-mode"        :core "lisp/progmodes/verilog-mode.el")
+ ("vertico"
+  :url "https://github.com/minad/vertico"
+  :doc "README.org"
+  :ignored-files ("extensions" "*.svg")
+  :auto-sync t)
  ("wcheck-mode"		:url "https://github.com/tlikonen/wcheck-mode")
  ("wconf"		:url "https://github.com/ilohmar/wconf")
  ("web-server"		:url "https://github.com/eschulte/emacs-web-server.git")
@@ -342,14 +425,16 @@
  ("websocket"		:url "https://github.com/ahyatt/emacs-websocket.git")
  ("windower"		:url "https://gitlab.com/ambrevar/emacs-windower")
  ("windresize"		:url nil)
- ("wisi"		:url nil)
+ ("wisi"		:url nil :doc ("wisi.texi" "wisitoken-user_guide.texinfo"))
  ("wisitoken-grammar-mode" :url nil)
- ("which-key"           :url "https://github.com/justbur/emacs-which-key")
+ ("which-key"           :url "https://github.com/justbur/emacs-which-key"
+  :auto-sync t)
  ("wpuzzle"		:url nil)
  ("xclip"		:url nil)
  ("xelb"		:url "https://github.com/ch11ng/xelb.git")
  ("xpm"			:url nil)
- ("xr"			:url "https://github.com/mattiase/xr")
+ ("xr"			:url "https://github.com/mattiase/xr"
+  :auto-sync t)
  ("xref"		:core "lisp/progmodes/xref.el")
  ("yasnippet"		:url "https://github.com/capitaomorte/yasnippet.git")
  ("yasnippet-classic-snippets" :url nil)
