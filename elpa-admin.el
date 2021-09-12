@@ -30,7 +30,7 @@
 ;; - render the README and News in the HTML rather than as <pre> block!
 
 ;;; Code:
-
+(load (expand-file-name "entropy-elpa-admin-vars.el" (file-name-directory load-file-name)))
 (require 'cl-lib)
 (require 'lisp-mnt)
 (require 'package)
@@ -2103,25 +2103,7 @@ More at " (elpaa--default-url pkgname))
       (write-region (point-min) (point-max)
                     dstfile nil 'silent))))
 
-(defun entropy/elpaa--patch-elpaa--make-one-package
-    (orig-func &rest orig-args)
-  (let ((pkgname (caar orig-args)))
-    (cond
-     ((string-match-p "^org" pkgname)
-      (message "Skip for %s" pkgname))
-     (t
-      (apply orig-func orig-args)))))
-(advice-add 'elpaa--make-one-package
-            :around #'entropy/elpaa--patch-elpaa--make-one-package)
 
-(defun entropy/elpaa--patc-elpaa--copyright-check
-    (orig-func &rest orig-args)
-  "Ignore copyright check while building tarball since its
-unnecessary while local building for eemacs. "
-  (ignore-errors (apply orig-func orig-args)))
-(advice-add 'elpaa--copyright-check
-            :around
-            #'entropy/elpaa--patc-elpaa--copyright-check)
-
+(require 'entropy-elpa-admin-patch-1)
 (provide 'elpa-admin)
 ;;; elpa-admin.el ends here
