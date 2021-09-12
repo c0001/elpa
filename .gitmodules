@@ -1,0 +1,4 @@
+[submodule "emacs"]
+	path = emacs
+	url = https://git.savannah.gnu.org/git/emacs.git
+	branch = master
