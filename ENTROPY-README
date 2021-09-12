@@ -1,0 +1,13 @@
+This project is maintained for =entropy-emacs-extensions= project
+which be built to =entropy-emacs=.
+
+Since official elpa repo has some feature not proper to local
+maintaining and packages build habit, follow branchs are made:
+- entropy-master: track with gnu-elpa/main branch patched for using
+  =entropy-elpa-admin= branch to init and build.
+- entropy-elpa-admin: track with gnu-elpa/elpa-admin patched with some
+  inhibits on those features not needed in =entropy-emacs-extensions=.
+
+For the maintaining for this project, you need to merge above fork
+branches with its upstream branches for each updates of rest worktrees
+i.e. the package branches like _externals/ivy_ etc.
