@@ -5,6 +5,7 @@
  (url			"https://elpa.gnu.org/packages/")
  (branch-prefix		"externals/")
  (release-branch-prefix	"externals-release/")
+ (sandbox               nil)
  ;;(specs-file		"elpa-packages")
  ;;(debug		nil)
  )
