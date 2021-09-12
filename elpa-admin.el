@@ -15,7 +15,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -53,13 +53,25 @@
 (defvar elpaa--email-from nil) ;;"ELPA update <do.not.reply@elpa.gnu.org>"
 (defvar elpaa--email-reply-to nil)
 
-(defvar elpaa--sandbox t
+(defvar elpaa--sandbox-extra-ro-dirs nil)
+
+(defvar elpaa--sandbox
+  ;; Currently sandboxing is implemented using `bwrap' which AFAIK doesn't
+  ;; exist for w32 nor for macos, so there's no point defaulting to non-nil
+  ;; on those platforms.
+  ;; On GNU/linux we do default to non-nil regardless if we find `bwrap' in
+  ;; $PATH just out of paranoia (in case `bwrap' ends up missing by accident).
+  (not (memq system-type '(darwin ms-dos windows-nt cygwin)))
   "If non-nil, run some of the less trusted commands in a sandbox.
 This is recommended when building packages from untrusted sources,
-but this requires Bubblewrap to be installed and has only been tested
-on some Debian systems.")
+but this requires Bubblewrap (https://github.com/containers/bubblewrap)
+to be installed and has only been tested on some Debian systems.")
 
 (defvar elpaa--debug nil)
+
+(unless (fboundp 'ignore-error)
+  (defmacro ignore-error (condition &rest body)
+    `(condition-case nil (progn ,@body) (,condition nil))))
 
 (defun elpaa--form-from-file-contents (filename)
   (with-temp-buffer
@@ -73,7 +85,9 @@ on some Debian systems.")
 (defun elpaa-read-config (file)
   (let ((config (elpaa--form-from-file-contents file)))
     (pcase-dolist (`(,var ,val) config)
-      (cl-assert (or (stringp val) (booleanp val)) t)
+      (cl-assert (or (stringp val) (booleanp val)
+                     (and (consp val) (cl-every #'stringp val)))
+                 t)
       (setf (pcase-exhaustive var
               ('name			elpaa--name)
               ('gitrepo			elpaa--gitrepo)
@@ -86,6 +100,7 @@ on some Debian systems.")
               ('email-from		elpaa--email-from)
               ('email-reply-to		elpaa--email-reply-to)
               ('sandbox			elpaa--sandbox)
+              ('sandbox-extra-ro-dirs	elpaa--sandbox-extra-ro-dirs)
               ('debug			elpaa--debug))
             val))))
 
@@ -163,7 +178,13 @@ commit which modified the \"Version:\" pseudo header."
               (not (member vers (car version-map))))
     (pop version-map))
   (or (nth 2 (car version-map))
-      (let* ((default-directory (elpaa--dirname dir))
+      ;; When the mainfile is a symlink (e.g. for :core packages), run Git
+      ;; in the directory that holds the actual file, otherwise Git won't
+      ;; know what file we're talking about.
+      (let* ((mainfile (file-truename
+                        (expand-file-name (elpaa--main-file pkg-spec)
+                                          (elpaa--dirname dir))))
+             (default-directory (file-name-directory mainfile))
              (release-rev
               (with-temp-buffer
                 (if (equal 0         ;Don't signal an error if call errors out.
@@ -172,8 +193,12 @@ commit which modified the \"Version:\" pseudo header."
                       "git" "log" "-n1" "--oneline" "--no-patch"
                       "--pretty=format:%H"
                       "-L" (concat "/^;;* *\\(Package-\\)\\?Version:/,+1:"
-                                   (elpaa--main-file pkg-spec))))
-                    (buffer-string)
+                                   (file-name-nondirectory mainfile))))
+                    ;; The --no-patch (aka -s) option does not work
+                    ;; with "git log -L<from>,<to>:<path>" before git
+                    ;; version 2.22; so capture only the first line.
+                    (buffer-substring-no-properties
+                     (goto-char (point-min)) (line-end-position))
                   (cons 'error (buffer-string))))))
         (if (stringp release-rev)
             (progn
@@ -231,7 +256,8 @@ Assumes that the current worktree holds a snapshot version."
               (cond
                ((null vl)
                 (elpaa--message "Invalid previous release version"))
-               ((member -4 vl)
+               ((or (equal vers "0") (< (apply #'min vl) 0))
+                ;; FIXME: Maybe we could look further into the past?
                 (elpaa--message "Previous version was also snapshot"))
                (t
                 (cons (package-version-join vl) rev))))))))))
@@ -239,20 +265,21 @@ Assumes that the current worktree holds a snapshot version."
 (defun elpaa--select-revision (dir pkg-spec rev)
   "Checkout revision REV in DIR of PKG-SPEC.
 Do it without leaving the current branch."
-  (let ((cur-rev
+  (let* ((ftn (file-truename
+               (expand-file-name (elpaa--main-file pkg-spec) dir)))
          ;; FIXME: Emacs-26's `vc-git-working-revision' ignores its arg and
          ;; uses uses the `default-directory' to get the revision.
-         (let* ((ftn (file-truename
-                      (expand-file-name (elpaa--main-file pkg-spec) dir)))
-                (default-directory (file-name-directory ftn)))
-           (vc-working-revision ftn))))
-    (if (equal rev cur-rev)
+         (default-directory (file-name-directory ftn))
+         (cur-rev (vc-working-revision ftn)))
+    ;; Don't fail in case `rev' is not known.
+    (if (or (not rev) (equal rev cur-rev))
         (elpaa--message "Current revision is already desired revision!")
       (with-temp-buffer
-        (let ((default-directory (elpaa--dirname dir)))
-          (elpaa--call t "git" "reset" "--merge" rev)
-          (elpaa--message "Reverted to release revision %s\n%s"
-                          rev (buffer-string)))))))
+        ;; Run it within the true-filename directory holding the mainfile,
+        ;; so that for :core packages we properly affect the Emacs tree.
+        (elpaa--call t "git" "reset" "--merge" rev)
+        (elpaa--message "Reverted to release revision %s\n%s"
+                        rev (buffer-string))))))
 
 (defun elpaa--make-tar-transform (pkgname r)
   (let ((from (nth 0 r)) (to (nth 1 r)))
@@ -300,7 +327,17 @@ Do it without leaving the current branch."
         (unless (zerop (buffer-size))
           (if (zerop
                (elpaa--call t "git" "stash" "push" "-u" "-m"
-                            "Saved changes while building tarball"))
+                            "Saved changes while building tarball"
+                            ;; Don't stash the deletion of <foo>-pkg.el,
+                            ;; since it would cause a merge conflict
+                            ;; later in "stash apply".
+                            ;; Don't know when this was introduced into Git
+                            ;; and it seems somewhat fiddly (e.g. git-2.30.2
+                            ;; gives a weird behavior if the "*" is missing),
+                            ;; so not sure it's worth the trouble:
+                            ;;
+                            ;;     "--" "*" ":(exclude,glob)*-pkg.el"
+                            ))
               (elpaa--temp-file
                (lambda ()
                  (with-temp-buffer
@@ -318,8 +355,165 @@ Do it without leaving the current branch."
                (elpaa--call t "git" "checkout" "--" "."))
              (elpaa--message "%s" (buffer-string)))))))))
 
+(defconst elpaa--keep-max 20)
+
+(defun elpaa--keep-old (oldtarballs n)
+  "Select N tarballs to keep among those in OLDTARBALLS."
+  ;; It's not clear which ones to select.  My main goal here was to try and keep
+  ;; more of the last releases than of the old releases, and also to favor the
+  ;; last release in a given line, so for example for Emacs releases, we might
+  ;; prefer to keep: 24.5 24.4 24.3 24.2 24.1 23.4 22.3 21.3 20.4
+  ;; rather than   : 24.3 24.1 23.3 23.2 23.1 21.1 20.3 20.2 20.1
+  ;; Also, we want this to work for "any" release numbering scheme, including
+  ;; the pseudo release numbers YYYYMMMDD used for snapshots.
+  ;;
+  ;; I'm not very satisfied with the code below:
+  ;; - It was tested mostly on sets where N is significantly smaller than the
+  ;;   input set size, whereas in practice it'll probably mostly be used with
+  ;;   N being 20 and OLDTARBALLS containing 21 elements, so... we'll see.
+  ;; - I don't think this algorithm enjoys any kind of "stability" property
+  ;;   such as a guarantee that if you first select 50 elements and then you
+  ;;   select 20 elements out of that you get the same result as if you
+  ;;   directly selected 20 elements from the original set.
+  (cl-assert (natnump n))
+  (cond
+   ((< n 1) nil)
+   ((not (nthcdr n oldtarballs)) oldtarballs) ;; We can keep them all.
+   (t
+    (setq oldtarballs (nreverse
+                       (sort (copy-sequence oldtarballs)
+                             (lambda (t1 t2)
+                               (version<= (car t1) (car t2))))))
+    (cond
+     ((< n 2)
+      ;; If we have to pick one, keep the latest.
+      (list (car oldtarballs)))
+     ((< n 3)
+      ;; If there's only room for 2 elements, keep the first and the last.
+      (cons (car oldtarballs) (last oldtarballs)))
+     (t
+      ;; The general idea here is to split the input into buckets
+      ;; which represent a kind of "logarithm of distance to the latest"
+      ;; and then we pick the same number of elements from each bucket
+      ;; (the log(distance) is actually taken to be the length of the common
+      ;; prefix between the two versions).
+      (let* ((latest (pop oldtarballs))
+             (vers (car latest))
+             (buckets ())
+             (kept (list latest)))
+        (dolist (oldtarball oldtarballs)
+          (let* ((tvers (car oldtarball))
+                 (common-prefix (try-completion "" (list vers tvers))))
+            (push oldtarball (alist-get (length common-prefix) buckets))))
+
+        ;; Make sure there are fewer buckets than target elements.
+        (while (> (length buckets) (- n (length kept)))
+          ;; (message "Too many buckets (%s/%s): Merging...."
+          ;;          (length buckets) (- n (length kept)))
+          (let ((target-size (1+ (/ (length oldtarballs) n)))
+                (new t))
+            (dolist (bucket (prog1 buckets (setq buckets nil)))
+              (if (or new (> (length bucket) target-size))
+                  (progn (push bucket buckets) (setq new nil))
+                (setq new t)
+                (setf (cdar buckets) (nconc (cdr bucket) (cdar buckets)))))))
+
+        ;; "Spread" some buckets: for a two-level release numbering scheme,
+        ;; we might end up with 2 buckets: one with the latest minor releases
+        ;; and the other with everything else.  When we recurse on the
+        ;; "everything else", the same will tend to happen again, and overall
+        ;; this tends to select too many "recent minor releases" in favor of
+        ;; keeping older major releases.
+        ;; We try to compensate here by splitting "furtherest" buckets into
+        ;; smaller buckets based on the first char that differs between their
+        ;; release number.
+        (setq buckets (sort buckets (lambda (b1 b2) (<= (car b1) (car b2)))))
+        (while
+            (let* ((bucket (car buckets))
+                   (len (length (try-completion "" bucket)))
+                   (newbuckets ()))
+              (dolist (oldtarball (cdr bucket))
+                (let ((tvers (car oldtarball)))
+                  (push oldtarball
+                        (alist-get (substring tvers 0
+                                              (min (length tvers) (1+ len)))
+                                   newbuckets nil nil #'equal))))
+              (when (< (+ (length newbuckets) (length (cdr buckets)))
+                       (- n (length kept)))
+                ;; (message "Spreading one bucket")
+                (setq buckets (nconc (cdr buckets)
+                                     (mapcar (lambda (b)
+                                               (cons (length (car b)) (cdr b)))
+                                             newbuckets)))
+                t)))
+        ;; Finally, evenly select elements from every bucket.
+        (setq buckets (sort buckets (lambda (b1 b2) (<= (length b1) (length b2)))))
+        (while buckets
+          (let ((bucket-size (/ (- n (length kept)) (length buckets)))
+                (bucket (cdr (pop buckets))))
+            (setq kept (nconc (elpaa--keep-old bucket
+                                               bucket-size)
+                              kept))))
+        kept))))))
+
+(defun elpaa--prune-old-tarballs (tarball oldtarballs destdir &optional minage)
+  ;; Make sure we don't count ourselves among the "old" tarballs.
+  (let ((self (rassoc (file-name-nondirectory tarball) oldtarballs)))
+    (when self
+      (setq oldtarballs (delq self oldtarballs))))
+  (with-demoted-errors "elpaa--prune-old-tarballs: %S"
+    (when (nthcdr elpaa--keep-max oldtarballs)
+      (let* ((keep (elpaa--keep-old oldtarballs elpaa--keep-max))
+             (keep (nreverse (sort keep
+                                   (lambda (t1 t2) (version<= (car t1) (car t2)))))))
+        (message "Keeping: %s" (mapcar #'cdr keep))
+        (dolist (oldtarball oldtarballs)
+          (unless (memq oldtarball keep)
+            (cl-assert (not (equal (cdr oldtarball)
+                                   (file-name-nondirectory tarball))))
+            (message "Deleting %s" (cdr oldtarball))
+            (let* ((olddir (expand-file-name "old" destdir))
+                   (filename (cdr oldtarball))
+                   (sig (concat (if (member (file-name-extension filename)
+                                            '("lz" "gz"))
+                                    (file-name-sans-extension filename)
+                                  filename)
+                                ".sig"))
+                   (mvfun (lambda (f)
+                            (let* ((src (expand-file-name f destdir))
+                                   (fa (file-attributes src)))
+                              (cond
+                               ((not fa)
+                                (message "Not existing/moving: %S" src))
+                               ((and minage
+                                     (< (float-time
+                                         (time-subtract
+                                          (current-time)
+                                          (file-attribute-modification-time
+                                           fa)))
+                                        ;; One year.
+                                        minage))
+                                (message "File too young: %S" src))
+                               (t
+                                (rename-file src
+                                             (expand-file-name f olddir))))))))
+              (make-directory olddir t)
+              (funcall mvfun filename)
+              (funcall mvfun sig))))
+        (setq oldtarballs keep)))
+    (dolist (oldtarball oldtarballs)
+      ;; Compress oldtarballs.
+      (let ((file (cdr oldtarball)))
+        (when (string-match "\\.\\(tar\\|el\\)\\'" file)
+          ;; Make sure we don't compress the file we just created.
+          (cl-assert (not (equal file (file-name-nondirectory tarball))))
+          ;; (elpaa--message "not equal %s and %s" file tarball)
+          (elpaa--call nil "lzip" (expand-file-name file destdir))
+          (setf (cdr oldtarball) (concat file ".lz"))))))
+  oldtarballs)
+
 (defun elpaa--make-one-tarball ( tarball dir pkg-spec metadata
-                                 &optional revision-function one-tarball)
+                                 &optional revision-function tarball-only)
   "Create file TARBALL for PKGNAME if not done yet.
 Return non-nil if a new tarball was created."
   (elpaa--message "Building tarball %s..." tarball)
@@ -329,94 +523,106 @@ Return non-nil if a new tarball was created."
       (progn
         (elpaa--message "Tarball %s already built!" tarball)
         nil)
-    (elpaa--with-temp-files
-        dir
-      (let* ((destdir (file-name-directory tarball))
-             (pkgname (car pkg-spec))
-             (_ (when (and destdir (not (file-directory-p destdir)))
-                  (make-directory destdir)))
-             (vers (nth 1 metadata))
-             (elpaignore (expand-file-name ".elpaignore" dir))
-             (ignores (elpaa--spec-get pkg-spec :ignored-files))
-             (renames (elpaa--spec-get pkg-spec :renames))
-             (ldir    (elpaa--spec-get pkg-spec :lisp-dir))
-             (re (concat "\\`" (regexp-quote pkgname)
-                         "-\\([0-9].*\\)\\.\\(tar\\|el\\)\\(\\.[a-z]*z\\)?\\'"))
-             (oldtarballs
-              (unless one-tarball
-                (mapcar
-                 (lambda (file)
-                   (string-match re file)
-                   (cons (match-string 1 file) file))
-                 (directory-files destdir nil re)))))
-        (when ldir
-          (cl-pushnew (list (file-name-as-directory ldir) "") renames
-                      :test #'equal))
-        (when revision-function
-          (elpaa--select-revision dir pkg-spec (funcall revision-function)))
-        (elpaa--copyright-check pkg-spec)
-        ;; Run `make' before building the Info file, so that the `make' rule
-        ;; can be used to build the Info/Texinfo file.
-        (elpaa--make pkg-spec dir)
-        (elpaa--build-Info pkg-spec dir)
-        (elpaa--write-pkg-file dir pkgname metadata)
-        ;; FIXME: Allow renaming files or selecting a subset of the files!
-        (cl-assert (not (string-match "[][*\\|?]" pkgname)))
-        (cl-assert (not (string-match "[][*\\|?]" vers)))
-        (apply #'elpaa--call
-               nil "tar"
-               `("--exclude-vcs"
-                 ,@(cond
-                    (ignores
-                     (mapcar (lambda (i) (format "--exclude=packages/%s/%s" pkgname i))
-                             ignores))
-                    ((file-readable-p elpaignore) `("-X" ,elpaignore)))
-                 ,@(mapcar (lambda (r) (elpaa--make-tar-transform pkgname r))
-                           renames)
-                 "--transform"
-                 ,(format "s|^packages/%s|%s-%s|" pkgname pkgname vers)
-                 "-chf" ,tarball
-                 ,(concat "packages/" pkgname)))
-        (unless one-tarball
-          (let* ((pkgdesc
-                  ;; FIXME: `elpaa--write-pkg-file' wrote the metadata to
-                  ;; <pkg>-pkg.el and then `elpaa--process-multi-file-package'
-                  ;; reads it back.  We could/should skip the middle man.
-                  (elpaa--process-multi-file-package
-                   dir pkgname 'dont-rename)))
-            (elpaa--message "%s: %S" pkgname pkgdesc)
-            (elpaa--update-archive-contents pkgdesc destdir)
-            (when (and nil revision-function) ;FIXME: Circumstantial evidence.
-              ;; Various problems:
-              ;; - If "make build/foo" is used by the developers in order to test
-              ;;   the build of their package, they'll end up with those spurious
-              ;;   tags which may end up spreading to unintended places.
-              ;; - The tags created in elpa.gnu.org won't spread to nongnu.git
-              ;;   because that account can't push to git.sv.gnu.org anyway.
-              (let ((default-directory (elpaa--dirname dir)))
-                (elpaa--call nil "git" "tag" "-f"
-                             (format "%s-release/%s-%s"
-                                     elpaa--name pkgname vers))))
-            (let ((link (expand-file-name (format "%s.tar" pkgname) destdir)))
-              (when (file-symlink-p link) (delete-file link))
-              (make-symbolic-link (file-name-nondirectory tarball) link))
-            (dolist (oldtarball oldtarballs)
-              ;; Compress oldtarballs.
-              (let ((file (cdr oldtarball)))
-                (when (string-match "\\.\\(tar\\|el\\)\\'" file)
-                  ;; Don't compress the file we just created.
-                  (unless (equal file (file-name-nondirectory tarball))
-                    ;; (elpaa--message "not equal %s and %s" file tarball)
-                    (elpaa--call nil "lzip" (expand-file-name file destdir))
-                    (setf (cdr oldtarball) (concat file ".lz"))))))
-            (let* ((default-directory (expand-file-name destdir)))
-              ;; Apparently this also creates the <pkg>-readme.txt file.
-              (elpaa--html-make-pkg pkgdesc pkg-spec
-                                    `((,vers . ,(file-name-nondirectory tarball))
-                                      . ,oldtarballs)
-                                    dir))
-            (message "Built new package %s!" tarball)
-            'new))))))
+    (message "======== Building tarball %s..." tarball)
+    (let ((res nil))
+      (unwind-protect
+          (condition-case err
+              (setq res (elpaa--make-one-tarball-1
+                         tarball dir pkg-spec metadata
+                         revision-function tarball-only))
+            (error (message "Build error for %s: %S" tarball err)
+                   nil))
+        (message (if res "######## Built new package %s!"
+                   "######## Build of package %s FAILED!!")
+                 tarball)))))
+
+(defun elpaa--make-one-tarball-1 ( tarball dir pkg-spec metadata
+                                 &optional revision-function tarball-only)
+  (elpaa--with-temp-files
+   dir
+   (let* ((destdir (file-name-directory tarball))
+          (pkgname (car pkg-spec))
+          (_ (when (and destdir (not (file-directory-p destdir)))
+               (make-directory destdir)))
+          (vers (nth 1 metadata))
+          (elpaignore (expand-file-name ".elpaignore" dir))
+          (ignores (elpaa--spec-get pkg-spec :ignored-files))
+          (renames (elpaa--spec-get pkg-spec :renames))
+          (ldir    (elpaa--spec-get pkg-spec :lisp-dir))
+          (re (concat "\\`" (regexp-quote pkgname)
+                      "-\\([0-9].*\\)\\.\\(tar\\|el\\)\\(\\.[a-z]*z\\)?\\'"))
+          (oldtarballs
+           (unless tarball-only
+             (mapcar
+              (lambda (file)
+                (string-match re file)
+                (cons (match-string 1 file) file))
+              (directory-files destdir nil re)))))
+     (when ldir
+       (cl-pushnew (list (file-name-as-directory ldir) "") renames
+                   :test #'equal))
+     (when revision-function
+       (elpaa--select-revision dir pkg-spec (funcall revision-function)))
+     (elpaa--copyright-check pkg-spec)
+     ;; Run `make' before building the Info file, so that the `make' rule
+     ;; can be used to build the Info/Texinfo file.
+     (elpaa--make pkg-spec dir)
+     (elpaa--build-Info pkg-spec dir)
+     (elpaa--write-pkg-file dir pkgname metadata)
+     ;; FIXME: Allow renaming files or selecting a subset of the files!
+     (cl-assert (not (string-match "[][*\\|?]" pkgname)))
+     (cl-assert (not (string-match "[][*\\|?]" vers)))
+     (apply #'elpaa--call
+            nil "tar"
+            `("--exclude-vcs"
+              ,@(cond
+                 (ignores
+                  (mapcar (lambda (i) (format "--exclude=packages/%s/%s" pkgname i))
+                          ignores))
+                 ((file-readable-p elpaignore) `("-X" ,elpaignore)))
+              ,@(mapcar (lambda (r) (elpaa--make-tar-transform pkgname r))
+                        renames)
+              "--transform"
+              ,(format "s|^packages/%s|%s-%s|" pkgname pkgname vers)
+              "-chf" ,tarball
+              ,(concat "packages/" pkgname)))
+     (unless tarball-only
+       (let* ((pkgdesc
+               ;; FIXME: `elpaa--write-pkg-file' wrote the metadata to
+               ;; <pkg>-pkg.el and then `elpaa--process-multi-file-package'
+               ;; reads it back.  We could/should skip the middle man.
+               (elpaa--process-multi-file-package
+                dir pkgname 'dont-rename)))
+         (elpaa--message "%s: %S" pkgname pkgdesc)
+         (elpaa--update-archive-contents pkgdesc destdir)
+         (when (and nil revision-function) ;FIXME: Circumstantial evidence.
+           ;; Various problems:
+           ;; - If "make build/foo" is used by the developers in order to test
+           ;;   the build of their package, they'll end up with those spurious
+           ;;   tags which may end up spreading to unintended places.
+           ;; - The tags created in elpa.gnu.org won't spread to nongnu.git
+           ;;   because that account can't push to git.sv.gnu.org anyway.
+           (let ((default-directory (elpaa--dirname dir)))
+             (elpaa--call nil "git" "tag" "-f"
+                          (format "%s-release/%s-%s"
+                                  elpaa--name pkgname vers))))
+         (let ((link (expand-file-name (format "%s.tar" pkgname) destdir)))
+	   (when (file-symlink-p link) (delete-file link))
+	   (ignore-error file-error     ;E.g. under w32!
+	     (make-symbolic-link (file-name-nondirectory tarball) link)))
+         (setq oldtarballs
+               (elpaa--prune-old-tarballs tarball oldtarballs destdir
+                                          ;; Keep release versions at
+                                          ;; least 2 years.
+                                          (if revision-function
+                                              (* 60 60 24 365 2))))
+         (let* ((default-directory (expand-file-name destdir)))
+           ;; Apparently this also creates the <pkg>-readme.txt file.
+           (elpaa--html-make-pkg pkgdesc pkg-spec
+                                 `((,vers . ,(file-name-nondirectory tarball))
+                                   . ,oldtarballs)
+                                 dir))))
+     'new)))
 
 (defun elpaa--get-devel-version (dir pkg-spec)
   "Compute the date-based pseudo-version used for devel builds."
@@ -442,7 +648,7 @@ Return non-nil if a new tarball was created."
               (elpaa--call t "date" "-d" gitdate "+%Y%m%d.%H%M%S")
               (buffer-string)))))
     ;; Get rid of leading zeros since ELPA's version numbers don't allow them.
-    (replace-regexp-in-string "\\(?:\\`\\|[^0-9]\\)0+" "\\1"
+    (replace-regexp-in-string "\\(\\`\\|[^0-9]\\)0+\\([0-9]\\)" "\\1\\2"
                               ;; Remove trailing newline or anything untoward.
                               (replace-regexp-in-string "[^.0-9]+" ""
                                                         verdate))))
@@ -481,15 +687,116 @@ Return non-nil if a new tarball was created."
       (delete-file tarball)
       (elpaa--make-one-package pkg-spec tarball))))
 
-(defun elpaa--make-one-package (pkg-spec &optional one-tarball)
+(defun elpaa--string-width (str)
+  "Determine string width in pixels of STR."
+  (with-temp-buffer
+    (elpaa--call (current-buffer)
+                 "convert" "-debug" "annotate" "xc:" "-font" "DejaVu-Sans"
+                 "-pointsize" "110" "-annotate" "0" str "null:")
+    (goto-char (point-min))
+    (if (re-search-forward "Metrics:.*?width: \\([0-9]+\\)")
+        (string-to-number (match-string 1))
+      (error "Could not determine string width"))))
+
+(defun elpaa--make-badge (file left right)
+  "Make badge svg FILE with LEFT and RIGHT string."
+  (let* ((lw (elpaa--string-width left))
+         (rw (elpaa--string-width right))
+         (pad (elpaa--string-width "x"))
+         (color "#bb3955")
+         (width (/ (+ lw rw (* 4 pad)) 10))
+         (offset -10) ;; Small alignment correction
+         (ctx `((offset . ,offset)
+                (left . ,left)
+                (right . ,right)
+                (lw . ,lw)
+                (rw . ,rw)
+                (width . ,width)
+                (color . ,color)
+                (pad . ,pad))))
+    ;; FIXME: Use `svg.el'?
+    (with-temp-buffer
+      (insert
+       (replace-regexp-in-string
+        "[ \t\n]+" " "
+        (replace-regexp-in-string
+         "{\\([^}]+\\)}"
+         (lambda (str)
+           (format "%s" (eval (read (match-string 1 str)) ctx)))
+         (replace-regexp-in-string
+          "'" "\""
+          "<?xml version='1.0'?>
+<svg xmlns='http://www.w3.org/2000/svg'
+     xmlns:xlink='http://www.w3.org/1999/xlink'
+     width='{width}'
+     height='20'
+     role='img'
+     aria-label='{left}: {right}'>
+  <title>{left}: {right}</title>
+  <linearGradient id='s' x2='0' y2='100%'>
+    <stop offset='0' stop-color='#bbb' stop-opacity='.1'/>
+    <stop offset='1' stop-opacity='.1'/>
+  </linearGradient>
+  <clipPath id='r'>
+    <rect width='{width}' height='20' rx='3' fill='#fff'/>
+  </clipPath>
+  <g clip-path='url(#r)'>
+    <rect width='{(/ (+ lw (* 2 pad)) 10)}'
+          height='20' fill='#555'/>
+    <rect x='{(1- (/ (+ lw (* 2 pad)) 10))}'
+          width='{width}' height='20' fill='{color}'/>
+    <rect width='{width}' height='20' fill='url(#s)'/>
+  </g>
+  <g fill='#fff'
+     text-anchor='middle'
+     font-family='Verdana,Geneva,DejaVu Sans,sans-serif'
+     font-size='110'
+     text-rendering='geometricPrecision'>
+    <text aria-hidden='true'
+          x='{(+ (/ lw 2) pad offset)}'
+          y='150'
+          fill='#010101' fill-opacity='.3'
+          transform='scale(.1)' textLength='{lw}'>{left}</text>
+    <text x='{(+ (/ lw 2) pad offset)}'
+          y='140' transform='scale(.1)'
+          fill='#fff'
+          textLength='{lw}'>{left}</text>
+    <text aria-hidden='true'
+          x='{(+ lw (/ rw 2) (* 3 pad) offset)}'
+          y='150'
+          fill='#010101'  fill-opacity='.3'
+          transform='scale(.1)' textLength='{rw}'>{right}</text>
+    <text x='{(+ lw (/ rw 2) (* 3 pad) offset)}'
+          y='140'
+          transform='scale(.1)'
+          fill='#fff' textLength='{rw}'>{right}</text>
+  </g>
+</svg>"))))
+      (write-region (point-min) (point-max) file))))
+
+(defun elpaa--add-badge-link (file name)
+  "Add badge link to FILE for package NAME."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (let ((contents (buffer-string)))
+      (unless (string-match-p "<dt>Badge</dt>" contents)
+        (erase-buffer)
+        (insert
+         (replace-regexp-in-string "</dl>"
+                                   (format "<dt>Badge</dt><dd><img src=\"%s.svg\"/></dd>\n</dl>"
+                                           (elpaa--html-quote name))
+                                   contents))
+        (write-region (point-min) (point-max) file)))))
+
+(defun elpaa--make-one-package (pkg-spec &optional tarball-only)
   "Build the new tarballs (if needed) for PKG-SPEC.
-If ONE-TARBALL is non-nil, don't try and select some other revision and
-place the resulting tarball into the file named ONE-TARBALL."
+If TARBALL-ONLY is non-nil, don't try and select some other revision and
+place the resulting tarball into the file named TARBALL-ONLY."
   (elpaa--message "Checking package %s for updates..." (car pkg-spec))
   (let* ((pkgname (car pkg-spec))
          (dir (expand-file-name pkgname "packages"))
          (_ (cond
-             (one-tarball nil)
+             (tarball-only nil)
              ((eq (nth 1 pkg-spec) :core) (elpaa--core-package-sync pkg-spec))
              (t (elpaa--worktree-sync pkg-spec))))
          (_ (elpaa--message "pkg-spec for %s: %S" pkgname pkg-spec))
@@ -513,7 +820,7 @@ place the resulting tarball into the file named ONE-TARBALL."
              (devel-vers
               (concat vers (if (string-match "[0-9]\\'" vers) ".")
                       "0." date-version))
-             (tarball (or one-tarball
+             (tarball (or tarball-only
                           (concat elpaa--devel-subdir
                                   (format "%s-%s.tar" pkgname devel-vers))))
              (new
@@ -523,17 +830,17 @@ place the resulting tarball into the file named ONE-TARBALL."
                                          dir pkg-spec
                                          `(nil ,devel-vers
                                                . ,(nthcdr 2 metadata))
-                                         nil one-tarball))))
+                                         nil tarball-only))))
 
         ;; Try and build the latest release tarball.
         (cond
-         (one-tarball nil)
-         ((or (equal vers "0")
-              ;; -4 is used for "NN.MMsnapshot" and "NN.MM-git"
-              (member '-4 (version-to-list vers)))
+         (tarball-only nil)
+         ((equal vers "0")
+          (elpaa--message "Package %s not released yet!" pkgname))
+         ;; negative version numbers are used for pre-releases
+         ;; (i.e. snapshots, alpha, beta, and rc).
+         ((< (apply #'min (version-to-list vers)) 0)
           (cond
-           ((equal vers "0")
-            (elpaa--message "Package %s not released yet!" pkgname))
            ((not new)
             (elpaa--message "Nothing new for package %s!" pkgname))
            (t
@@ -559,7 +866,25 @@ place the resulting tarball into the file named ONE-TARBALL."
                      (elpaa--get-release-revision
                       dir pkg-spec vers
                       (plist-get (cdr pkg-spec) :version-map))))
-              (elpaa--release-email pkg-spec metadata dir)))))))))
+              (elpaa--release-email pkg-spec metadata dir)))))
+
+        ;; Generate missing badges (temporary code)
+        (let ((release-badge (format "%s/%s.svg" elpaa--release-subdir pkgname))
+              (devel-badge (format "%s/%s.svg" elpaa--devel-subdir pkgname))
+              (release-html (format "%s/%s.html" elpaa--release-subdir pkgname))
+              (devel-html (format "%s/%s.html" elpaa--devel-subdir pkgname)))
+          (unless (or (file-exists-p devel-badge)
+                      (not (file-exists-p devel-html)))
+            (elpaa--make-badge devel-badge
+                               (format "%s-devel ELPA" elpaa--name)
+                               (format "%s %s" pkgname devel-vers))
+            (elpaa--add-badge-link devel-html pkgname))
+          (unless (or (file-exists-p release-badge)
+                      (not (file-exists-p release-html)))
+            (elpaa--make-badge release-badge
+                               (format "%s ELPA" elpaa--name)
+                               (format "%s %s" pkgname vers))
+            (elpaa--add-badge-link release-html pkgname)))))))
 
 (defun elpaa--call (destination program &rest args)
   "Like ‘call-process’ for PROGRAM, DESTINATION, ARGS.
@@ -573,7 +898,7 @@ The INFILE and DISPLAY arguments are fixed as nil."
     "--proc" "/proc"
     "--tmpfs" "/tmp"))
 
-(defvar elpaa--sandboxed-ro-binds
+(defvar elpaa--sandbox-ro-binds
   '("/lib" "/lib64" "/bin" "/usr" "/etc/alternatives" "/etc/emacs"))
 
 (defun elpaa--call-sandboxed (destination &rest args)
@@ -587,7 +912,8 @@ Signal an error if the command did not finish with exit code 0."
     (let ((dd (expand-file-name default-directory))) ;No `~' allowed!
       (setq args (nconc `("--bind" ,dd ,dd) args)))
     ;; Add read-only dirs in reverse order.
-    (dolist (b elpaa--sandboxed-ro-binds)
+    (dolist (b (append elpaa--sandbox-ro-binds
+                       elpaa--sandbox-extra-ro-dirs))
       (when (file-exists-p b)         ;`brwap' burps on binds that don't exist!
         (setq b (expand-file-name b))
         (setq args (nconc `("--ro-bind" ,b ,b) args))))
@@ -794,6 +1120,24 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
             <div class=\"container\">\n"
           title (or header title)))
 
+(defun elpaa--html-footer ()
+  (format "\n
+        <div class=\"footer\">
+            <div class=\"container\">
+                <p>Copyright 2016-%s <a href=\"https://fsf.org\">Free Software Foundation</a>, Inc.</p>
+                <p>Design provided by <a href=\"https://nicolas.petton.fr\">Nicolas Petton</a></p>
+                <p>
+                  This website is licensed under the
+                  <a href=\"https://creativecommons.org/licenses/by-nd/4.0/\">CC BY-ND 4.0</a>
+                  International License.
+                </p>
+                <p><a href=\"/jslicense.html\" data-jslicense=\"1\">JavaScript Licenses</a></p>
+            </div>
+        </div>
+
+</body>\n"
+          (format-time-string "%Y")))
+
 (defun elpaa--html-bytes-format (bytes) ;Aka memory-usage-format.
   (if (null bytes)
       "??KiB"
@@ -823,25 +1167,28 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
          (insert-file-contents mainsrcfile)
          (lm-header prop))))))
 
-(defun elpaa--get-section (hsection fsection srcdir pkg-spec)
-  (when (consp fsection)
-    (while (cdr-safe fsection)
-      (setq fsection
-            (if (file-readable-p (expand-file-name (car fsection) srcdir))
-                (car fsection)
-              (cdr fsection))))
-    (when (consp fsection) (setq fsection (car fsection))))
+(defun elpaa--get-section (header file srcdir pkg-spec)
+  "Return specified section as a string from SRCDIR for PKG-SPEC.
+If FILE is readable in SRCDIR, return its contents.  Otherwise
+return section under HEADER in package's main file."
+  (when (consp file)
+    (while (cdr-safe file)
+      (setq file
+            (if (file-readable-p (expand-file-name (car file) srcdir))
+                (car file)
+              (cdr file))))
+    (when (consp file) (setq file (car file))))
   (cond
-   ((file-readable-p (expand-file-name fsection srcdir))
+   ((file-readable-p (expand-file-name file srcdir))
     (with-temp-buffer
-      (insert-file-contents (expand-file-name fsection srcdir))
+      (insert-file-contents (expand-file-name file srcdir))
       (buffer-string)))
    ((file-readable-p (expand-file-name (elpaa--main-file pkg-spec) srcdir))
     (with-temp-buffer
       (insert-file-contents
        (expand-file-name (elpaa--main-file pkg-spec) srcdir))
-      (emacs-lisp-mode)       ;lm-section-start needs the outline-mode setting.
-      (let ((start (lm-section-start hsection)))
+      (emacs-lisp-mode) ;lm-section-start needs the outline-mode setting.
+      (let ((start (lm-section-start header)))
         (when start
           ;; FIXME: Emacs<28 had a bug in `lm-section-end', so cook up
           ;; our own ad-hoc replacement.
@@ -893,14 +1240,15 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
                     url (elpaa--html-quote url)))
     (when (string-match (elpaa--default-url-re) url)
       (setq url nil)))
-  (let* ((git-sv "http://git.savannah.gnu.org/")
+  (let* ((git-sv "https://git.savannah.gnu.org/")
          (urls
           (if (eq (nth 1 pkg-spec) :core)
               (let* ((files (nth 2 pkg-spec))
                      (file (if (listp files)
                                (directory-file-name
-                                (file-name-directory
-                                 (try-completion "" files)))
+                                (or (file-name-directory
+                                     (try-completion "" files))
+                                    ""))
                              files)))
                 (mapcar (lambda (s) (concat s file))
                         `("cgit/emacs.git/tree/"
@@ -927,6 +1275,9 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
          (mainsrcfile (expand-file-name (elpaa--main-file pkg-spec) srcdir))
          (desc (aref (cdr pkg) 2)))
     (cl-assert (equal name (car pkg-spec)))
+    (elpaa--make-badge (concat name ".svg")
+                       (format "%s ELPA" elpaa--name)
+                       (format "%s %s" name latest))
     (with-temp-buffer
       (insert (elpaa--html-header
                (format "%s ELPA - %s" elpaa--name name)
@@ -957,6 +1308,7 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
        pkg-spec
        (or (cdr (assoc :url (aref (cdr pkg) 4)))
            (elpaa--get-prop "URL" name srcdir mainsrcfile)))
+      (insert (format "<dt>Badge</dt><dd><img src=\"%s.svg\"/></dd>\n" (elpaa--html-quote name)))
       (insert "</dl>")
       (insert (format "<p>To install this package, run in Emacs:</p>
                        <pre>M-x <span class=\"kw\">package-install</span> RET <span class=\"kw\">%s</span> RET</pre>"
@@ -970,7 +1322,7 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
       (unless (< (length files) (if (zerop (length latest)) 1 2))
         (insert (format "<h2>Old versions</h2><table>\n"))
         (dolist (file
-                 (sort files (lambda (f1 f2) (version< (car f2) (car f1)))))
+                 (sort files (lambda (f1 f2) (version<= (car f2) (car f1)))))
           (unless (equal (pop file) latest)
             (let ((attrs (file-attributes file)))
               (insert (format "<tr><td><a href=%S>%s</a></td><td>%s</td><td>%s</td>\n"
@@ -981,7 +1333,7 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
       (let ((news (elpaa--get-NEWS pkg-spec srcdir)))
         (when news
           (insert "<h2>News</h2><pre>\n" (elpaa--html-quote news) "\n</pre>\n")))
-      (insert "</body>\n")
+      (insert (elpaa--html-footer))
       (write-region (point-min) (point-max) (concat name ".html")))))
 
 (defun elpaa--html-make-index (pkgs)
@@ -997,21 +1349,8 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
     (insert "                </table>
             </div>
             <div class=\"push\"></div>
-        </div>
-
-        <div class=\"footer\">
-            <div class=\"container\">
-                <p>Copyright 2016 <a href=\"https://fsf.org\">Free Software Foundation</a>, Inc.</p>
-                <p>Design provided by <a href=\"http://nicolas.petton.fr\">Nicolas Petton</a></p>
-                <p>
-                   This website is licensed under the
-                   <a href=\"https://creativecommons.org/licenses/by-nd/3.0/us/\">CC BY-ND 3.0</a>
-                   US License.
-                </p>
-            </div>
-        </div>
-
-</body>\n")
+        </div>")
+    (insert (elpaa--html-footer))
     (write-region (point-min) (point-max) "index.html")))
 
 (defun elpaa--pull (dirname)
@@ -1315,7 +1654,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
   (let* ((pkgname (car pkg-spec))
          (default-directory (elpaa--dirname pkgname "packages"))
          (ignores (elpaa--spec-get pkg-spec :ignored-files))
-         (all-ignores '("." ".." ".git" "test" ".dir-locals.el"))
+         (all-ignores '("." ".." ".git" "test" "tests" ".dir-locals.el"))
          (dir-files (lambda (d)
                       (cl-set-difference (directory-files d)
                                          all-ignores :test #'equal)))
@@ -1408,15 +1747,22 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
              (pkgname (car pkg-spec))
              (name (capitalize pkgname))
              (maint (cdr (assq :maintainer (nth 4 metadata))))
-             (maintainer (if (and (stringp (cdr-safe maint))
-                                  (string-match "@" (cdr maint)))
-                             (format "%s <%s>" (car maint) (cdr maint)))))
+             ;; `:maintainer' can hold a list or a single maintainer.
+             (maints (if (consp (car maint)) maint (list maint)))
+             (maint-emails
+              (mapcar (lambda (x)
+                        (and (stringp (cdr-safe x))
+                             (string-match "@" (cdr x))
+                             (format "%s <%s>" (car x) (cdr x))))
+                      maints))
+             (maintainers
+              (mapconcat #'identity (delq nil maint-emails) ",")))
         (message-setup `((From    . ,elpaa--email-from)
                          (To      . ,elpaa--email-to)
                          (Subject . ,(format "[%s ELPA] %s version %s"
                                              elpaa--name name version))
-                         ,@(if (stringp maintainer)
-                               `((Cc . ,maintainer)))
+                         ,@(unless (equal maintainers "")
+                             `((Cc . ,maintainers)))
                          ,@(if elpaa--email-reply-to
                                `((Reply-To . ,elpaa--email-reply-to)))))
         (insert "Version " version
@@ -1443,13 +1789,19 @@ More at " (elpaa--default-url pkgname))
       (elpaa--build-Info-1 f dir))))
 
 (defun elpaa--build-Info-1 (docfile dir)
-  (let* ((default-directory (elpaa--dirname dir))
+  (let* ((elpaa--sandbox-ro-binds
+          (cons default-directory elpaa--sandbox-ro-binds))
+         (default-directory (elpaa--dirname dir))
          (tmpfiles '()))
     (when (and docfile (file-readable-p docfile)
                (string-match "\\.org\\'" docfile))
       (with-temp-buffer
         (elpaa--call-sandboxed
-         t "emacs" "--batch" "-l" "ox-texinfo" docfile
+         t "emacs" "--batch" "-l" "ox-texinfo"
+         ;; When building :core packages, don't follow the symlink,
+         ;; otherwise Org will want to export into the Emacs tree!
+         "--eval" "(setq vc-follow-symlinks nil)"
+         docfile
          "--eval" "(message \"ELPATEXI=%s\" (org-texinfo-export-to-texinfo))")
         (message "%s" (buffer-string))
         (goto-char (point-max))
@@ -1505,8 +1857,8 @@ More at " (elpaa--default-url pkgname))
         (cmd (elpaa--spec-get pkg-spec :shell-command)))
     (when (or cmd target)
       (with-temp-buffer
-        (let ((elpaa--sandboxed-ro-binds
-               (cons default-directory elpaa--sandboxed-ro-binds))
+        (let ((elpaa--sandbox-ro-binds
+               (cons default-directory elpaa--sandbox-ro-binds))
               (default-directory (elpaa--dirname dir)))
           (when cmd
             (elpaa--call-sandboxed t shell-file-name
@@ -1536,12 +1888,13 @@ More at " (elpaa--default-url pkgname))
   "Return non-nil iff BRANCH is an existing branch."
   (equal 0 (elpaa--call t "git" "show-ref" "--verify" "--quiet" branch)))
 
-(defun elpaa--fetch (pkg-spec &optional k)
+(defun elpaa--fetch (pkg-spec &optional k show-diverged)
   (let* ((pkg (car pkg-spec))
          (url (or (elpaa--spec-get pkg-spec :external)
                   (elpaa--spec-get pkg-spec :url)))
          (branch (elpaa--branch pkg-spec))
          (release-branch (elpaa--spec-get pkg-spec :release-branch))
+         (ortb (elpaa--ortb pkg-spec))
          (urtb (elpaa--urtb pkg-spec))
          (refspec (if branch (format "+refs/heads/%s:%s" branch urtb)
                     (format "+HEAD:%s" urtb)))
@@ -1560,8 +1913,27 @@ More at " (elpaa--default-url pkgname))
                                (if release-refspec
                                    (list release-refspec)))))
           (message "Fetch error for %s:\n%s" pkg (buffer-string)))
-         ((let* ((ortb (elpaa--ortb pkg-spec))
-                 (exists (elpaa--git-branch-p ortb)))
+         ((and
+           (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
+                               urtb ortb))
+           (elpaa--git-branch-p ortb))
+          (message "Nothing new upstream for %s" pkg))
+         ((and
+           (not (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
+                                    ortb urtb)))
+           (elpaa--git-branch-p ortb))
+          (message "Upstream of %s has DIVERGED!\n" pkg)
+          (when show-diverged
+            (elpaa--call t "git" "log"
+                         "--format=%h  %<(16,trunc)%ae  %s"
+                         (format "%s..%s" urtb ortb))
+            (message "  Local changes:\n%s" (buffer-string))
+            (erase-buffer)
+            (elpaa--call t "git" "log"
+                         "--format=%h  %<(16,trunc)%ae  %s"
+                         (format "%s..%s" ortb urtb))
+            (message "  Upstream changes:\n%s" (buffer-string))))
+         ((let* ((exists (elpaa--git-branch-p ortb)))
             (not (equal 0 (elpaa--call t "git" "log"
                                        "--format=%h  %<(16,trunc)%ae  %s"
                                        (if exists
@@ -1605,11 +1977,13 @@ More at " (elpaa--default-url pkgname))
         (message "Push error for %s:\n%s" pkg (buffer-string)))))))
 
 (defun elpaa--batch-fetch-and (k)
-  (let ((specs (elpaa--get-specs))
-        (pkgs command-line-args-left)
-        (condition ':))
+  (let* ((specs (elpaa--get-specs))
+         (pkgs command-line-args-left)
+         (show-diverged (not (cdr pkgs)))
+         (condition ':))
     (setq command-line-args-left nil)
     (when (and (null (cdr pkgs)) (string-match "\\`:" (car pkgs)))
+      (setq show-diverged nil)
       (setq condition (intern (car pkgs)))
       (setq pkgs (mapcar #'car specs)))
     (dolist (pkg pkgs)
@@ -1620,7 +1994,7 @@ More at " (elpaa--default-url pkgname))
               (elpaa--spec-get pkg-spec condition))
           ;; (unless (file-directory-p (expand-file-name pkg "packages"))
           ;;   (elpaa--worktree-sync pkg-spec))
-          (elpaa--fetch pkg-spec k)))))))
+          (elpaa--fetch pkg-spec k show-diverged)))))))
 
 (defun elpaa-batch-fetch-and-show (&rest _)
   (elpaa--batch-fetch-and #'ignore))
