@@ -59,6 +59,10 @@
  ("beacon"		:url "https://github.com/Malabarba/beacon")
  ("bluetooth"		:url "https://gitlab.com/rstocker/emacs-bluetooth")
  ("bnf-mode"		:url "https://github.com/sergeyklay/bnf-mode")
+ ("boxy"		:url "https://gitlab.com/tygrdev/boxy"
+  :auto-sync t)
+ ("boxy-headings"	:url "https://gitlab.com/tygrdev/boxy-headings"
+  :auto-sync t)
  ("brief"		:url nil)
  ("buffer-expose"	:url "https://github.com/clemera/buffer-expose")
  ("bug-hunter"		:url "https://github.com/Malabarba/elisp-bug-hunter")
@@ -78,6 +82,8 @@
  ;;                            "lisp/progmodes/cc-vars.el"
  ;;                            "doc/misc/cc-mode.texi"
  ;;                      :doc "cc-mode.texi"))
+ ("capf-autosuggest"	:url "https://repo.or.cz/emacs-capf-autosuggest.git"
+  :auto-sync t)
  ("caps-lock"		:url nil)
  ("captain"		:url nil)
  ("chess"		:url nil) ;; Was https://github.com/jwiegley/emacs-chess.git
@@ -88,12 +94,16 @@
  ("cobol-mode"          :url "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
  ("coffee-mode"		:url "https://github.com/defunkt/coffee-mode")
  ("compact-docstrings"  :url "https://github.com/cpitclaudel/compact-docstrings")
+ ("comint-mime"		:url "https://github.com/astoff/comint-mime"
+  :auto-sync t)
  ("company"
   :url "https://github.com/company-mode/company-mode.git"
   :auto-sync t)
  ("company-ebdb"	:url nil)
  ("company-math"	:url "https://github.com/vspinu/company-math.git")
  ("company-statistics"	:url "https://github.com/company-mode/company-statistics")
+ ("compat"		:url "https://git.sr.ht/~pkal/compat"
+  :auto-sync t)
  ("consult"
   :url "https://github.com/minad/consult"
   :doc "README.org"
@@ -102,6 +112,8 @@
  ("context-coloring"	:url "https://github.com/jacksonrayhamilton/context-coloring.git")
  ("corfu"		:url "https://github.com/minad/corfu"
   :doc "README.org" :auto-sync t)
+ ("coterm"		:url "https://repo.or.cz/emacs-coterm.git"
+  :auto-sync t)
  ("counsel"		:url "https://github.com/abo-abo/swiper")
  ("cpio-mode"		:url "https://github.com/dlewan/cpio-mode")
  ("crisp"		:url nil)
@@ -151,6 +163,15 @@
  ("eldoc-eval"		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  ("electric-spacing"	:url nil)
  ("elisp-benchmarks"	:url nil)
+ ("embark"
+  :url "https://github.com/oantolin/embark"
+  :doc "embark.texi"
+  :ignored-files ("embark-consult.el" "avy-embark-collect.el")
+  :auto-sync t)
+ ("embark-consult"
+  :url "https://github.com/oantolin/embark"
+  :ignored-files ("embark.el" "embark.texi" "avy-embark-collect.el")
+  :auto-sync t)
  ("emms"		:url "https://git.savannah.gnu.org/git/emms.git"
   :doc "doc/emms.texinfo"
   :auto-sync t)
@@ -158,6 +179,51 @@
   :auto-sync t)
  ("enwc"		:url "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
  ("epoch-view"		:url nil)
+ ("erc"
+  :core ("lisp/erc/erc-autoaway.el"
+         "lisp/erc/erc-backend.el"
+         "lisp/erc/erc-button.el"
+         "lisp/erc/erc-capab.el"
+         "lisp/erc/erc-compat.el"
+         "lisp/erc/erc-dcc.el"
+         "lisp/erc/erc-desktop-notifications.el"
+         "lisp/erc/erc-ezbounce.el"
+         "lisp/erc/erc-fill.el"
+         "lisp/erc/erc-goodies.el"
+         "lisp/erc/erc-ibuffer.el"
+         "lisp/erc/erc-identd.el"
+         "lisp/erc/erc-imenu.el"
+         "lisp/erc/erc-join.el"
+         "lisp/erc/erc-lang.el"
+         "lisp/erc/erc-list.el"
+         "lisp/erc/erc-log.el"
+         "lisp/erc/erc-match.el"
+         "lisp/erc/erc-menu.el"
+         "lisp/erc/erc-netsplit.el"
+         "lisp/erc/erc-networks.el"
+         "lisp/erc/erc-notify.el"
+         "lisp/erc/erc-page.el"
+         "lisp/erc/erc-pcomplete.el"
+         "lisp/erc/erc-replace.el"
+         "lisp/erc/erc-ring.el"
+         "lisp/erc/erc-services.el"
+         "lisp/erc/erc-sound.el"
+         "lisp/erc/erc-speedbar.el"
+         "lisp/erc/erc-spelling.el"
+         "lisp/erc/erc-stamp.el"
+         "lisp/erc/erc-status-sidebar.el"
+         "lisp/erc/erc-track.el"
+         "lisp/erc/erc-truncate.el"
+         "lisp/erc/erc-xdcc.el"
+         "lisp/erc/erc.el"
+         "doc/emacs/doclicense.texi"
+         "doc/emacs/docstyle.texi"
+         "doc/misc/erc.texi"
+         "etc/ERC-NEWS"
+         "COPYING")
+  :shell-command "(echo '@set ERCDIST from GNU ELPA'; echo '@set EMACSVER') >emacsver.texi"
+  :doc "erc.texi"
+  :news "ERC-NEWS")
  ("ergoemacs-mode"	:url "https://github.com/ergoemacs/ergoemacs-mode.git")
  ("excorporate"		:url nil)
  ("expand-region"	:url "https://github.com/magnars/expand-region.el")
@@ -222,6 +288,8 @@
  ("json-mode"		:url nil)
  ("jsonrpc"		:core "lisp/jsonrpc.el")
  ("jumpc"		:url nil)
+ ("kind-icon"		:url "https://github.com/jdtsmith/kind-icon"
+  :auto-sync t)
  ("kiwix"		:url "https://github.com/stardiviner/kiwix.el"
   :ignored-files ("*.png" "LICENSE"))
  ("kmb"			:url nil)
@@ -239,6 +307,9 @@
   :doc "README.org" :auto-sync t)
  ("markchars"		:url nil)
  ("math-symbol-lists" 	:url "https://github.com/vspinu/math-symbol-lists.git")
+ ("mct"			:url "https://gitlab.com/protesilaos/mct"
+  :doc "README.org"
+  :auto-sync t)
  ("memory-usage"	:url nil)
  ("metar"		:url nil)
  ("midi-kbd"		:url nil)
@@ -261,6 +332,10 @@
  ("nadvice"		:url nil)
  ("nameless"		:url "https://github.com/Malabarba/Nameless")
  ("names"		:url "https://github.com/Malabarba/names")
+ ("nano-agenda"		:url "https://github.com/rougier/nano-agenda"
+  :auto-sync t)
+ ("nano-modeline"	:url "https://github.com/rougier/nano-modeline"
+  :auto-sync t)
  ("nano-theme"		:url "https://github.com/rougier/nano-theme"
   :auto-sync t)
  ("nhexl-mode"		:url nil)
@@ -282,6 +357,14 @@
   :shell-command "make autoloads info; mv doc/org.info org.info; mv doc/orgguide.info orgguide.info"
   :doc ("org.info" "orgguide.info")
   :auto-sync t)
+ ;; FIXME: Waiting for copyright paperwork from Michael Strey <mstrey@strey.biz>
+ ;;("org-contacts"	:url "https://github.com/stardiviner/org-contacts.el"
+ ;; :auto-sync t)
+ ("org-real"		:url "https://gitlab.com/tygrdev/org-real"
+  :auto-sync t)
+ ;; FIXME: Waiting for the author's copyright paperwork.
+ ;;("org-transclusion"	:url "https://github.com/nobiot/org-transclusion"
+ ;; :auto-sync t)
  ("org-translate"	:url nil)
  ("orgalist"            :url nil)
  ("org-edna"		:url "bzr::https://bzr.savannah.gnu.org/r/org-edna-el") ;URL?
@@ -381,6 +464,12 @@
  ("system-packages"	:url "https://gitlab.com/jabranham/system-packages")
  ("systemd"		:url nil)
  ("taxy"                :url "https://github.com/alphapapa/taxy.el.git"
+  :doc "taxy.info"
+  :ignored-files ("images")
+  :auto-sync t)
+ ("taxy-magit-section"  :url "https://github.com/alphapapa/taxy.el.git"
+  :branch "package/taxy-magit-section"
+  :doc "taxy-magit-section.info"
   :auto-sync t)
  ("temp-buffer-browse"  :url "https://github.com/leoliu/temp-buffer-browse")
  ("test-simple"         :url "https://github.com/rocky/emacs-test-simple")
@@ -427,6 +516,9 @@
   :url "https://github.com/minad/vertico"
   :doc "README.org"
   :ignored-files ("extensions" "*.svg")
+  :auto-sync t)
+ ("vertico-posframe"
+  :url "https://github.com/tumashu/vertico-posframe"
   :auto-sync t)
  ("wcheck-mode"		:url "https://github.com/tlikonen/wcheck-mode")
  ("wconf"		:url "https://github.com/ilohmar/wconf")

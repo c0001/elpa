@@ -7,5 +7,5 @@
  (release-branch-prefix	"externals-release/")
  (sandbox               nil)
  ;;(specs-file		"elpa-packages")
- ;;(debug		nil)
+ ;;(debug		t)
  )

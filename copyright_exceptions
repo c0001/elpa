@@ -34,6 +34,10 @@ auctex/style/scrreprt.el
 auctex/style/slovak.el
 auctex/style/swedish.el
 auctex/style/virtex.el
+capf-autosuggest/capf-autosuggest.el:;; package is stored in GNU ELPA, non-trivial patches require copyright
+capf-autosuggest/capf-autosuggest.el:;; assignment to the FSF, see info node "(emacs) Copyright Assignment".
+coterm/coterm.el:;; package is stored in GNU ELPA, non-trivial patches require copyright
+coterm/coterm.el:;; assignment to the FSF, see info node "(emacs) Copyright Assignment".
 excorporate/excorporate-calfw.el:;; copyright assignment papers on file with the FSF.
 hyperbole/hib-doc-id.el:;;  Copyright:        
 hyperbole/kotl/kotl-autoloads.el

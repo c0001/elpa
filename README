@@ -4,6 +4,15 @@
 Copyright (C) 2010-2021 Free Software Foundation, Inc. \\
 See the end of the file for license conditions.
 
+#+BEGIN_COMMENT
+This file exists in two branches ~elpa-admin~ and ~elpa~.  The two version
+differ slightly.  The introductory text before the first heading
+differs and their are minor differences concerning the ~externals/*~ to
+~elpa/*~ transition.  Please make sure you always update this file in
+both locations to avoid introducing additional differences.  This
+duplication will be removed eventually.
+#+END_COMMENT
+
 This branch contains auxiliary files for [[https://elpa.gnu.org/][GNU ELPA]].
 
 The sources are stashed in auxiliary branches,
@@ -55,11 +64,194 @@ checkout, you can update it like this:
 
 * Directory layout
 
-** =admin/=    -- scripts for administering the package archive.
-** =html/=     -- HTML for the elpa.gnu.org website.
-** =packages/= -- source code for the packages.
-** =archive/=  -- destination of the release tarballs built.
-** =archive-devel/=  -- destination of the snapshot tarballs built.
+This code expects to be used in a directory that has the following layout:
+
+- =admin/=              -- Directory containing a copy of the here files
+- =GNUmakefile=         -- A copy of or symlink to =admin/GNUmakefile=
+- =elpa-packages=       -- The specifications of the packages
+- =elpa-config=         -- Some configuration settings for the build scripts
+- =copyright_exceptions= -- List of exceptions for the copyright-notices checks
+
+The =copyright_exceptions= file can be absent, in which case copyright notices
+will simply not be checked.
+
+Additionally to the above, this code will then add to that directory
+the following elements:
+
+- =packages/=           -- Directory holding Git worktrees of packages
+- =archive/=            -- Directory holding the generated files for the archive
+- =archive-devel/=      -- Same for the "bleeding edge" version of the archive
+
+* Specifications (elpa-packages)
+
+The specifications of packages is a `lisp-data-mode` file containing
+a single Lisp list where each element describe a particular ELisp package
+that should be part of the archive.  Each element has the form
+
+    (NAME . PLIST)
+
+where NAME is the name of the ELisp package and PLIST is a property list
+giving additional info about that package.  It has to have either
+a =:url= or a =:core= property, all others are optional.
+The properties are the following:
+
+** =:url URL=
+This property has to come first.
+Gives the URL where the upstream Git repository for that package can be found.
+The URL can be =nil= if there is no upstream repository.
+
+** =:core FILES=
+This property has to come first.
+Indicates that this is a special package which will be built by extracting
+files directly from Emacs's source code.  For this to work, the Emacs
+source code should be available in the =emacs= subdirectory.
+FILES specifies the files that will be contained in the generated tarballs.
+It can be a single file name or a list of file names.
+
+** =:branch BRANCH=
+Specifies the branch to follow in the upstream Git repository, in case
+it should be different from the default branch.
+
+** =:lisp-dir=
+Subdirectory in which the main ELisp found are found.
+Defaults to the top-level directory.
+
+** =:main-file FILE=
+Gives the name of the main file of the package, i.e. the file in which
+the metadata can be found in the form of pseudo-headers like "Version:".
+It needs to be an ELisp file formatted following the proper conventions.
+This is normally the file [PKG].el in the LISP-DIR, but in some rare
+circumstances the file is named differently.
+
+** =:release-branch BRANCH=
+The upstream BRANCH from which releases are cut.  This is only used
+for those packages which have both a development branch and a release branch
+and only if the version number in the development branch indicates that it
+contains development code (i.e. a "snapshot" version, according to
+`version-to-list`).
+
+** =:ignored-files FILES=
+Names of files or directories that should not be included in the tarballs.
+
+** =:renames RENAMES=
+Mapping from the source layout to the layout used in the tarball.
+RENAMES is a list of element (FROM TO) where FROM should terminate with =/=
+if it's a directory.
+If =:lisp-dir= is set, then that directory is renamed to =""= without
+having to specify it here.
+
+** =:readme FILE=
+Name of the file to use as the description of the package.  By default
+we try to use README, README.rst, README.org, or the Commentary section
+in the main file.
+
+** =:news FILE=
+Name of the file that contains the list of changes in recent versions
+(listed from more recent to least recent).
+By default we try to use NEWS, NEWS.rst, NEWS.md, NEWS.org, the News section
+in the main file.
+
+** =:doc FILE=
+Name of the documentation file for the package.
+It can be either an Info file, a Texinfo file, or an Org file.
+FILE can also be a list of those.
+
+** =:make TARGET=
+Indicates that we should run ~make TARGET~ in order to build some files.
+This is run before processing =:doc=, so it can be used to generate
+the Info and Texinfo file from some other format.
+TARGET can also be a list, in which case each target should be
+an actual file name (rather than a "phony target").
+
+** =:shell-command COMMAND=
+If running =make= is not good enough, this lets you run the shell COMMAND
+to build (or modify, rename, delete, younameit) some of the files.
+
+** =:version-map MAP=
+A list of elements of the form (ORIG-VERSION REMAPPED-VERSION REVISION).
+This allows replacing the ORIG-VERSION from the [PKG].el file
+with REMAPPED-VERSION (e.g. because the ORIG-VERSION is not a valid
+version number, is missing, or because we want to create a new package
+from the same code version).
+It also makes it possible to specify which REVISION corresponds to
+this ORIG-VERSION (or REMAPPED-VERSION if non-nil) to override
+the default heuristic which uses the last revision that modified the
+"Version:" header.
+
+* Configuration (elpa-config)
+
+The configuration file is a `lisp-data-mode` file containing
+a single Lisp list setting various options.  Each entry in the list is of
+the form
+
+    (NAME VALUE)
+
+where NAME is one of:
+** =name= The name of the ELPA archive, used in the HTML pages.
+** =url= The public URL of the ELPA archive.
+** =gitrepo=  The base URL of the Git repository holding the packages.
+** =branch-prefix= A prefix added to the packages's branches in the gitrepo.
+** =release-branch-prefix= Same but for the release branches.
+** =specs-file= Name of the specification file (default: =elpa-packages=).
+** =email-to= Email address to which to send announcement of new releases.
+** =email-from= Email address to use in the `From:` field.
+** =email-reply-to= Email address to use in the `Reply-To:` field.
+** =sandbox= If non-nil, use a `bwrap` sandbox to run commands (default: =t=).
+** =sandbox-extra-ro-dirs= Additional directories to make readable to `bwrap`.
+** =debug= If non-nil, emit more detailed messages.
+** =copyright-file= Name of a file containing copyright check exceptions.
+
+* Make targets
+
+** =all-in-place=
+This is the default target, and it prepares all the directories found in
+the =packages= subdirectory for use by =package.el=.  This assume you will
+want to add =.../packages= to your =package-directory-list= so as to treat
+those packages as installed "in place".
+
+** =packages/[PKGNAME]=
+Prepare the subdirectory =packages/[PKGNAME]= for use by =package.el=.
+If the directory does not exist yet, it checks it out as a Git worktree.
+Else, it generates the auxiliary files like =[PKGNAME]-pkg.el= and
+=[PKGNAME]-autoloads.el= and compiles the Elisp source files.
+
+** =[PKGNAME].tar=
+Build that tarball from the commit currently in =packages/[PKGNAME]=
+
+** =build/[PKGNAME]=
+Build the ELPA tarball(s) for PKGNAME.  The result is placed in
+the =archive= and =archive-devel= subdirectories.
+
+** =build-all=
+Same as before but does it for all the packages listed in the
+=elpa-packages= file.
+
+** =fetch/[PKGNAME]=
+Fetch changes from the upstream repository of package PKGNAME.
+Does not apply them to anywhere, only keeps them in Git and shows
+a concise summary of the new commits compared to the current
+content of the archive.
+
+** =fetch-all=
+Same as before but fetches changes for all the packages listed in the
+=elpa-packages= file.
+
+** =sync/[PKGNAME]=
+Fetch changes from the upstream repository of package PKGNAME
+and push them to the corresponding branch in the main repository (such as
+=elpa.git=).
+
+** =sync-all=
+Same as before but does it for all the packages listed in the
+=elpa-packages= file.
+
+** =clean=
+Delete all the files generated by a plain =make=.
+
+** =clean/[PKGNAME]=
+Delete all the files generated by =make packages/[PKGNAME]=.
+
+* Text below this marker is OUTDATED and still needs to be reviewed/rewritten!!
 
 * Packages
 
