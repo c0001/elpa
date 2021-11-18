@@ -67,7 +67,18 @@ This is recommended when building packages from untrusted sources,
 but this requires Bubblewrap (https://github.com/containers/bubblewrap)
 to be installed and has only been tested on some Debian systems.")
 
+(defvar elpaa--doc-subdirectory "doc/"
+  "Directory in which to place HTML docs for the ELPA website.
+If nil, don't build the docs in the first place.
+Directory is relative to the tarball directory.
+Can be set in elpa-config via `doc-dir'.")
+
 (defvar elpaa--debug nil)
+
+(defvar elpaa--org-export-options
+  '(:with-author nil :with-creator nil :with-broken-links t)
+  "Options used common to all Org export backends.
+See variable `org-export-options-alist'.")
 
 (unless (fboundp 'ignore-error)
   (defmacro ignore-error (condition &rest body)
@@ -101,6 +112,7 @@ to be installed and has only been tested on some Debian systems.")
               ('email-reply-to		elpaa--email-reply-to)
               ('sandbox			elpaa--sandbox)
               ('sandbox-extra-ro-dirs	elpaa--sandbox-extra-ro-dirs)
+              ('doc-dir                 elpaa--doc-subdirectory)
               ('debug			elpaa--debug))
             val))))
 
@@ -514,19 +526,32 @@ Do it without leaving the current branch."
 
 (defun elpaa--make-one-tarball ( tarball dir pkg-spec metadata
                                  &optional revision-function tarball-only)
-  "Create file TARBALL for PKGNAME if not done yet.
-Return non-nil if a new tarball was created."
+  "Create file TARBALL for PKG-SPEC if not done yet.
+Return non-nil if a new tarball was created.  Also create some
+auxillary files unless TARBALL-ONLY is non-nil ."
   (elpaa--message "Building tarball %s..." tarball)
-  (if (or (file-readable-p tarball)
-          (file-readable-p (replace-regexp-in-string
-                            "\\.tar\\'" ".el" tarball)))
+  (if (and (or (file-readable-p tarball)
+               (file-readable-p (replace-regexp-in-string
+				 "\\.tar\\'" ".el" tarball)))
+	   (or tarball-only
+	       ;; Even if the above exists, then we might still have
+	       ;; to call `elpaa--make-one-tarball-1' because that
+	       ;; is the only place where `elpaa--html-make-pkg' is
+	       ;; called and that in turn is where these files are
+	       ;; created:
+               (let ((pkgname (car pkg-spec))
+		     (default-directory
+		       (expand-file-name (file-name-directory tarball))))
+		 (and (file-readable-p (concat pkgname "-readme.txt"))
+		      (file-readable-p (concat pkgname ".html"))
+		      (file-readable-p (concat pkgname ".svg"))))))
       (progn
         (elpaa--message "Tarball %s already built!" tarball)
         nil)
     (message "======== Building tarball %s..." tarball)
     (let ((res nil))
       (unwind-protect
-          (condition-case err
+          (condition-case-unless-debug err
               (setq res (elpaa--make-one-tarball-1
                          tarball dir pkg-spec metadata
                          revision-function tarball-only))
@@ -567,7 +592,7 @@ Return non-nil if a new tarball was created."
      ;; Run `make' before building the Info file, so that the `make' rule
      ;; can be used to build the Info/Texinfo file.
      (elpaa--make pkg-spec dir)
-     (elpaa--build-Info pkg-spec dir)
+     (elpaa--build-Info pkg-spec dir destdir)
      (elpaa--write-pkg-file dir pkgname metadata)
      ;; FIXME: Allow renaming files or selecting a subset of the files!
      (cl-assert (not (string-match "[][*\\|?]" pkgname)))
@@ -616,8 +641,8 @@ Return non-nil if a new tarball was created."
                                           ;; least 2 years.
                                           (if revision-function
                                               (* 60 60 24 365 2))))
-         (let* ((default-directory (expand-file-name destdir)))
-           ;; Apparently this also creates the <pkg>-readme.txt file.
+         (let ((default-directory (expand-file-name destdir)))
+           ;; This also creates <pkg>-readme.txt and <pkg>.svg.
            (elpaa--html-make-pkg pkgdesc pkg-spec
                                  `((,vers . ,(file-name-nondirectory tarball))
                                    . ,oldtarballs)
@@ -637,7 +662,7 @@ Return non-nil if a new tarball was created."
                                (group-n 7 (+ digit)) ":"
                                (group-n 8 (+ digit))))
                         gitdate)
-    (error "unknown date format: %S" gitdate))
+    (error "Unknown date format: %S" gitdate))
   (let* ((field
           (lambda (group)
             (and (match-beginning group)
@@ -720,6 +745,9 @@ Return non-nil if a new tarball was created."
 (defun elpaa--string-width (str)
   "Determine string width in pixels of STR."
   (with-temp-buffer
+    ;; Current (2021) ImageMagick recommends using the "magick"
+    ;; driver, rather than "convert" directly, but Debian doesn't
+    ;; provide it yet.
     (elpaa--call (current-buffer)
                  "convert" "-debug" "annotate" "xc:" "-font" "DejaVu-Sans"
                  "-pointsize" "110" "-annotate" "0" str "null:")
@@ -804,20 +832,6 @@ Return non-nil if a new tarball was created."
 </svg>"))))
       (write-region (point-min) (point-max) file))))
 
-(defun elpaa--add-badge-link (file name)
-  "Add badge link to FILE for package NAME."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (let ((contents (buffer-string)))
-      (unless (string-match-p "<dt>Badge</dt>" contents)
-        (erase-buffer)
-        (insert
-         (replace-regexp-in-string "</dl>"
-                                   (format "<dt>Badge</dt><dd><img src=\"%s.svg\"/></dd>\n</dl>"
-                                           (elpaa--html-quote name))
-                                   contents))
-        (write-region (point-min) (point-max) file)))))
-
 (defun elpaa--make-one-package (pkg-spec &optional tarball-only)
   "Build the new tarballs (if needed) for PKG-SPEC.
 If TARBALL-ONLY is non-nil, don't try and select some other revision and
@@ -896,25 +910,7 @@ place the resulting tarball into the file named TARBALL-ONLY."
                      (elpaa--get-release-revision
                       dir pkg-spec vers
                       (plist-get (cdr pkg-spec) :version-map))))
-              (elpaa--release-email pkg-spec metadata dir)))))
-
-        ;; Generate missing badges (temporary code)
-        (let ((release-badge (format "%s/%s.svg" elpaa--release-subdir pkgname))
-              (devel-badge (format "%s/%s.svg" elpaa--devel-subdir pkgname))
-              (release-html (format "%s/%s.html" elpaa--release-subdir pkgname))
-              (devel-html (format "%s/%s.html" elpaa--devel-subdir pkgname)))
-          (unless (or (file-exists-p devel-badge)
-                      (not (file-exists-p devel-html)))
-            (elpaa--make-badge devel-badge
-                               (format "%s-devel ELPA" elpaa--name)
-                               (format "%s %s" pkgname devel-vers))
-            (elpaa--add-badge-link devel-html pkgname))
-          (unless (or (file-exists-p release-badge)
-                      (not (file-exists-p release-html)))
-            (elpaa--make-badge release-badge
-                               (format "%s ELPA" elpaa--name)
-                               (format "%s %s" pkgname vers))
-            (elpaa--add-badge-link release-html pkgname)))))))
+              (elpaa--release-email pkg-spec metadata dir)))))))))
 
 (defun elpaa--call (destination program &rest args)
   "Like ‘call-process’ for PROGRAM, DESTINATION, ARGS.
@@ -1197,10 +1193,50 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
          (insert-file-contents mainsrcfile)
          (lm-header prop))))))
 
+(cl-defgeneric elpaa--section-to-plain-text (section)
+  "Return SECTION as plain text.
+SECTION should be a cons as returned by `elpaa--get-section',
+which see."
+  (cdr section))
+
+(cl-defmethod elpaa--section-to-plain-text ((section (head text/x-org)))
+  (elpaa--export-org (cdr section) 'ascii
+                     :ext-plist (append '(:ascii-charset utf-8)
+                                        elpaa--org-export-options)))
+
+(cl-defgeneric elpaa--section-to-html (section)
+  "Return SECTION as HTML.
+SECTION should be a cons as returned by `elpaa--get-section',
+which see."
+  (concat "<pre>\n"
+          (elpaa--html-quote (cdr section))
+          "\n</pre>\n"))
+
+(cl-defmethod elpaa--section-to-html ((section (head text/x-org)))
+  (elpaa--export-org (cdr section) 'html
+                     :body-only t
+                     :ext-plist (append '(:html-toplevel-hlevel 3)
+                                        elpaa--org-export-options)))
+
+(defun elpaa--extension-to-mime (ext)
+  (pcase ext
+    ;; FIXME: On my Debian machine, `mailcap-extension-to-mime' tells me
+    ;; "org" is `application/vnd.lotus-organizer'.
+    ("org" 'text/x-org)
+    ;; FIXME: Apparently on some systems, `mailcap-extension-to-mime'
+    ;; returns nil for this one.
+    ((or "md" "markdown") 'text/markdown)
+    (_
+     (require 'mailcap)
+     (let ((mt (if ext (mailcap-extension-to-mime ext))))
+         (if mt (intern mt) 'text/plain)))))
+
 (defun elpaa--get-section (header file srcdir pkg-spec)
-  "Return specified section as a string from SRCDIR for PKG-SPEC.
-If FILE is readable in SRCDIR, return its contents.  Otherwise
-return section under HEADER in package's main file."
+  "Return specified section for PKG-SPEC.
+Returns (TYPE . CONTENT) cons, where TYPE is a MIME-type string,
+and CONTENT is the content string.  If FILE is readable in
+SRCDIR, return its contents.  Otherwise return section under
+HEADER in package's main file."
   (when (consp file)
     (while (cdr-safe file)
       (setq file
@@ -1210,51 +1246,88 @@ return section under HEADER in package's main file."
     (when (consp file) (setq file (car file))))
   (cond
    ((file-readable-p (expand-file-name file srcdir))
-    (with-temp-buffer
-      (insert-file-contents (expand-file-name file srcdir))
-      (buffer-string)))
+    ;; Return FILE's contents.
+    (let ((type (elpaa--extension-to-mime (file-name-extension file)))
+          (content (with-temp-buffer
+                     (insert-file-contents (expand-file-name file srcdir))
+                     (buffer-string))))
+      (cons type content)))
    ((file-readable-p (expand-file-name (elpaa--main-file pkg-spec) srcdir))
+    ;; Return specified section from package's main source file.
     (with-temp-buffer
-      (insert-file-contents
-       (expand-file-name (elpaa--main-file pkg-spec) srcdir))
-      (emacs-lisp-mode) ;lm-section-start needs the outline-mode setting.
-      (let ((start (lm-section-start header)))
-        (when start
-          ;; FIXME: Emacs<28 had a bug in `lm-section-end', so cook up
-          ;; our own ad-hoc replacement.
-          (goto-char start) (forward-line 1)
-          (re-search-forward "^\\(;;;[^;\n]\\|[^; \n]\\)" nil t)
-          (insert
-           (prog1
-               (buffer-substring start (match-beginning 0))
-             (erase-buffer)))
-          (emacs-lisp-mode)
-          (goto-char (point-min))
-          (delete-region (point) (line-beginning-position 2))
-          (uncomment-region (point-min) (point-max))
-          (when (looking-at "^\\([ \t]*\n\\)+")
-            (replace-match ""))
-          (goto-char (point-max))
-          (skip-chars-backward " \t\n")
-          (delete-region (point) (point-max))
-          (buffer-string)))))))
+      (let ((type 'text/plain))
+        (insert-file-contents
+         (expand-file-name (elpaa--main-file pkg-spec) srcdir))
+        (emacs-lisp-mode)       ;lm-section-start needs the outline-mode setting.
+        (let ((start (lm-section-start header)))
+          (when start
+            ;; FIXME: Emacs<28 had a bug in `lm-section-end', so cook up
+            ;; our own ad-hoc replacement.
+            (goto-char start) (forward-line 1)
+            (re-search-forward "^\\(;;;[^;\n]\\|[^; \n]\\)" nil t)
+            (insert
+             (prog1
+                 (buffer-substring start (match-beginning 0))
+               (erase-buffer)))
+            (emacs-lisp-mode)
+            (goto-char (point-min))
+            (delete-region (point) (line-beginning-position 2))
+            (uncomment-region (point-min) (point-max))
+            (when (looking-at "^\\([ \t]*\n\\)+")
+              (replace-match ""))
+            (goto-char (point-max))
+            (skip-chars-backward " \t\n")
+            (delete-region (point) (point-max))
+            (cons type (buffer-string)))))))))
+
+(cl-defun elpaa--export-org (content backend &key body-only ext-plist)
+  "Return Org CONTENT as an exported string.
+BACKEND and EXT-PLIST are passed to `org-export-as', which see.
+Uses `elpaa--call-sandboxed', since exporting with Org may run
+arbitrary code."
+  (declare (indent defun))
+  (cl-check-type backend symbol)
+  (cl-assert (memq body-only '(nil t)) t
+             "BODY-ONLY may only be nil or t")
+  ;; "emacs --batch" loads site-init files, which may pollute output,
+  ;; so we write it to a temp file.
+  (let ((input-filename
+         (make-temp-file (expand-file-name "elpaa--export-input")))
+        (output-filename
+         (make-temp-file (expand-file-name "elpaa--export-output"))))
+    (unwind-protect
+        (progn
+          (write-region content nil input-filename)
+          (with-temp-buffer
+            (elpaa--call-sandboxed
+             t "emacs" "--batch" "-l" (format "ox-%S" backend)
+             input-filename
+             "--eval" (format "(write-region (org-export-as '%s nil nil %S '%S) nil %S)"
+                              backend body-only ext-plist output-filename)))
+          (with-temp-buffer
+            (insert-file-contents output-filename)
+            (buffer-string)))
+      (delete-file input-filename)
+      (delete-file output-filename))))
 
 (defun elpaa--get-README (pkg-spec dir)
-  (elpaa--get-section
-   "Commentary" (elpaa--spec-get pkg-spec :readme
-                                 '("README" "README.rst"
-                                   ;; Most README.md files seem to be currently
-                                   ;; worse than the Commentary: section :-(
-                                   ;; "README.md"
-                                   "README.org"))
-   dir pkg-spec))
+  (or (elpaa--get-section
+       "Commentary" (elpaa--spec-get pkg-spec :readme
+                                     '("README" "README.rst"
+                                       ;; Most README.md files seem to be
+                                       ;; currently worse than the Commentary:
+                                       ;; section :-( "README.md"
+                                       "README.org"))
+       dir pkg-spec)
+      '(text/plain . "!No description!")))
 
 (defun elpaa--get-NEWS (pkg-spec dir)
-  (let ((text
-         (elpaa--get-section
-          "News" (elpaa--spec-get pkg-spec :news
-                                  '("NEWS" "NEWS.rst" "NEWS.md" "NEWS.org"))
-          dir pkg-spec)))
+  (let* ((news
+          (elpaa--get-section
+           "News" (elpaa--spec-get pkg-spec :news
+                                   '("NEWS" "NEWS.rst" "NEWS.md" "NEWS.org"))
+           dir pkg-spec))
+         (text (elpaa--section-to-plain-text news)))
     (if (< (length text) 4000)
         text
       (concat (substring text 0 4000) "...\n...\n"))))
@@ -1299,6 +1372,34 @@ return section under HEADER in package's main file."
              (concat git-sv (nth 1 urls))
              'Gitweb))))
 
+(defun elpaa--get-docfiles (pkg-spec)
+  (let ((files (elpaa--spec-get pkg-spec :doc)))
+    (if (listp files) files (list files))))
+
+(defun elpaa--doc-html-file (docfile)
+  (concat (file-name-base docfile) ".html"))
+
+(defun elpaa--html-insert-docs (pkg-spec)
+  (let ((docfiles (plist-get (cdr pkg-spec) :internal--html-docs))
+	;; `html-dir' is relative to the tarball directory, so html
+	;; references on mirrors work.  It does not include the
+	;; package name, so cross references among package docs work.
+	(html-dir (when elpaa--doc-subdirectory
+	            (file-name-as-directory elpaa--doc-subdirectory))))
+    (when (and docfiles html-dir
+	       ;; FIXME: This dir is shared, so it will always exist.
+	       ;; Should we use (expand-file-name pkg html-dir) instead?
+               (file-readable-p html-dir)) ;; html doc files were built
+      (insert "<h2>Documentation</h2><table>\n")
+      (dolist (doc docfiles)
+	(let ((html-file (concat html-dir (cdr doc))))
+	  (insert "<tr><td><a href=\"" html-file "\">"
+	          (car doc)
+	          "</a></td></tr>\n")
+	  ;; FIXME: get link text from info direntry?
+	  ))
+      (insert "</table>\n"))))
+
 (defun elpaa--html-make-pkg (pkg pkg-spec files srcdir)
   (let* ((name (symbol-name (car pkg)))
          (latest (package-version-join (aref (cdr pkg) 0)))
@@ -1327,13 +1428,20 @@ return section under HEADER in package's main file."
                           file (elpaa--html-quote file)
                           (format-time-string "%Y-%b-%d" (nth 5 attrs))
                           (elpaa--html-bytes-format (nth 7 attrs))))))
-      (let ((maint (elpaa--get-prop "Maintainer" name srcdir mainsrcfile)))
-        (when maint
-          (when (consp maint)
-            (elpaa--message "maint=%S" maint)
-            (setq maint (concat (if (car maint) (concat (car maint) " "))
-                                "<" (cdr maint) ">")))
-          (insert (format "<dt>Maintainer</dt> <dd>%s</dd>\n" (elpaa--html-quote maint)))))
+      (let ((maints (elpaa--get-prop "Maintainer" name srcdir mainsrcfile)))
+        (elpaa--message "maints=%S" maints)
+        (insert
+         "<dt>Maintainer</dt> <dd>"
+         (mapconcat (lambda (maint)
+                      (when (consp maint)
+                        (setq maint (concat (if (car maint) (concat (car maint) " "))
+                                            "<" (cdr maint) ">")))
+                      (elpaa--html-quote maint))
+                    (if (or (null maints) (consp (car-safe maints)))
+                        maints
+                      (list maints))
+                    ", ")
+         "</dd>\n"))
       (elpaa--insert-repolinks
        pkg-spec
        (or (cdr (assoc :url (aref (cdr pkg) 4)))
@@ -1343,11 +1451,15 @@ return section under HEADER in package's main file."
       (insert (format "<p>To install this package, run in Emacs:</p>
                        <pre>M-x <span class=\"kw\">package-install</span> RET <span class=\"kw\">%s</span> RET</pre>"
                       name))
-      (let ((rm (elpaa--get-README pkg-spec srcdir)))
-        (when rm
-          (write-region rm nil (concat name "-readme.txt"))
-          (insert "<h2>Full description</h2><pre>\n" (elpaa--html-quote rm)
-                  "\n</pre>\n")))
+      (let* ((readme-content (elpaa--get-README pkg-spec srcdir))
+             (readme-text (elpaa--section-to-plain-text readme-content))
+             (readme-html (elpaa--section-to-html readme-content))
+             (readme-output-filename (concat name "-readme.txt")))
+        (write-region readme-text nil readme-output-filename)
+        (insert "<h2>Full description</h2>\n" readme-html))
+
+      (elpaa--html-insert-docs pkg-spec)
+
       ;; (message "latest=%S; files=%S" latest files)
       (unless (< (length files) (if (zerop (length latest)) 1 2))
         (insert (format "<h2>Old versions</h2><table>\n"))
@@ -1510,6 +1622,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
     (unless (file-directory-p default-directory)
       (make-directory default-directory))
     (cond ((not (file-exists-p name))
+	   (message "Cloning branch %s:" name)
            (let* ((branch (concat elpaa--branch-prefix name))
                   (add-branches
                    (lambda ()
@@ -1517,7 +1630,8 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
                        (elpaa--call t "git" "config"
                                     "--get-all" "remote.origin.fetch")
                        (unless (or (= (point) pos)
-                                   (re-search-backward "\\*$" pos t))
+                                   (save-excursion
+				     (re-search-backward "\\*$" pos t)))
                          (elpaa--call t "git" "remote" "set-branches"
                                       "--add" "origin" branch)
                          (when (elpaa--spec-get pkg-spec :release-branch)
@@ -1547,7 +1661,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
                        (error "No branch %s for the worktree of %s:\n%s"
                               branch name (buffer-string))))
                      (buffer-string))))
-             (message "Cloning branch %s:\n%s" name output)))
+	     (message "%s" output)))
           ((not (file-exists-p (concat name "/.git")))
            (message "%s is in the way of our worktree, please remove!" name))
           (t (elpaa--pull name)))))
@@ -1773,6 +1887,10 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
   (when elpaa--email-to
     (with-temp-buffer
       (message-mode)
+      (declare-function message-setup "message"
+                        (headers &optional yank-action actions continue
+                                 switch-function return-action))
+      (declare-function message-send "message" (&optional arg))
       (let* ((version (nth 1 metadata))
              (pkgname (car pkg-spec))
              (name (capitalize pkgname))
@@ -1813,16 +1931,65 @@ More at " (elpaa--default-url pkgname))
 
 ;;; Build Info files from Texinfo
 
-(defun elpaa--build-Info (pkg-spec dir)
-  (let ((docfile (elpaa--spec-get pkg-spec :doc)))
-    (dolist (f (if (listp docfile) docfile (list docfile)))
-      (elpaa--build-Info-1 f dir))))
+(defun elpaa--build-Info (pkg-spec dir tarball-dir)
+  "Build info files for docs specified in :doc field of PKG-SPEC.
+If `elpa--doc-subdirectory' is non-nil, also build html files.
+DIR is the package directory.  TARBALL-DIR is an absolute
+directory; one of archive, archive-devel."
+  ;; default-directory is the GNUMakefile directory.
+  (let ((docfiles (elpaa--get-docfiles pkg-spec))
+	(html-dir
+	 (when elpaa--doc-subdirectory
+	   (elpaa--dirname
+	    (car pkg-spec)
+	    (expand-file-name elpaa--doc-subdirectory tarball-dir)))))
+    (when html-dir
+      (when (not (file-readable-p html-dir)) ;FIXME: Why bother testing?
+	(make-directory html-dir t)))
 
-(defun elpaa--build-Info-1 (docfile dir)
+    (dolist (f docfiles)
+      (elpaa--build-Info-1 pkg-spec f dir html-dir))))
+
+(defun elpaa--html-build-doc (pkg-spec docfile html-dir)
+  (setq html-dir (directory-file-name html-dir))
+  (let* ((destname (elpaa--doc-html-file docfile))
+	 (html-file (expand-file-name destname html-dir))
+	 (html-xref-file
+	  (expand-file-name destname (file-name-directory html-dir)))
+	 ;; The sandbox doesn't allow write access to the `html-dir',
+         ;; so we first create the file inside the sandbox and then
+         ;; we move it to its intended destination.
+	 (tmpfile
+	  (concat (make-temp-name (expand-file-name "doc")) ".html")))
+    (with-temp-buffer
+      (elpaa--call-sandboxed
+       t "makeinfo" "--no-split" "--html" docfile "-o" tmpfile)
+      (message "%s" (buffer-string)))
+    (rename-file tmpfile html-file t)
+    ;; FIXME: Use `push' in Emacs≥28
+    (plist-put (cdr pkg-spec)
+               :internal--html-docs
+               (cons (cons (file-name-base html-file)
+                           (file-name-nondirectory html-file))
+                     (plist-get (cdr pkg-spec) :internal--html-docs)))
+
+    ;; Create a symlink from elpa/archive[-devel]/doc/* to
+    ;; the actual file, so html references work.
+    (with-demoted-errors "%S" ;; 'make-symbolic-link' doesn't work on Windows
+      (make-symbolic-link
+       (concat (file-name-nondirectory html-dir) "/" destname)
+       html-xref-file t))))
+
+(defun elpaa--build-Info-1 (pkg-spec docfile dir html-dir)
+  "Build an info file from DOCFILE (a texinfo source file).
+DIR must be the package source directory.  If HTML-DIR is
+non-nil, also build html files, store them there.  HTML-DIR is
+relative to elpa root."
   (let* ((elpaa--sandbox-ro-binds
           (cons default-directory elpaa--sandbox-ro-binds))
          (default-directory (elpaa--dirname dir))
          (tmpfiles '()))
+
     (when (and docfile (file-readable-p docfile)
                (string-match "\\.org\\'" docfile))
       (with-temp-buffer
@@ -1839,7 +2006,10 @@ More at " (elpaa--default-url pkgname))
           (setq docfile (concat (file-name-directory docfile)
                                 (match-string 1)))
           (push docfile tmpfiles)
-          (elpaa--temp-file docfile))))
+          (elpaa--temp-file docfile)))
+
+      ;; FIXME: also build html from org source.
+      )
 
     (when (and docfile (file-readable-p docfile)
                (string-match "\\.texi\\(nfo\\)?\\'" docfile))
@@ -1852,6 +2022,9 @@ More at " (elpaa--default-url pkgname))
           (elpaa--call-sandboxed
            t "makeinfo" "--no-split" docfile "-o" info-file)
           (message "%s" (buffer-string)))
+
+	(when html-dir (elpaa--html-build-doc pkg-spec docfile html-dir))
+
         (setq docfile info-file)))
 
     (when (and docfile (not (string-match "\\.info\\'" docfile)))
@@ -1943,15 +2116,13 @@ More at " (elpaa--default-url pkgname))
                                (if release-refspec
                                    (list release-refspec)))))
           (message "Fetch error for %s:\n%s" pkg (buffer-string)))
-         ((and
-           (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
-                               urtb ortb))
-           (elpaa--git-branch-p ortb))
+	 ((not (elpaa--git-branch-p ortb))
+	  (message "New package %s hasn't been pushed to origin yet" pkg))
+         ((zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
+                              urtb ortb))
           (message "Nothing new upstream for %s" pkg))
-         ((and
-           (not (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
-                                    ortb urtb)))
-           (elpaa--git-branch-p ortb))
+         ((not (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
+                                   ortb urtb)))
           (message "Upstream of %s has DIVERGED!\n" pkg)
           (when show-diverged
             (elpaa--call t "git" "log"
@@ -1963,12 +2134,9 @@ More at " (elpaa--default-url pkgname))
                          "--format=%h  %<(16,trunc)%ae  %s"
                          (format "%s..%s" ortb urtb))
             (message "  Upstream changes:\n%s" (buffer-string))))
-         ((let* ((exists (elpaa--git-branch-p ortb)))
-            (not (equal 0 (elpaa--call t "git" "log"
-                                       "--format=%h  %<(16,trunc)%ae  %s"
-                                       (if exists
-                                           (format "%s..%s" ortb urtb)
-                                         urtb)))))
+         ((not (zerop (elpaa--call t "git" "log"
+                                   "--format=%h  %<(16,trunc)%ae  %s"
+                                   (format "%s..%s" ortb urtb))))
           (message "Log error for %s:\n%s" pkg (buffer-string)))
          ((eq (point-min) (point-max))
           (message "No pending upstream changes for %s" pkg))
