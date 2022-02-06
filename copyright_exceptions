@@ -44,6 +44,7 @@ hyperbole/kotl/kotl-autoloads.el
 mmm-mode/mmm-noweb.el:;; Copyright 1995 by Thorsten.Ohl @ Physik.TH-Darmstadt.de
 mmm-mode/mmm-noweb.el:;; Copyright 2003, 2004  Joe Kelsey <joe@zircon.seattle.wa.us>
 mmm-mode/mmm-rpm.el:;; Copyright (C) 2000 by Marcus Harnisch <Marcus.Harnisch@gmx.net>
+parser-generator/parser-generator-lr-export.el:      ;; Optional copyright
 python/python.el:           ;; copyright, license, credits, quit and exit are added by the site
 realgud/realgud-recursive-autoloads.el
 rudel/rudel-loaddefs.el
