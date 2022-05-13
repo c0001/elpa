@@ -178,6 +178,9 @@ Delete backup files also."
 (defun elpaa--spec-get (pkg-spec prop &optional default)
   (or (plist-get (cdr pkg-spec) prop) default))
 
+(defun elpaa--spec-member (pkg-spec prop)
+  (plist-member (cdr pkg-spec) prop))
+
 (defun elpaa--main-file (pkg-spec)
   (or (elpaa--spec-get pkg-spec :main-file)
       (let ((ldir (elpaa--spec-get pkg-spec :lisp-dir)))
@@ -297,7 +300,24 @@ returns.  Return the selected revision."
         ;; so that for :core packages we properly affect the Emacs tree.
         (elpaa--call t "git" "reset" "--merge" rev)
         (elpaa--message "Reverted to release revision %s\n%s"
-                        rev (buffer-string))))
+                        rev (buffer-string)))
+      ;; We should make sure we go back to the head of the branch afterwards,
+      ;; tho it's convenient to do it more lazily, e.g. in case of error it
+      ;; can make it easier to diagnose the problem.
+      ;; But for `:core' packages it's important because the same tree
+      ;; may be used for another package in the same run, so we'd otherwise
+      ;; end up (re)building old versions.
+      ;; FIXME: We should probably fix this better in
+      ;; `elpaa--get-release-revision' and/or `elpaa--get-last-release'
+      ;; not to depend on the current in-tree revision.
+      (when (eq :core (cadr pkg-spec))
+        (elpaa--temp-file
+         (lambda ()
+           (let ((default-directory (file-name-directory ftn)))
+             (with-temp-buffer
+               (elpaa--call t "git" "merge")
+               (elpaa--message "Restored the head revision\n%s"
+                               (buffer-string))))))))
     (or rev cur-rev)))
 
 (defun elpaa--make-tar-transform (pkgname r)
@@ -607,11 +627,9 @@ auxillary files unless TARBALL-ONLY is non-nil ."
      (apply #'elpaa--call
             nil "tar"
             `("--exclude-vcs"
-              ,@(cond
-                 (ignores
-                  (mapcar (lambda (i) (format "--exclude=packages/%s/%s" pkgname i))
-                          ignores))
-                 ((file-readable-p elpaignore) `("-X" ,elpaignore)))
+              ,@(mapcar (lambda (i) (format "--exclude=packages/%s/%s" pkgname i))
+                        ignores)
+              ,@(when (file-readable-p elpaignore) `("-X" ,elpaignore))
               ,@(mapcar (lambda (r) (elpaa--make-tar-transform pkgname r))
                         renames)
               "--transform"
@@ -1364,6 +1382,7 @@ arbitrary code."
             (elpaa--call-sandboxed
              t "emacs" "--batch" "-l" (format "ox-%S" backend)
              input-filename
+             "--eval" "(setq org-babel-confirm-evaluate-answer-no t)"
              "--eval" (format "(write-region (org-export-as '%s nil nil %S '%S) nil %S)"
                               backend body-only ext-plist output-filename)))
           (with-temp-buffer
@@ -1860,8 +1879,8 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
       (let* ((pkg-spec (assoc pkg specs))
              (kind (nth 1 pkg-spec)))
         (pcase kind
-          ((or ':url `:external) (elpaa--worktree-sync pkg-spec))
-          (`:core
+          (':url (elpaa--worktree-sync pkg-spec))
+          (':core
            (if (not with-core)
                (unless msg-done
                  (setq msg-done t)
@@ -1981,9 +2000,19 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
              (maints (if (consp (car maint)) maint (list maint)))
              (maint-emails
               (mapcar (lambda (x)
-                        (and (stringp (cdr-safe x))
-                             (string-match "@" (cdr x))
-                             (format "%s <%s>" (car x) (cdr x))))
+                        (let ((name  (car-safe x))
+                              (email (cdr-safe x)))
+                          (if (not (and (stringp email)
+                                        (string-match "@" email)))
+                              (progn
+                                (message "Error, no email address: %S" x)
+                                nil)
+                            (while (and (stringp name)
+                                        (string-match "[<@>,]" name))
+                              (message "Error, weird char \"%s\" in name: %S"
+                                       (match-string 0 name) name)
+                              (setq name (replace-match " " t t name)))
+                            (format "%s <%s>" name email))))
                       maints))
              (maintainers
               (mapconcat #'identity (delq nil maint-emails) ",")))
@@ -2083,6 +2112,7 @@ relative to elpa root."
          ;; otherwise Org will want to export into the Emacs tree!
          "--eval" "(setq vc-follow-symlinks nil)"
          docfile
+         "--eval" "(setq org-babel-confirm-evaluate-answer-no t)"
          "--eval" "(message \"ELPATEXI=%s\" (org-texinfo-export-to-texinfo))")
         (message "%s" (buffer-string))
         (goto-char (point-max))
@@ -2176,8 +2206,7 @@ relative to elpa root."
 
 (defun elpaa--fetch (pkg-spec &optional k show-diverged)
   (let* ((pkg (car pkg-spec))
-         (url (or (elpaa--spec-get pkg-spec :external)
-                  (elpaa--spec-get pkg-spec :url)))
+         (url (elpaa--spec-get pkg-spec :url))
          (branch (elpaa--branch pkg-spec))
          (release-branch (elpaa--spec-get pkg-spec :release-branch))
          (ortb (elpaa--ortb pkg-spec))
@@ -2189,7 +2218,8 @@ relative to elpa root."
                                       release-branch
                                       (elpaa--urtb pkg-spec "release")))))
     (if (not url)
-        (message "No upstream URL in %s for %s" elpaa--specs-file pkg)
+        (unless (elpaa--spec-member pkg-spec :url)
+          (message "No upstream URL in %s for %s" elpaa--specs-file pkg))
       (message "Fetching updates for %s..." pkg)
       (with-temp-buffer
         (cond
@@ -2200,7 +2230,8 @@ relative to elpa root."
                                    (list release-refspec)))))
           (message "Fetch error for %s:\n%s" pkg (buffer-string)))
 	 ((not (elpaa--git-branch-p ortb))
-	  (message "New package %s hasn't been pushed to origin yet" pkg))
+	  (message "New package %s hasn't been pushed to origin yet" pkg)
+	  (when k (funcall k pkg-spec)))
          ((zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
                               urtb ortb))
           (message "Nothing new upstream for %s" pkg))
@@ -2230,16 +2261,19 @@ relative to elpa root."
   (let* ((pkg (car pkg-spec))
          (release-branch (elpaa--spec-get pkg-spec :release-branch))
          (ortb (elpaa--ortb pkg-spec))
+         (ortb-p (elpaa--git-branch-p ortb))
          (urtb (elpaa--urtb pkg-spec)))
     ;; FIXME: Arrange to merge if it's not a fast-forward.
     (with-temp-buffer
       (cond
-       ((zerop (elpaa--call t "git" "merge-base" "--is-ancestor" urtb ortb))
+       ((and ortb-p
+             (zerop (elpaa--call t "git" "merge-base"
+                                 "--is-ancestor" urtb ortb)))
         (message "Nothing to push for %s" pkg))
-       ((and
-         (not (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
-                                  ortb urtb)))
-         (elpaa--git-branch-p ortb))
+       ((and ortb-p
+             (not (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
+                                      ortb urtb)))
+             (elpaa--git-branch-p ortb))
         (message "Can't push %s: not a fast-forward" pkg))
        ((equal 0 (apply #'elpaa--call
                         t "git" "push" "--set-upstream"
