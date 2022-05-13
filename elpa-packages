@@ -35,7 +35,8 @@
 
 (("ace-window"		:url "https://github.com/abo-abo/ace-window"
   :auto-sync t)
- ("ack"			:url "https://github.com/leoliu/ack-el")
+ ("ack"			:url "https://github.com/leoliu/ack-el"
+  :aut-sync t)
  ("ada-mode"		:url nil :doc ("ada-mode.texi" "gpr-mode.texi"))
  ("ada-ref-man"		:url nil)
  ("adaptive-wrap"	:url nil)
@@ -50,12 +51,16 @@
  ("ascii-art-to-unicode" :url nil)
  ("async"		:url "https://github.com/jwiegley/emacs-async"
   :auto-sync t)
+ ;; AUCTeX is currently sync'd manually and elpa.git isn't quite a mirror :-(
  ("auctex"		:url "git://git.sv.gnu.org/auctex.git")
  ("aumix-mode"		:url nil)
  ("auto-overlays"	:url "http://www.dr-qubit.org/git/predictive.git"
   :doc "docs/auto-overlay-manual.texinfo")
  ("auto-correct"	:url nil)
+ ;; FIXME: Avy diverged https://github.com/abo-abo/avy/issues/344
  ("avy"			:url "https://github.com/abo-abo/avy")
+ ;; The BBDB branch in elpa.git is managed directly by hand, with
+ ;; a "parallel" history to that of the upstream.
  ("bbdb"		:url "git://git.savannah.nongnu.org/bbdb.git"
   :lisp-dir "lisp"
   :doc "doc/bbdb.texi")
@@ -72,7 +77,10 @@
  ("boxy-headings"	:url "https://gitlab.com/tygrdev/boxy-headings"
   :auto-sync t)
  ("brief"		:url nil)
+ ("buffer-env"		:url "https://github.com/astoff/buffer-env"
+  :auto-sync t)
  ("buffer-expose"	:url "https://github.com/clemera/buffer-expose")
+ ;; FIXME: https://github.com/Malabarba/elisp-bug-hunter/issues/31
  ("bug-hunter"		:url "https://github.com/Malabarba/elisp-bug-hunter")
  ;;FIXME:("cedet"	:url "??")
  ;; ("cc-mode"		:core ("lisp/progmodes/cc-align.el"
@@ -102,30 +110,45 @@
  ("cl-print"		:core "lisp/emacs-lisp/cl-print.el")
  ("clipboard-collector" :url "https://github.com/clemera/clipboard-collector")
  ("cobol-mode"          :url "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca")
- ("coffee-mode"		:url "https://github.com/defunkt/coffee-mode")
- ("compact-docstrings"  :url "https://github.com/cpitclaudel/compact-docstrings")
+ ("code-cells"		:url "https://github.com/astoff/code-cells.el"
+  :ignored-files ("LICENSE")
+  :auto-sync t)
+ ;; FIXME: The upstream has incompatible copyrights, so we moved it to NonGNU.
+ ;; ("coffee-mode"		:url "https://github.com/defunkt/coffee-mode")
+ ("compact-docstrings"  :url "https://github.com/cpitclaudel/compact-docstrings"
+  :auto-sync t)
  ("comint-mime"		:url "https://github.com/astoff/comint-mime"
   :auto-sync t)
  ("company"
   :url "https://github.com/company-mode/company-mode.git"
+  :shell-command "cp -R doc/images ."
+  :doc "doc/company.texi"
+  :ignored-files ("doc")
   :auto-sync t)
  ("company-ebdb"	:url nil)
  ("company-math"	:url "https://github.com/vspinu/company-math.git")
  ("company-statistics"	:url "https://github.com/company-mode/company-statistics")
  ("compat"		:url "https://git.sr.ht/~pkal/compat"
+  :make "compat.info"
+  :doc "compat.info"
   :auto-sync t)
  ("consult"
   :url "https://github.com/minad/consult"
   :doc "README.org"
   :ignored-files ("images")
   :auto-sync t)
+ ;; FIXME: https://github.com/jacksonrayhamilton/context-coloring/issues/9
  ("context-coloring"	:url "https://github.com/jacksonrayhamilton/context-coloring.git")
  ("corfu"		:url "https://github.com/minad/corfu"
-  :doc "README.org" :auto-sync t)
+  :doc "README.org"
+  :renames (("extensions/" ""))
+  :auto-sync t)
  ("coterm"		:url "https://repo.or.cz/emacs-coterm.git"
   :auto-sync t)
  ("counsel"		:url "https://github.com/abo-abo/swiper")
  ("cpio-mode"		:url "https://github.com/dlewan/cpio-mode")
+ ("cpupower"		:url "https://gitlab.com/steve-emacs-stuff/cpupower-el"
+  :auto-sync t)
  ("crisp"		:url nil)
  ("crdt"		:url "https://code.librehq.com/qhong/crdt.el"
   :auto-sync t)
@@ -134,13 +157,19 @@
   :readme "README.org"
   :auto-sync t)
  ("csv-mode"		:url nil)
+ ("cursory"
+  :url "https://git.sr.ht/~protesilaos/cursory"
+  :auto-sync t
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("cycle-quotes"	:url nil)
  ("darkroom"            :url "https://github.com/capitaomorte/darkroom.git")
  ("dash"
   :url "https://github.com/magnars/dash.el.git"
   :doc "dash.texi"
   :auto-sync t)
- ("dbus-codegen"	:url "https://github.com/ueno/dbus-codegen-el.git")
+ ("dbus-codegen"	:url "https://github.com/ueno/dbus-codegen-el.git"
+  :ignored-files ("COPYING")
+  :auto-sync t)
  ("debbugs"		:url nil :doc ("debbugs.texi" "debbugs-ug.texi"))
  ("delight"		:url "https://git.savannah.gnu.org/r/delight.git"
   :auto-sync t)
@@ -160,14 +189,15 @@
  ("dismal"		:url nil)
  ("djvu"		:url nil)
  ("docbook"		:url nil)
- ("dtache"		:url "https://gitlab.com/niklaseklund/dtache"
+ ("dtache"		:url "https://git.sr.ht/~niklaseklund/dtache"
   :news "CHANGELOG.org"
-  :readme "README.org"
+  :readme "README.md"
   :auto-sync t)
- ("dts-mode"		:url "https://github.com/bgamari/dts-mode.git")
+ ("dts-mode"		:url nil) ;; Was "https://github.com/bgamari/dts-mode.git")
  ("easy-escape"		:url "https://github.com/cpitclaudel/easy-escape"
   :auto-sync t)
- ("easy-kill"		:url "https://github.com/leoliu/easy-kill")
+ ("easy-kill"		:url "https://github.com/leoliu/easy-kill"
+  :auto-sync t)
  ("ebdb"                :url "https://github.com/girzel/ebdb.git")
  ("ebdb-gnorb"		:url nil)
  ("ebdb-i18n-chn"	:url nil)
@@ -183,6 +213,8 @@
  ("eldoc-eval"		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  ("electric-spacing"	:url nil)
  ("elisp-benchmarks"	:url nil)
+ ;; ("emacspeak"		:url nil
+ ;;  :lisp-dir "lisp")
  ("embark"
   :url "https://github.com/oantolin/embark"
   :doc "embark.texi"
@@ -253,15 +285,21 @@
  ("filladapt"		:url nil)
  ("flylisp"		:url nil)
  ("flymake"		:core "lisp/progmodes/flymake.el")
- ("flymake-proselint"	:url "https://github.com/manuel-uberti/flymake-proselint"
+ ("flymake-proselint"	:url "https://git.sr.ht/~manuel-uberti/flycheck-proselint"
   :auto-sync t)
+ ("fontaine"
+  :url "https://git.sr.ht/~protesilaos/fontaine"
+  :auto-sync t
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("frame-tabs"		:url nil)
  ("frog-menu"		:url "https://github.com/clemera/frog-menu")
  ("fsm"			:url nil)
  ("ftable"		:url "https://github.com/casouri/ftable"
   :auto-sync t)
  ("gcmh"		:url "https://gitlab.com/koral/gcmh")
- ("ggtags"		:url "https://github.com/leoliu/ggtags")
+ ("ggtags"		:url "https://github.com/leoliu/ggtags"
+  :auto-sync t)
  ("gited"		:url nil)
  ("gle-mode"		:url nil)
  ("gnome-c-style"	:url "https://github.com/ueno/gnome-c-style.git")
@@ -273,6 +311,8 @@
  ("gpastel"		:url "https://gitlab.petton.fr/DamienCassou/gpastel")
  ("greader"		:url "https://gitlab.com/michelangelo-rodriguez/greader")
  ("greenbar"		:url nil)
+ ("gtags-mode"		:url "https://github.com/Ergus/gtags-mode"
+  :auto-sync t)
  ("guess-language"	:url "https://github.com/tmalsburg/guess-language.el")
  ("heap"		:url "http://www.dr-qubit.org/git/predictive.git")
  ("hiddenquote"	:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote")
@@ -281,9 +321,13 @@
   :auto-sync t)
  ("hook-helpers"	:url "https://git.savannah.nongnu.org/git/hook-helpers-el.git")
  ("html5-schema"	:url nil)
- ("hydra"		:url "https://github.com/abo-abo/hydra")
+ ;; FIXME: Upstream has accidentally diverged, see
+ ;; https://github.com/abo-abo/hydra/pull/408 as well as bug#52902
+ ("hydra"		:url "https://github.com/abo-abo/hydra"
+  :auto-sync t)
  ("hyperbole"           :url "https://git.savannah.gnu.org/r/hyperbole.git"
   :make ("kotl/kotl-autoloads.el")
+  :news "HY-NEWS"
   :auto-sync t)
  ("ilist"		:url "https://gitlab.com/mmemmew/ilist"
   :doc "ilist.texinfo"
@@ -291,6 +335,9 @@
   :auto-sync t)
  ;; ("infix-notation-calculator"
  ;;  :url "https://github.com/cjohansson/emacs-infix-notation-calculator")
+ ;; FIXME: Paperwork for `inspector` not signed yet.
+ ;; ("inspector"		:url "https://github.com/mmontone/emacs-inspector"
+ ;;  :auto-sync t)
  ("ioccur"		:url "https://github.com/thierryvolpiatto/ioccur.git"
   :auto-sync t)
  ("isearch-mb"		:url "https://github.com/astoff/isearch-mb"
@@ -325,11 +372,19 @@
   :auto-sync t)
  ("let-alist"		:core "lisp/emacs-lisp/let-alist.el")
  ("lex"			:url nil)
+ ("lin"		:url "https://git.sr.ht/~protesilaos/lin"
+  :auto-sync t
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("lmc"			:url nil)
  ("load-dir"		:url nil)
  ("load-relative"	:url "https://github.com/rocky/emacs-load-relative")
  ("loc-changes"		:url "https://github.com/rocky/emacs-loc-changes")
  ("loccur"		:url "https://github.com/fourier/loccur")
+ ("logos"		:url "https://git.sr.ht/~protesilaos/logos"
+  :auto-sync t
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("map"                 :core "lisp/emacs-lisp/map.el")
  ("marginalia"		:url "https://github.com/minad/marginalia"
   :doc "README.org" :auto-sync t)
@@ -392,8 +447,11 @@
  ;; FIXME: Waiting for copyright paperwork from Michael Strey <mstrey@strey.biz>
  ;;("org-contacts"	:url "https://github.com/stardiviner/org-contacts.el"
  ;; :auto-sync t)
- ("org-real"		:url "https://gitlab.com/tygrdev/org-real"
+ ("org-modern"		:url "https://github.com/minad/org-modern"
   :auto-sync t)
+ ("org-real"		:url "https://gitlab.com/tygrdev/org-real"
+  :auto-sync t
+  :ignored-files ("LICENSE"))
  ("org-remark"	:url "https://github.com/nobiot/org-remark"
   :readme "README.org"
   :doc "docs/org-remark.org"
@@ -407,6 +465,9 @@
  ("orgalist"            :url nil)
  ("org-edna"		:url "bzr::https://bzr.savannah.gnu.org/r/org-edna-el") ;URL?
  ("osc"			:url nil)
+ ("osm"			:url "https://github.com/minad/osm"
+  :auto-sync t
+  :ignored-files ("LICENSE"))
  ("other-frame-window"	:url nil)
  ("paced"		:url "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk")
  ("pabbrev"             :url "https://github.com/phillord/pabbrev.git")
@@ -426,19 +487,38 @@
   :auto-sync nil
   )
  ("pinentry"		:url "https://github.com/ueno/pinentry-el.git")
+ ("plz"                 :url "https://github.com/alphapapa/plz.el.git"
+  :ignored-files ("LICENSE")
+  :doc "README.org"
+  :auto-sync t)
+ ("poke"		:url "git://git.sv.gnu.org/poke/poke-el.git"
+  :doc "poke-el.texi"
+  :ignored-files ("COPYING")
+  :auto-sync t)
+ ("poke-mode"		:url "git://git.sv.gnu.org/poke/poke-mode.git"
+  :auto-sync t)
  ("poker"		:url nil)
  ("posframe"
   :url "https://github.com/tumashu/posframe"
   :auto-sync t)
+ ("pq"			:url "https://github.com/anse1/emacs-libpq"
+  ;; FIXME: `test.el` needs a copyright notice and a better name.
+  :ignored-files ("test.el")
+  :readme "README.org"
+  :auto-sync t)
  ("prefixed-core"	:url nil)
  ("project"		:core "lisp/progmodes/project.el")
- ("psgml"               :url "https://github.com/lenst/psgml.git")
+ ("psgml"               :url nil) ;; Was https://github.com/lenst/psgml.git
  ;; FIXME: We actually used a filtered version of pspp.git using:
  ;;     git filter-branch                                           \
  ;;         --index-filter "git read-tree --empty;                  \
  ;;                         git reset \$GIT_COMMIT -- pspp-mode.el" \
  ;;         -- -- pspp-mode.el
  ("pspp-mode"		:url nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
+ ("pulsar"		:url "https://git.sr.ht/~protesilaos/pulsar"
+  :auto-sync t
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("pyim"
   :url "https://github.com/tumashu/pyim.git"
   :auto-sync t)
@@ -473,6 +553,9 @@
  ("rt-liberation"	:url "https://git.savannah.nongnu.org/git/rtliber"
   :auto-sync t)
  ("rudel"		:url nil) ;; Was bzr::bzr://rudel.bzr.sourceforge.net/bzrroot/rudel/trunk
+ ("satchel"		:url "https://git.sr.ht/~theo/satchel"
+  :ignored-files ("LICENSE")
+  :auto-sync t)
  ("scanner"		:url "https://gitlab.com/rstocker/scanner.git"
   :auto-sync t)
  ("scroll-restore"	:url nil)
@@ -499,6 +582,7 @@
  ("sotlisp"		:url "https://github.com/Malabarba/speed-of-thought-lisp")
  ("spinner"		:url "https://github.com/Malabarba/spinner.el")
  ("sql-beeline"		:url nil)
+ ("sql-cassandra"	:url nil)
  ("sql-indent"          :url "https://github.com/alex-hhh/emacs-sql-indent")
  ("sql-smie"            :url nil)
  ("ssh-deploy"		:url "https://github.com/cjohansson/emacs-ssh-deploy")
@@ -520,28 +604,45 @@
   :branch "package/taxy-magit-section"
   :doc "taxy-magit-section.info"
   :auto-sync t)
- ("temp-buffer-browse"  :url "https://github.com/leoliu/temp-buffer-browse")
+ ("temp-buffer-browse"  :url "https://github.com/leoliu/temp-buffer-browse"
+  :auto-sync)
  ("tempel"		:url "https://github.com/minad/tempel"
   :auto-sync t)
  ("test-simple"         :url "https://github.com/rocky/emacs-test-simple")
  ("timerfunctions"	:url nil)
  ("tiny"		:url "https://github.com/abo-abo/tiny")
+ ("tmr"
+  :url "https://git.sr.ht/~protesilaos/tmr"
+  :auto-sync t
+  :ignored-files ("COPYING" "doclicense.texi"))
  ("tNFA"		:url "http://www.dr-qubit.org/git/predictive.git")
+ ("tomelr"		:url "https://github.com/kaushalmodi/tomelr"
+  :ignored-files ("LICENSE")
+  :news "CHANGELOG.org"
+  :auto-sync t)
  ("tramp"		:url "git://git.sv.gnu.org/tramp.git"
   :branch "externals/tramp"
   :main-file "trampver.el"
   :make ("autoloads" "info")
   :doc "tramp.info"
   :auto-sync t)
+ ("tramp-nspawn"	:url "https://github.com/bjc/tramp-nspawn"
+  :ignored-files ("COPYING")
+  :auto-sync t)
  ("tramp-theme"		:url nil)
  ("transcribe"		:url nil)
  ("transient"		:url "https://github.com/magit/transient"
   :lisp-dir "lisp"
   :renames (("docs/" ""))
-  :news "docs/CHANGELOG"
+  :news "CHANGELOG"
   :doc "docs/transient.texi")
+ ("transient-cycles"    :url nil)
  ("trie"		:url "http://www.dr-qubit.org/git/predictive.git")
- ("undo-tree"		:url "https://gitlab.com/tsc25/undo-tree")
+ ;; FIXME: The upstream of `undo-tree' has diverged.  I tried to
+ ;; contact Toby but he's quite busy.  He mentioned thinking of using the
+ ;; `elpa.git` branch as the official upstream.
+ ("undo-tree"		:url "https://gitlab.com/tsc25/undo-tree"
+  :auto-sync t)
  ("uni-confusables" 	:url nil
   :readme "README.md")
  ("uniquify-files"	:url nil)
@@ -555,7 +656,7 @@
  ("vc-hgcmd"		:url "https://github.com/muffinmad/emacs-vc-hgcmd"
   :auto-sync t)
  ("vc-backup"		:url "https://git.sr.ht/~pkal/vc-backup"
-  :auto-sync t) 
+  :auto-sync t)
  ("vcard"		:url nil)
  ("vdiff"               :url "https://github.com/justbur/emacs-vdiff")
  ("vcl-mode"	        :url "git://git.gnu.org.ua/vcl-mode")
@@ -571,6 +672,11 @@
   :auto-sync t)
  ("vertico-posframe"
   :url "https://github.com/tumashu/vertico-posframe"
+  :auto-sync t)
+ ("vundo"
+  :url "https://github.com/casouri/vundo"
+  :ignored-files ("test")
+  :news "NEWS.txt"
   :auto-sync t)
  ("wcheck-mode"		:url "https://github.com/tlikonen/wcheck-mode")
  ("wconf"		:url "https://github.com/ilohmar/wconf")
