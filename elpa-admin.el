@@ -610,7 +610,8 @@ auxillary files unless TARBALL-ONLY is non-nil ."
               (lambda (file)
                 (string-match re file)
                 (cons (match-string 1 file) file))
-              (directory-files destdir nil re)))))
+              (directory-files destdir nil re))))
+          rendered)
      (when ldir
        (cl-pushnew (list (file-name-as-directory ldir) "") renames
                    :test #'equal))
@@ -621,6 +622,7 @@ auxillary files unless TARBALL-ONLY is non-nil ."
        (elpaa--make pkg-spec dir)
        (elpaa--build-Info pkg-spec dir destdir))
      (elpaa--write-pkg-file dir pkgname metadata revision)
+     (setq rendered (elpaa--write-plain-readme dir pkg-spec))
      ;; FIXME: Allow renaming files or selecting a subset of the files!
      (cl-assert (not (string-match "[][*\\|?]" pkgname)))
      (cl-assert (not (string-match "[][*\\|?]" vers)))
@@ -677,7 +679,7 @@ auxillary files unless TARBALL-ONLY is non-nil ."
            (elpaa--html-make-pkg pkgdesc pkg-spec
                                  `((,vers . ,(file-name-nondirectory tarball))
                                    . ,oldtarballs)
-                                 dir))))
+                                 dir rendered))))
      'new)))
 
 (defun elpaa--makeenv (version revision)
@@ -973,7 +975,7 @@ The INFILE and DISPLAY arguments are fixed as nil."
     "--tmpfs" "/tmp"))
 
 (defvar elpaa--sandbox-ro-binds
-  '("/lib" "/lib64" "/bin" "/usr" "/etc/alternatives" "/etc/emacs"))
+  '("/lib" "/lib64" "/bin" "/usr" "/etc/alternatives" "/etc/emacs" "/gnu"))
 
 (defun elpaa--call-sandboxed (destination &rest args)
   "Like ‘elpaa--call’ but sandboxed.
@@ -1162,6 +1164,36 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
      nil
      pkg-file)))
 
+(defun elpaa--write-plain-readme (pkg-dir pkg-spec)
+  "Render a plain text readme from PKG-SPEC in PKG-DIR.
+This is only done if necessary, that is if the readme contents
+are not already taken to be formatted in plain text or when the
+readme file has an unconventional name"
+  (let ((readme-content (elpaa--get-README pkg-spec pkg-dir)))
+    (cond
+     ((eq (car readme-content) 'text/x-org)
+      (let ((rendered (elpaa--section-to-plain-text readme-content)))
+        (write-region rendered nil (expand-file-name "README-elpa" pkg-dir))
+        rendered))
+     ((let* ((readme-file (elpaa--spec-get pkg-spec :readme))
+             (known-readme-names            ;see `package--get-description'
+              '("README-elpa"
+                "README-elpa.md"
+                "README"
+                "README.rst"
+                "README.org")))
+        (when (and readme-file
+                   (not (eq readme-file 'ignore))
+                   (not (member readme-file known-readme-names)))
+          (let ((default-directory pkg-dir))
+            ;; It's tempting to use a symlink, but our tarballs should not
+            ;; contain symlinks (so they work under w32, for instance,
+            ;; and also because I'm not sure how well tar-untar-buffer
+            ;; handles symlinks).
+            (copy-file readme-file "README-elpa"))
+          (cdr readme-content))))
+     ((cdr readme-content)))))
+
 (defun elpaa-batch-generate-description-file (&rest _)
   "(Re)build the <PKG>-pkg.el file for particular packages."
   (while command-line-args-left
@@ -1170,11 +1202,11 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
            (pkg (file-name-nondirectory (directory-file-name dir)))
            (pkg-spec (elpaa--get-package-spec pkg 'noerror)))
       (elpaa--write-pkg-file dir pkg
-                               (elpaa--metadata dir pkg-spec)))))
+                             (elpaa--metadata dir pkg-spec)))))
 
 ;;; Make the HTML pages for online browsing.
 
-(defun elpaa--html-header (title &optional header)
+(defun elpaa--html-header (title &optional header head-extra)
   (format "<!DOCTYPE HTML PUBLIC>
 <html lang=\"en\" xml:lang=\"en\">
     <head>
@@ -1182,10 +1214,7 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
         <link rel=\"shortcut icon\" type=\"image/png\" href=\"../favicon.png\">
         <link rel=\"stylesheet\" href=\"//code.cdn.mozilla.net/fonts/fira.css\">
-        <link rel=\"stylesheet\" type=\"text/css\" href=\"../layout.css\">
-        <script src=\"../javascript/jquery.min.js\" type=\"text/javascript\"></script>
-        <script src=\"../javascript/jquery.filtertable.min.js\" type=\"text/javascript\"></script>
-        <script src=\"../javascript/package-search.js\" type=\"text/javascript\"></script>
+        <link rel=\"stylesheet\" type=\"text/css\" href=\"../layout.css\">%s
         <meta name=\"viewport\" content=\"initial-scale=1.0,maximum-scale=1.0,width=device-width\" />
     </head>
     <body>
@@ -1199,7 +1228,12 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
             </div>
 
             <div class=\"container\">\n"
-          title (or header title)))
+          title (or head-extra "") (or header title)))
+
+(defvar elpaa--index-javascript-headers "
+        <script src=\"../javascript/jquery.min.js\" type=\"text/javascript\"></script>
+        <script src=\"../javascript/jquery.filtertable.min.js\" type=\"text/javascript\"></script>
+        <script src=\"../javascript/package-search.js\" type=\"text/javascript\"></script>")
 
 (defun elpaa--html-footer ()
   (format "\n
@@ -1324,8 +1358,9 @@ HEADER in package's main file."
               (cdr file))))
     (when (consp file) (setq file (car file))))
   (cond
-   ((let ((fil (expand-file-name file srcdir)))
-      (and (file-readable-p fil) (file-regular-p fil)))
+   ((when file
+      (let ((file (expand-file-name file srcdir)))
+        (and (file-readable-p file) (file-regular-p file))))
     ;; Return FILE's contents.
     (let ((type (elpaa--extension-to-mime (file-name-extension file)))
           (content (with-temp-buffer
@@ -1488,7 +1523,7 @@ arbitrary code."
 	  ))
       (insert "</dd>\n"))))
 
-(defun elpaa--html-make-pkg (pkg pkg-spec files srcdir)
+(defun elpaa--html-make-pkg (pkg pkg-spec files srcdir plain-readme)
   (let* ((name (symbol-name (car pkg)))
          (latest (package-version-join (aref (cdr pkg) 0)))
          (mainsrcfile (expand-file-name (elpaa--main-file pkg-spec) srcdir))
@@ -1541,7 +1576,7 @@ arbitrary code."
                        <pre>M-x <span class=\"kw\">package-install</span> RET <span class=\"kw\">%s</span> RET</pre>"
                       name))
       (let* ((readme-content (elpaa--get-README pkg-spec srcdir))
-             (readme-text (elpaa--section-to-plain-text readme-content))
+             (readme-text plain-readme)
              (readme-html (elpaa--section-to-html readme-content))
              (readme-output-filename (concat name "-readme.txt")))
         (write-region readme-text nil readme-output-filename)
@@ -1573,7 +1608,9 @@ arbitrary code."
 
 (defun elpaa--html-make-index (pkgs)
   (with-temp-buffer
-    (insert (elpaa--html-header (concat elpaa--name " ELPA Packages")))
+    (insert (elpaa--html-header
+             (concat elpaa--name " ELPA Packages")
+             nil elpaa--index-javascript-headers))
     (insert "<table>\n")
     (insert "<tr><th>Package</th><th>Version</th><th>Description</th></tr>\n")
     (dolist (pkg pkgs)
@@ -2027,7 +2064,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
         (insert "Version " version
                 " of package " name
                 " has just been released in " elpaa--name " ELPA.
-You can now find it in M-x package-list RET.
+You can now find it in M-x list-packages RET.
 
 " name " describes itself as:
   " (nth 2 metadata) "
@@ -2063,22 +2100,39 @@ directory; one of archive, archive-devel."
     (dolist (f docfiles)
       (elpaa--build-Info-1 pkg-spec f dir html-dir))))
 
+(defun elpaa--makeinfo (input output &optional extraargs)
+  (let* ((input-dir (file-name-directory input))
+         (input-name (file-name-nondirectory input))
+         (output-ext (file-name-extension output))
+	 ;; The sandbox may not allow write access to the output,
+         ;; so we first create the file inside the sandbox and then
+         ;; move it to its intended destination.
+	 (tmpfile
+	  (concat (make-temp-name (expand-file-name "doc" input-dir))
+	          (if output-ext (concat "." output-ext)))))
+    (elpaa--temp-file tmpfile)
+    (with-temp-buffer
+      ;; We change directory to that of the input file, because
+      ;; `@include' searches for the files relative to PWD rather than
+      ;; relative to the includer-file's location (this apparently
+      ;; only applies to files whose name starts with `.' or `..'), so
+      ;; we make the two dirs the same, to reduce the risk of problems.
+      (let ((default-directory
+             (if input-dir (expand-file-name input-dir)
+               default-directory)))
+        (apply #'elpaa--call-sandboxed
+               t "makeinfo" "--no-split" input-name "-o" tmpfile extraargs))
+      (message "%s" (buffer-string)))
+    (elpaa--message "Renaming %S => %S" tmpfile output)
+    (rename-file tmpfile output t)))
+
 (defun elpaa--html-build-doc (pkg-spec docfile html-dir)
   (setq html-dir (directory-file-name html-dir))
   (let* ((destname (elpaa--doc-html-file docfile))
 	 (html-file (expand-file-name destname html-dir))
 	 (html-xref-file
-	  (expand-file-name destname (file-name-directory html-dir)))
-	 ;; The sandbox doesn't allow write access to the `html-dir',
-         ;; so we first create the file inside the sandbox and then
-         ;; we move it to its intended destination.
-	 (tmpfile
-	  (concat (make-temp-name (expand-file-name "doc")) ".html")))
-    (with-temp-buffer
-      (elpaa--call-sandboxed
-       t "makeinfo" "--no-split" "--html" docfile "-o" tmpfile)
-      (message "%s" (buffer-string)))
-    (rename-file tmpfile html-file t)
+	  (expand-file-name destname (file-name-directory html-dir))))
+    (elpaa--makeinfo docfile html-file '("--html"))
     ;; FIXME: Use `push' in Emacs≥28
     (plist-put (cdr pkg-spec)
                :internal--html-docs
@@ -2103,8 +2157,8 @@ relative to elpa root."
          (default-directory (elpaa--dirname dir))
          (tmpfiles '()))
 
-    (when (and docfile (file-readable-p docfile)
-               (string-match "\\.org\\'" docfile))
+    (when (and docfile (string-match "\\.org\\'" docfile))
+      (unless (file-readable-p docfile) (error "Can't read file: %s" docfile))
       (with-temp-buffer
         (elpaa--call-sandboxed
          t "emacs" "--batch" "-l" "ox-texinfo"
@@ -2131,10 +2185,7 @@ relative to elpa root."
                          (file-name-nondirectory docfile))
                         ".info")))
         (elpaa--temp-file info-file)
-        (with-temp-buffer
-          (elpaa--call-sandboxed
-           t "makeinfo" "--no-split" docfile "-o" info-file)
-          (message "%s" (buffer-string)))
+        (elpaa--makeinfo docfile info-file)
 
 	(when html-dir (elpaa--html-build-doc pkg-spec docfile html-dir))
 
@@ -2418,7 +2469,37 @@ relative to elpa root."
       (write-region (point-min) (point-max)
                     dstfile nil 'silent))))
 
+;;; Edit support for `elpa-packages'
+
+(defun elpaa--sort-packages ()
+  "Sort packages by alphabetical order."
+  (interactive)
+  (goto-char (point-min))
+  (down-list 1)
+  (sort-subr nil
+             (lambda ()
+               (unless (save-excursion
+                         (forward-comment (point-max))
+                         (looking-at "("))
+                 (goto-char (point-max))))
+             (lambda ()
+               (forward-sexp 1)
+               (skip-chars-forward " \t")
+               (when (or (eolp) (looking-at ";"))
+                 ;; A comment was found between the two entries.
+                 ;; Since it's right after the end (on the same line),
+                 ;; it belongs to this record, otherwise it belongs
+                 ;; to the next.
+                 (forward-line 1))
+               (skip-chars-forward " \t\n")
+               (skip-chars-backward " \t"))
+             (lambda () (forward-comment (point-max)))))
 
 (require 'entropy-elpa-admin-patch-1)
 (provide 'elpa-admin)
+
+;; Local Variables:
+;; nameless-current-name: "elpaa"
+;; End:
+
 ;;; elpa-admin.el ends here
