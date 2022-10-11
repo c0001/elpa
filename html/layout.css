@@ -90,7 +90,16 @@ h2 {
 
 h3 {
   font-size: 1.5em;
+  font-weight: bold;
   margin: 1.2em 0px;
+}
+h4 {
+  margin: 1em 0px;
+  font-weight: bold;
+}
+h5 {
+  margin: 1em 0px;
+  font-style: italic;
 }
 
 a {
@@ -127,7 +136,7 @@ pre .kw {
 }
 
 p {
-  margin-bottom: 2em;
+  margin: 1em 0 1em 0;
 }
 
 p.centered {

@@ -13,6 +13,7 @@ core
 /archive/
 /archive-devel/
 GNUmakefile
+manifest.scm
 /admin
 
 # Testing file
