@@ -1,5 +1,5 @@
 #+TITLE: ELPA-Admin README
-#+DATE: 2022-01-06
+#+DATE: 2022-12-11
 
 Copyright (C) 2010-2022 Free Software Foundation, Inc. \\
 See the end of the file for license conditions.
@@ -7,7 +7,7 @@ See the end of the file for license conditions.
 #+BEGIN_COMMENT
 This file exists in two branches ~elpa-admin~ and ~elpa~.  The two version
 differ slightly.  The introductory text before the first heading
-differs and their are minor differences concerning the ~externals/*~ to
+differs and there are minor differences concerning the ~externals/*~ to
 ~elpa/*~ transition.  Please make sure you always update this file in
 both locations to avoid introducing additional differences.  This
 duplication will be removed eventually.
@@ -18,16 +18,28 @@ the [[https://elpa.gnu.org/][GNU ELPA]] and NonGNU ELPA archives.
 
 * Getting the source
 
-Start with source that is cloned directly from Savannah.  See [[https://savannah.gnu.org/git/?group=emacs][the Savannah page]]
-and look for "ELPA".  Using a clone of a clone does not work.
+Start with source that is cloned directly from Savannah
+(See [[https://savannah.gnu.org/git/?group=emacs][the Savannah page]] and look for "ELPA").
+Using a clone of a clone might not work.
 
-You must then do some setup:
+The repository is large because it contains all the packages, so you
+will usually want to clone with =--single-branch= to avoid downloading
+a large amount of irrelevant data.  More specifically, here is how you
+can get the source and setup the general infrastructure:
+
 #+begin_src shell
-   make setup
+  git clone --single-branch https://git.sv.gnu.org/git/emacs/elpa.git
+  cd elpa
+  make
 #+end_src
 
-That leaves the =packages= directory empty; you must check out the
-ones you want.
+Where the =Makefile= in the =main= branch is used to automatically
+pull the =elpa-admin= branch to populate the =admin= subdirectory.
+
+However, it leaves the =packages= directory empty; you must check out
+the ones you want.
+
+** Check out all packages
 
 If you wish to check out all the packages into the =packages=
 directory, you can run the command:
@@ -36,12 +48,22 @@ directory, you can run the command:
    make worktrees
 #+end_src
 
+** Check out specific package
+
 You can check out a specific package =<pkgname>= into the =packages=
 directory with this command:
 
 #+begin_src
    make packages/<pkgname>
 #+end_src
+
+The first time you run this command, it just populates that directory.
+After that, it will (re)"build" the package for use in-place, i.e. it will
+create (or refresh) the =<pkgname>-pkg.el= and  =<pkgname>-autoloads.el= files
+and (re)compile the ELisp files under the assumption that you have put
+=.../elpa/packages/= into your =package-directory-list=.
+
+** Updating a package directory
 
 If you already have a =packages/<pkgname>= directory with a previous
 checkout, you can update it like this:
@@ -91,15 +113,19 @@ The URL can be =nil= if there is no upstream repository.
 
 ** =:core FILES=
 This property has to come first.
-Indicates that this is a special package which will be built by extracting
-files directly from Emacs's source code.  For this to work, the Emacs
-source code should be available in the =emacs= subdirectory.
+Indicates that this is a special package which will be built by
+extracting files directly from Emacs's source code.  For this to work,
+the Emacs git repository should be cloned in the =emacs= subdirectory.
+(Using a symlink pointing outside of the elpa root is currently
+unsupported.)  Making a fresh clone only for this is recommended.
 FILES specifies the files that will be contained in the generated tarballs.
 It can be a single file name or a list of file names.
 
 ** =:branch BRANCH=
 Specifies the branch to follow in the upstream Git repository, in case
 it should be different from the default branch.
+
+If there is no upstream (=:url= is nil), this is simply ignored.
 
 ** =:lisp-dir=
 Subdirectory in which the main ELisp found are found.
@@ -118,6 +144,14 @@ for those packages which have both a development branch and a release branch
 and only if the version number in the development branch indicates that it
 contains development code (i.e. a "snapshot" version, according to
 `version-to-list`).
+
+If there is no upstream (=:url= is nil), the presence of :release-branch
+just indicates that release and devel branches in elpa.git are desired
+(the name given in :release-branch is ignored). The release branch is
+named `externals-release/<pkg-name>' for GNU ELPA and
+`elpa-release/<pkg-name>` for NonGNU ELPA. The standard package branch
+externals/<pkg-name> is the devel branch in GNU ELPA; the standard
+branch elpa/<pkg-name> is the devel branch in non-GNU ELPA.
 
 ** =:ignored-files FILES=
 Names of files or directories that should not be included in the tarballs.
@@ -167,6 +201,25 @@ It also makes it possible to specify which REVISION corresponds to
 this ORIG-VERSION (or REMAPPED-VERSION if non-nil) to override
 the default heuristic which uses the last revision that modified the
 "Version:" header.
+
+** =:merge BOOL=
+If non-nil, this setting indicates that syncs from upstream should use automatic
+merges instead of fast-forwards.
+This only works for the main branch, not for the release branch.
+An unnecessary =:merge= setting is considered as an error.
+
+This option has many shortcomings, so its use is discouraged: it is
+better avoided as much as possible.  Among other problems,  merges
+don't interact well with the algorithm used to determine which
+revision is a "release".
+** =:rolling-release FLAG=
+If FLAG is non-nil, a new package will be released for every new
+commit, instead of just on incrementing the "Version" header.  FLAG
+can optionally be a string, in which case the package is only released
+if the version is equal to FLAG.
+
+Note that the usage of this option is discouraged.  Only use it if the
+package maintainer explicitly wishes to use a "rolling release" model.
 
 * Configuration (elpa-config)
 
@@ -254,7 +307,8 @@ each package.
 
 Each directory in here corresponds to a package.
 
-A nightly cron job refreshes the GNU ELPA archive from this repository.
+A nightly cron job on the server hosting =elpa.gnu.org= refreshes the
+GNU ELPA archive from this repository.
 
 This cron job only creates a new package when the "version" (as specified in
 the =Version:= header) of a package is modified.  This means that you can
