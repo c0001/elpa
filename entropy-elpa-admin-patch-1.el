@@ -23,6 +23,8 @@
 (defun entropy/elpaa--patch-elpaa--make-one-package
     (orig-func &rest orig-args)
   (let ((pkgname (caar orig-args)))
+    (unless (stringp pkgname)
+      (setq pkgname (format "%s" pkgname)))
     (cond
      ((string-match-p "^org" pkgname)
       (message "Skip for %s" pkgname))
