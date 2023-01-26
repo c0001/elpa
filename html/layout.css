@@ -106,12 +106,19 @@ a {
   color: #c73a6c;
   text-decoration: none;
 }
-
+small {
+  font-size: smaller;
+}
 a:hover {
   color: #973066;
   text-decoration: underline;
 }
 
+/* FIXME: This is meant for inline `code` but also matches block `code` :-(
+   I tried to use `:not(pre) code` so that it applies to all `code`
+   except those immediately within a `pre` but AFAICT it then did not match
+   anything at all.  So instead I use a separate rule for `pre code` which
+   overrides some of these settings.  */
 tt, code {
   font-family: "Fira Mono", monospace;
   background-color: rgb(238, 238, 238);
@@ -121,19 +128,34 @@ tt, code {
   white-space: nowrap;
 }
 
+/* FIXME: This overrides the above settings for the non-inline multiline
+   code blocks.  Important for Markdown rendered files which use
+   <pre><code>...</code></pre> for multiline code blocks.  */
+pre code {
+  background: #fafafa;
+  border: 0px solid;
+  white-space: pre;
+  padding: 0px;
+}
+
 pre {
   font-family: "Fira Mono", monospace;
   font-size: 14px;
   background: #fafafa;
   padding: 1em;
-  border: 1px solid #dadada;
+  border: 0px solid;
   overflow-y: auto;
+  white-space: pre;
 }
 
 pre .kw {
   font-weight: bold;
   color: #4f0f71;
 }
+
+/* Apparently the big "reset" at the beginning makes this necessary.  */
+strong { font-weight: bold; }
+em { font-style: oblique; }
 
 p {
   margin: 1em 0 1em 0;
