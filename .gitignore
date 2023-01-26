@@ -10,8 +10,8 @@ core
 /.pkg-descs.mk
 /packages/
 /other-packages
-/archive/
-/archive-devel/
+# /archive/
+# /archive-devel/
 GNUmakefile
 manifest.scm
 /admin
