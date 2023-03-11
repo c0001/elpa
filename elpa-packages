@@ -33,10 +33,8 @@
 ;; some manual intervention (typically, because the two branches have
 ;; diverged).
 
-((ace-window		:url "https://github.com/abo-abo/ace-window"
-  :auto-sync t)
- (ack			:url "https://github.com/leoliu/ack-el"
-  :auto-sync t)
+((ace-window		:url "https://github.com/abo-abo/ace-window")
+ (ack			:url "https://github.com/leoliu/ack-el")
  (ada-mode		:url nil
   :doc ("ada-mode.texi")
   :release-branch t)
@@ -44,23 +42,18 @@
  (adaptive-wrap		:url nil)
  (adjust-parens		:url nil)
  (advice-patch		:url nil)
- (aggressive-completion :url nil
-  :auto-sync t)
- (aggressive-indent	:url "https://github.com/Malabarba/aggressive-indent-mode"
-  :auto-sync t)
+ (aggressive-completion :url nil)
+ (aggressive-indent	:url "https://github.com/Malabarba/aggressive-indent-mode")
  (agitate		:url "https://git.sr.ht/~protesilaos/agitate"
-  :auto-sync t
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
  (ahungry-theme		:url "https://github.com/ahungry/color-theme-ahungry")
  (aircon-theme        	:url "https://git.sr.ht/~chambln/aircon-theme.el"
   :ignored-files ("README" "COPYING")
-  :readme ignore
-  :auto-sync t)
+  :readme ignore)
  (all			:url nil)
  (altcaps		:url "https://git.sr.ht/~protesilaos/altcaps"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -69,44 +62,43 @@
  (ascii-art-to-unicode 	:url nil)
  ;; FIXME: Need to fix the manual's build problem.
  ;; (assess		:url "https://github.com/phillord/assess"
- ;;  :doc "assess-doc.org"
- ;;  :auto-sync t)
+ ;;  :doc "assess-doc.org")
  (async			:url "https://github.com/jwiegley/emacs-async"
-  :ignored-files ("COPYING")
-  :auto-sync t)
+  :ignored-files ("COPYING"))
  (auctex		:url "https://git.savannah.gnu.org/git/auctex.git"
   ;; AUCTeX is currently sync'd manually and elpa.git isn't quite a mirror :-(
-  :auto-sync nil)
+  :manual-sync t)
  (aumix-mode		:url nil)
  (auto-correct		:url nil)
  (auto-overlays		:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
   :doc "docs/auto-overlay-manual.texinfo")
- ;; FIXME: Avy diverged https://github.com/abo-abo/avy/issues/344
- (avy			:url "https://github.com/abo-abo/avy")
+ (avy			:url "https://github.com/abo-abo/avy"
+  ;; FIXME: Avy diverged https://github.com/abo-abo/avy/issues/344
+  :merge t)
  (bbdb			:url "https://git.savannah.nongnu.org/git/bbdb.git"
   :lisp-dir "lisp"
   :doc "doc/bbdb.texi"
   ;; The BBDB branch in elpa.git is managed directly by hand, with
   ;; a "parallel" history to that of the upstream.
-  :auto-sync nil)
- (beacon		:url "https://github.com/Malabarba/beacon"
-  :auto-sync t)
+  :manual-sync t)
+ (beacon		:url "https://github.com/Malabarba/beacon")
+ (beardbolt		:url "https://github.com/joaotavora/beardbolt"
+  :readme "README.md")
+ (beframe		:url "https://git.sr.ht/~protesilaos/beframe"
+  :doc "README.org"
+  :readme "README.md"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (bind-key		:core "lisp/use-package/bind-key.el")
  (blist			:url "https://gitlab.com/mmemmew/blist"
   :doc "blist.texinfo"
-  :readme "README.org"
-  :auto-sync t)
- (bluetooth		:url "https://gitlab.com/rstocker/emacs-bluetooth"
-  :auto-sync t)
- (bnf-mode		:url "https://github.com/sergeyklay/bnf-mode"
-  :auto-sync t)
- (boxy			:url "https://gitlab.com/tygrdev/boxy"
-  :auto-sync t)
- (boxy-headings		:url "https://gitlab.com/tygrdev/boxy-headings"
-  :auto-sync t)
+  :readme "README.org")
+ (bluetooth		:url "https://gitlab.com/rstocker/emacs-bluetooth")
+ (bnf-mode		:url "https://github.com/sergeyklay/bnf-mode")
+ (boxy			:url "https://gitlab.com/tygrdev/boxy")
+ (boxy-headings		:url "https://gitlab.com/tygrdev/boxy-headings")
  (brief			:url nil)
- (buffer-env		:url "https://github.com/astoff/buffer-env"
-  :auto-sync t)
+ (buffer-env		:url "https://github.com/astoff/buffer-env")
  (buffer-expose		:url "https://github.com/clemera/buffer-expose")
  ;; FIXME: https://github.com/Malabarba/elisp-bug-hunter/issues/31
  (bug-hunter		:url "https://github.com/Malabarba/elisp-bug-hunter")
@@ -126,16 +118,14 @@
  ;;                            "doc/misc/cc-mode.texi"
  ;;                      :doc "cc-mode.texi"))
  (cape			:url "https://github.com/minad/cape"
-  :doc "README.org"
-  :auto-sync t)
- (capf-autosuggest	:url "https://repo.or.cz/emacs-capf-autosuggest.git"
-  :auto-sync t)
+  :doc "README.org")
+ (capf-autosuggest	:url "https://repo.or.cz/emacs-capf-autosuggest.git")
  (caps-lock		:url nil)
  (captain		:url nil)
  (chess			:url "https://github.com/jwiegley/emacs-chess.git"
   :doc "chess.texi"
   ;; FIXME: The two versions are badly out of sync.
-  :auto-sync nil)
+  :manual-sync t)
  (cl-generic		:url nil)
  (cl-lib		:url nil)
  ;; The `cl-print' code doesn't try to work outside of Emacs any more.
@@ -143,61 +133,46 @@
  (clipboard-collector 	:url "https://github.com/clemera/clipboard-collector")
  (cobol-mode          	:url nil) ;; Was "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca"
  (code-cells		:url "https://github.com/astoff/code-cells.el"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
- (comint-mime		:url "https://github.com/astoff/comint-mime"
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
+ (comint-mime		:url "https://github.com/astoff/comint-mime")
  ;; The upstream has incompatible copyrights, so we moved it to NonGNU.
  ;; (coffee-mode		:url "https://github.com/defunkt/coffee-mode")
- (compact-docstrings  	:url "https://github.com/cpitclaudel/compact-docstrings"
-  :auto-sync t)
+ (compact-docstrings  	:url "https://github.com/cpitclaudel/compact-docstrings")
  (company		:url "https://github.com/company-mode/company-mode.git"
   :shell-command "cp -R doc/images ."
   :doc "doc/company.texi"
-  :ignored-files ("doc")
-  :auto-sync t)
+  :ignored-files ("doc"))
  (company-ebdb		:url nil)
- (company-math		:url "https://github.com/vspinu/company-math.git"
-  :auto-sync t)
+ (company-math		:url "https://github.com/vspinu/company-math.git")
  (company-statistics	:url "https://github.com/company-mode/company-statistics")
  (compat		:url "https://github.com/emacs-compat/compat"
-  :doc "compat.texi"
-  :auto-sync t)
+  :doc "compat.texi")
  (consult		:url "https://github.com/minad/consult"
   :doc "README.org"
   :ignored-files ("images")
-  :news "CHANGELOG.org"
-  :auto-sync t)
+  :news "CHANGELOG.org")
  (consult-recoll	:url "https://codeberg.org/jao/consult-recoll"
   :ignored-files ("license")
-  :readme "readme.org"
-  :auto-sync t)
+  :readme "readme.org")
  ;; FIXME: https://github.com/jacksonrayhamilton/context-coloring/issues/9
  (context-coloring	:url "https://github.com/jacksonrayhamilton/context-coloring.git")
  (corfu			:url "https://github.com/minad/corfu"
   :doc "README.org"
-  :renames (("extensions/" ""))
-  :auto-sync t)
+  :renames (("extensions/" "")))
  ;; Merged into `corfu' (issue #178) instead of added as a separate package.
  ;;(corfu-doc		:url "https://github.com/galeo/corfu-doc"
- ;; :ignored-files ("LICENSE")
- ;; :auto-sync t)
- (coterm		:url "https://repo.or.cz/emacs-coterm.git"
-  :auto-sync t)
+ ;; :ignored-files ("LICENSE"))
+ (coterm		:url "https://repo.or.cz/emacs-coterm.git")
  (counsel		:url "https://github.com/abo-abo/swiper")
  (cpio-mode		:url "https://github.com/dlewan/cpio-mode")
- (cpupower		:url "https://gitlab.com/steve-emacs-stuff/cpupower-el"
-  :auto-sync t)
- (crdt			:url "https://code.librehq.com/qhong/crdt.el"
-  :auto-sync t)
+ (cpupower		:url "https://gitlab.com/steve-emacs-stuff/cpupower-el")
+ (crdt			:url "https://code.librehq.com/qhong/crdt.el")
  (crisp			:url nil)
  ;; (crossword		:url "https://github.com/Boruch-Baum/emacs-crossword")
  (csharp-mode		:url "https://github.com/emacs-csharp/csharp-mode"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  (csv-mode		:url nil)
  (cursory		:url "https://git.sr.ht/~protesilaos/cursory"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -205,63 +180,52 @@
  (darkroom            	:url "https://github.com/capitaomorte/darkroom.git")
  (dash			:url "https://github.com/magnars/dash.el.git"
   :doc "dash.texi"
-  :news "NEWS.md"
-  :auto-sync t)
+  :news "NEWS.md")
  (dbus-codegen		:url "https://github.com/ueno/dbus-codegen-el.git"
-  :ignored-files ("COPYING")
-  :auto-sync t)
+  :ignored-files ("COPYING"))
  (debbugs		:url nil :doc ("debbugs.texi" "debbugs-ug.texi"))
- (delight		:url "https://git.savannah.gnu.org/r/delight.git"
-  :auto-sync t)
+ (delight		:url "https://git.savannah.gnu.org/r/delight.git")
  (denote		:url "https://git.sr.ht/~protesilaos/denote"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (denote-menu		:url "https://github.com/namilus/denote-menu"
+  :doc "README.org"
+  :ignored-files ("COPYING"))
  (detached		:url "https://git.sr.ht/~niklaseklund/detached.el"
   :news "CHANGELOG.org"
-  :readme "README.md"
-  :auto-sync t)
- (devdocs		:url "https://github.com/astoff/devdocs.el"
-  :auto-sync t)
- (dict-tree		:url "http://www.dr-qubit.org/git/predictive.git")
- (diff-hl		:url "https://github.com/dgutov/diff-hl.git"
-  :auto-sync t)
+  :readme "README.md")
+ (devdocs		:url "https://github.com/astoff/devdocs.el")
+ (dict-tree		:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
+  )
+ (diff-hl		:url "https://github.com/dgutov/diff-hl.git")
  (diffview            	:url "https://github.com/mgalgs/diffview-mode.git")
  (diminish            	:url "https://github.com/myrjola/diminish.el.git"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
  (dired-du		:url nil)
  (dired-git-info	:url "https://github.com/clemera/dired-git-info")
- (disk-usage		:url "https://gitlab.com/ambrevar/emacs-disk-usage"
-  :auto-sync t)
+ (disk-usage		:url "https://gitlab.com/ambrevar/emacs-disk-usage")
  (dismal		:url nil)
  (djvu			:url nil)
  (doc-toc		:url "https://github.com/dalanicolai/doc-tools-toc"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
  (docbook		:url nil)
  ;; `dtache' was renamed to `detached' in May 2022.
  ;;(dtache		:url "https://git.sr.ht/~niklaseklund/dtache"
  ;; :news "CHANGELOG.org"
- ;; :readme "README.md"
- ;; :auto-sync t)
+ ;; :readme "README.md")
  (dts-mode		:url nil) ;; Was "https://github.com/bgamari/dts-mode.git"
- (easy-escape		:url "https://github.com/cpitclaudel/easy-escape"
-  :auto-sync t)
- (easy-kill		:url "https://github.com/leoliu/easy-kill"
-  :auto-sync t)
- (ebdb                	:url "https://github.com/girzel/ebdb.git"
-  :auto-sync t)
+ (easy-escape		:url "https://github.com/cpitclaudel/easy-escape")
+ (easy-kill		:url "https://github.com/leoliu/easy-kill")
+ (ebdb                	:url "https://github.com/girzel/ebdb.git")
  (ebdb-gnorb		:url nil)
  (ebdb-i18n-chn		:url nil)
  (ediprolog		:url "https://github.com/triska/ediprolog"
-  :readme "README.md"
-  :auto-sync t)
+  :readme "README.md")
  (eev			:url "https://github.com/edrx/eev.git"
-  :branch "UTF-8" :auto-sync t)
+  :branch "UTF-8")
  (ef-themes		:url "https://git.sr.ht/~protesilaos/ef-themes"
-  :auto-sync t
   :doc "README.org"
   :readme "README.md"
   :news "CHANGELOG.org"
@@ -273,29 +237,25 @@
  (electric-spacing	:url nil)
  (elisp-benchmarks	:url nil)
  ;; FIXME: Work in progress.  The copyright paperwork is ready.
- ;;(elsa		:url "https://github.com/emacs-elsa/Elsa"
- ;; :auto-sync t)
+ ;;(elsa		:url "https://github.com/emacs-elsa/Elsa")
  ;;(emacspeak		:url "https://github.com/tvraman/emacspeak"
  ;; :doc "info/emacspeak.texi"
- ;; :lisp-dir "lisp"
- ;; :auto-sync t)
+ ;; :lisp-dir "lisp")
  (embark		:url "https://github.com/oantolin/embark"
   :doc "embark.texi"
-  :ignored-files ("embark-consult.el" "avy-embark-collect.el")
-  :auto-sync t)
+  :ignored-files ("embark-consult.el" "avy-embark-collect.el"))
  (embark-consult	:url "https://github.com/oantolin/embark"
-  :ignored-files ("embark.el" "embark.texi" "avy-embark-collect.el")
-  :auto-sync t)
+  :ignored-files ("embark.el" "embark.texi" "avy-embark-collect.el"
+                  "embark-org.el"))
  (ement			:url "https://github.com/alphapapa/ement.el.git"
   :release-branch "stable"
-  :doc "README.org"
-  :auto-sync t)
+  :doc "README.org")
  (emms			:url "https://git.savannah.gnu.org/git/emms.git"
-  :doc "doc/emms.texinfo"
-  :auto-sync t)
- (engrave-faces		:url "https://github.com/tecosaur/engrave-faces.git"
-  :auto-sync t)
- (enwc			:url "hg::https://hg.savannah.nongnu.org/hgweb/enwc/")
+  :doc "doc/emms.texinfo")
+ (engrave-faces		:url "https://github.com/tecosaur/engrave-faces.git")
+ (enwc			:url "hg::https://hg.savannah.nongnu.org/hgweb/enwc/"
+  ;; The Hg<->Git bridge wasn't working well enough last time I tried.
+  :manual-sync t)
  (epoch-view		:url nil)
  (erc			:core ("lisp/erc/"
                                "doc/emacs/doclicense.texi"
@@ -307,36 +267,29 @@
   :shell-command "(echo '@set ERCDIST from GNU ELPA'; echo '@set EMACSVER') >emacsver.texi"
   :doc "erc.texi"
   :news "ERC-NEWS")
- (ergoemacs-mode	:url "https://github.com/ergoemacs/ergoemacs-mode.git"
-  :auto-sync t)
+ (ergoemacs-mode	:url "https://github.com/ergoemacs/ergoemacs-mode.git")
  (ess			:url "https://github.com/emacs-ess/ESS"
   :lisp-dir "lisp"
-  :doc "doc/ess.texi"
-  :auto-sync t)
+  :doc "doc/ess.texi")
  (excorporate		:url nil)
  (expand-region		:url "https://github.com/magnars/expand-region.el")
  (external-completion   :core "lisp/external-completion.el")
- (exwm			:url "https://github.com/ch11ng/exwm.git"
-  :auto-sync t)
+ (exwm			:url "https://github.com/ch11ng/exwm.git")
  (f90-interface-browser :url nil) ;; Was "https://github.com/wence-/f90-iface"
  (filladapt		:url nil)
  (flylisp		:url nil)
  (flymake		:core "lisp/progmodes/flymake.el")
- (flymake-proselint	:url "https://git.sr.ht/~manuel-uberti/flymake-proselint"
-  :auto-sync t)
+ (flymake-proselint	:url "https://git.sr.ht/~manuel-uberti/flymake-proselint")
  (fontaine		:url "https://git.sr.ht/~protesilaos/fontaine"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (frame-tabs		:url nil)
  (frog-menu		:url "https://github.com/clemera/frog-menu")
  (fsm			:url nil)
- (ftable		:url "https://github.com/casouri/ftable"
-  :auto-sync t)
+ (ftable		:url "https://github.com/casouri/ftable")
  (gcmh			:url "https://gitlab.com/koral/gcmh")
- (ggtags		:url "https://github.com/leoliu/ggtags"
-  :auto-sync t)
+ (ggtags		:url "https://github.com/leoliu/ggtags")
  (gited			:url nil)
  (gle-mode		:url nil)
  (gnat-compiler		:url nil
@@ -355,22 +308,18 @@
   :release-branch t
   :doc ("gpr-query.texi"))
  (graphql		:url "https://github.com/vermiculus/graphql.el"
-  :readme "README.md"
-  :auto-sync t)
- (greader		:url "https://gitlab.com/michelangelo-rodriguez/greader"
-  :auto-sync t)
+  :readme "README.md")
+ (greader		:url "https://gitlab.com/michelangelo-rodriguez/greader")
  (greenbar		:url nil)
- (gtags-mode		:url "https://github.com/Ergus/gtags-mode"
-  :auto-sync t)
+ (gtags-mode		:url "https://github.com/Ergus/gtags-mode")
  (guess-language	:url "https://github.com/tmalsburg/guess-language.el")
- (hcel			:url "https://g.ypei.me/hc.el.git"
-  :auto-sync t)
- (heap			:url "http://www.dr-qubit.org/git/predictive.git")
- (hiddenquote		:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote"
-  :auto-sync t)
+ (hcel			:url "https://g.ypei.me/hc.el.git")
+ (heap			:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
+  )
+ (hiddenquote		:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote")
  (highlight-escape-sequences
-  			:url "https://github.com/dgutov/highlight-escape-sequences/"
-  :auto-sync t)
+  			:url "https://github.com/dgutov/highlight-escape-sequences/")
  (hook-helpers		:url "https://git.savannah.nongnu.org/git/hook-helpers-el.git")
  (html5-schema		:url nil)
  (hydra			:url "https://github.com/abo-abo/hydra"
@@ -379,64 +328,55 @@
   ;; https://github.com/abo-abo/hydra/pull/408.
   :merge t
   :ignored-files ("lv.el")
-  :news "doc/Changelog.org"
-  :auto-sync t)
+  :news "doc/Changelog.org")
  (hyperbole           	:url "https://git.savannah.gnu.org/r/hyperbole.git"
   :make ("kotl/kotl-autoloads.el")
-  :news "HY-NEWS"
-  :auto-sync t)
+  :news "HY-NEWS")
  (ilist			:url "https://gitlab.com/mmemmew/ilist"
   :doc "ilist.texinfo"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  ;; (infix-notation-calculator :url "https://github.com/cjohansson/emacs-infix-notation-calculator")
  (inspector		:url "https://github.com/mmontone/emacs-inspector"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
- (ioccur		:url "https://github.com/thierryvolpiatto/ioccur.git"
-  :auto-sync t)
- (isearch-mb		:url "https://github.com/astoff/isearch-mb"
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
+ (ioccur		:url "https://github.com/thierryvolpiatto/ioccur.git")
+ (isearch-mb		:url "https://github.com/astoff/isearch-mb")
  (iterators		:url nil)
  (ivy			:url "https://github.com/abo-abo/swiper"
+  :manual-sync t
   :renames (("doc/" ""))
   :doc "doc/ivy.texi")
- (ivy-avy		:url "https://github.com/abo-abo/swiper")
+ (ivy-avy		:url "https://github.com/abo-abo/swiper"
+  :manual-sync t
+  )
  (ivy-explorer        	:url "https://github.com/clemera/ivy-explorer")
- (ivy-hydra		:url "https://github.com/abo-abo/swiper")
- (ivy-posframe		:url "https://github.com/tumashu/ivy-posframe"
-  :auto-sync t)
+ (ivy-hydra		:url "https://github.com/abo-abo/swiper"
+  :manual-sync t
+  )
+ (ivy-posframe		:url "https://github.com/tumashu/ivy-posframe")
  (jarchive		:url "https://git.sr.ht/~dannyfreeman/jarchive"
-  :auto-sync t
   :readme "README.md"
   :news "CHANGELOG.md"
   :ignored-files ("LICENSE"))
  (javaimp		:url nil)
  (jgraph-mode		:url nil)
- (js2-mode		:url "https://github.com/mooz/js2-mode.git"
-  :auto-sync t)
+ (jit-spell		:url "https://github.com/astoff/jit-spell")
+ (js2-mode		:url "https://github.com/mooz/js2-mode.git")
  (json-mode		:url nil)
  (jsonrpc		:core "lisp/jsonrpc.el")
  (jumpc			:url nil)
- (kind-icon		:url "https://github.com/jdtsmith/kind-icon"
-  :auto-sync t)
+ (kind-icon		:url "https://github.com/jdtsmith/kind-icon")
  (kiwix			:url "https://repo.or.cz/kiwix.el.git"
-  :ignored-files ("*.png" "LICENSE")
-  :auto-sync t)
+  :ignored-files ("*.png" "LICENSE"))
  (kmb			:url nil)
  (landmark		:url nil)
- (leaf			:url "https://github.com/conao3/leaf.el"
-  :auto-sync t)
+ (leaf			:url "https://github.com/conao3/leaf.el")
  ;; FIXME: In preparation (depends on `f` and `s`).
- ;; (lentic		:url "https://github.com/phillord/lentic"
- ;;  :auto-sync t)
+ ;; (lentic		:url "https://github.com/phillord/lentic")
  ;; FIXME: In preparation (depends on `lentic`).
- ;; (lentic-server	:url "https://github.com/phillord/lentic-server"
- ;;  :auto-sync t)
+ ;; (lentic-server	:url "https://github.com/phillord/lentic-server")
  (let-alist		:core "lisp/emacs-lisp/let-alist.el")
  (lex			:url nil)
  (lin			:url "https://git.sr.ht/~protesilaos/lin"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -446,52 +386,38 @@
  (loc-changes		:url "https://github.com/rocky/emacs-loc-changes")
  (loccur		:url "https://github.com/fourier/loccur")
  (logos			:url "https://git.sr.ht/~protesilaos/logos"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (luwak			:url "https://g.ypei.me/luwak.git"
-  :auto-sync t
   :readme "README.org")
  (lv			:url "https://github.com/abo-abo/hydra"
-  :ignored-files ("hydra*" "README.md" "doc" "targets")
-  :auto-sync t)
+  :ignored-files ("hydra*" "README.md" "doc" "targets"))
  ;; FIXME: Need to fix the manual's build problem.
  ;; (m-buffer		:url "https://github.com/phillord/m-buffer-el"
- ;;  :doc "m-buffer-doc.org"
- ;;  :auto-sync t)
+ ;;  :doc "m-buffer-doc.org")
  (map			:core "lisp/emacs-lisp/map.el")
  (marginalia		:url "https://github.com/minad/marginalia"
-  :doc "README.org"
-  :auto-sync t)
+  :doc "README.org")
  (markchars		:url nil)
- (math-symbol-lists 	:url "https://github.com/vspinu/math-symbol-lists.git"
-  :auto-sync t)
+ (math-symbol-lists 	:url "https://github.com/vspinu/math-symbol-lists.git")
  (mct			:url "https://gitlab.com/protesilaos/mct"
-  :doc "README.org"
-  :auto-sync t)
+  :doc "README.org")
  (memory-usage		:url nil)
  (metar			:url nil)
  (midi-kbd		:url nil)
  (mines			:url "https://github.com/calancha/Minesweeper")
  (minibuffer-header	:url "https://github.com/rougier/minibuffer-header"
-  :ignored-files ("LICENSE.txt")
-  :auto-sync t)
+  :ignored-files ("LICENSE.txt"))
  (minibuffer-line	:url nil)
  (minimap		:url nil)
  (mmm-mode		:url "https://github.com/purcell/mmm-mode.git"
-  :doc "mmm.texi"
-  :auto-sync t)
- (modus-themes		:core ("etc/themes/modus-themes.el"
-                               "etc/themes/modus-operandi-theme.el"
-                               "etc/themes/modus-operandi-deuteranopia-theme.el"
-                               "etc/themes/modus-operandi-tinted-theme.el"
-                               "etc/themes/modus-vivendi-theme.el"
-                               "etc/themes/modus-vivendi-deuteranopia-theme.el"
-                               "etc/themes/modus-vivendi-tinted-theme.el"
-                               "doc/misc/modus-themes.org"
-                               "doc/misc/doclicense.texi")
-  :doc "modus-themes.org")
+  :doc "mmm.texi")
+ (modus-themes		:url "https://git.sr.ht/~protesilaos/modus-themes"
+  :doc "doc/modus-themes.org"
+  :readme "README.md"
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (multi-mode		:url nil)
  (multishell		:url "https://github.com/kenmanheimer/EmacsMultishell")
  (muse			:url "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
@@ -499,18 +425,14 @@
  (nadvice		:url nil)
  (nameless		:url "https://github.com/Malabarba/Nameless")
  (names			:url "https://github.com/Malabarba/names")
- (nano-agenda		:url "https://github.com/rougier/nano-agenda"
-  :auto-sync t)
- (nano-modeline		:url "https://github.com/rougier/nano-modeline"
-  :auto-sync t)
- (nano-theme		:url "https://github.com/rougier/nano-theme"
-  :auto-sync t)
+ (nano-agenda		:url "https://github.com/rougier/nano-agenda")
+ (nano-modeline		:url "https://github.com/rougier/nano-modeline")
+ (nano-theme		:url "https://github.com/rougier/nano-theme")
  (nftables-mode		:url nil)
  (nhexl-mode		:url nil)
  (nlinum		:url nil)
  (notes-mode		:url nil)
  (notmuch-indicator	:url "https://git.sr.ht/~protesilaos/notmuch-indicator"
-  :auto-sync t
   :readme "README.md"
   :ignored-files ("COPYING"))
  (ntlm			:core "lisp/net/ntlm.el")
@@ -522,93 +444,76 @@
  (on-screen           	:url "https://github.com/michael-heerdegen/on-screen.el.git")
  (orderless		:url "https://github.com/oantolin/orderless"
   :doc "orderless.texi"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  (org			:url "https://git.savannah.gnu.org/git/emacs/org-mode.git"
   :lisp-dir "lisp"
   :release-branch "bugfix"
   :ignored-files ("etc/schema" "contrib" "mk" "testing" "lisp/org-install.el")
   :news "etc/ORG-NEWS"
   :shell-command "make autoloads info; mv doc/org.info org.info; mv doc/orgguide.info orgguide.info"
-  :doc ("org.info" "orgguide.info")
-  :auto-sync t)
- (org-contacts		:url "https://repo.or.cz/org-contacts.git"
-  :auto-sync t)
+  :doc ("org.info" "orgguide.info"))
+ (org-contacts		:url "https://repo.or.cz/org-contacts.git")
  (org-edna		:url "bzr::https://bzr.savannah.gnu.org/r/org-edna-el"
   ;; The Bzr<->Git bridge wasn't working well enough last time I tried.
-  :auto-sync nil)
+  :manual-sync t)
  ;; FIXME: Waiting for copyright paperwork from Brandon Webster.
- ;;(org-drill		:url "https://gitlab.com/phillord/org-drill"
- ;; :auto-sync t)
+ ;;(org-drill		:url "https://gitlab.com/phillord/org-drill")
  (org-modern		:url "https://github.com/minad/org-modern"
-  :doc "README.org"
-  :auto-sync t)
+  :doc "README.org")
  (org-notify		:url "https://github.com/p-m/org-notify"
   ;; FIXME: Upstream diverged; https://github.com/p-m/org-notify/issues/9
   ;; :merge t
-  :auto-sync t)
+  )
  (org-real		:url "https://gitlab.com/tygrdev/org-real"
-  :auto-sync t
   :ignored-files ("LICENSE"))
  (org-remark		:url "https://github.com/nobiot/org-remark"
   :readme "README.org"
-  :doc "docs/org-remark.org"
-  :auto-sync t)
+  :doc "docs/org-remark.org")
  (org-transclusion	:url "https://github.com/nobiot/org-transclusion"
   :make "org-transclusion.org"
   :doc "docs/org-transclusion.org"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  (org-translate		:url nil)
  (orgalist            	:url nil)
  (osc			:url nil)
  (osm			:url "https://github.com/minad/osm"
   :doc "README.org"
-  :auto-sync t
   :ignored-files ("LICENSE"))
  (other-frame-window	:url nil)
  (pabbrev             	:url "https://github.com/phillord/pabbrev.git")
- (paced			:url "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk")
+ (paced			:url "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk"
+  ;; The Bzr<->Git bridge wasn't working well enough last time I tried.
+  :manual-sync t)
  (package-fixes		:url nil)
  (parsec              	:url "https://github.com/cute-jumper/parsec.el.git")
- (parser-generator	:url "https://github.com/cjohansson/emacs-parser-generator"
-  :auto-sync t)
+ (parser-generator	:url "https://github.com/cjohansson/emacs-parser-generator")
  (path-iterator		:url nil)
  (peg			:url nil ;Was in "https://github.com/ellerh/peg.el"
   :ignored-files ("COPYING"))
  (perl-doc		:url "https://github.com/HaraldJoerg/emacs-perl-doc"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
- (persist             	:url "https://gitlab.com/phillord/persist"
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
+ (persist             	:url "https://gitlab.com/phillord/persist")
  ;; FIXME: Waiting for copyright paperwork.
- ;; (phpinspect		:url "https://git.sr.ht/~hugot/phpinspect.el"
- ;;  :auto-sync t)
+ ;; (phpinspect		:url "https://git.sr.ht/~hugot/phpinspect.el")
  (phps-mode		:url "https://github.com/cjohansson/emacs-phps-mode"
   ;; Christian Johansson works on a private Git and pushes to both Github
   ;; and elpa.git anyway, so there's no need to auto-sync.
-  :auto-sync nil)
+  :manual-sync t)
  (pinentry		:url "https://github.com/ueno/pinentry-el.git")
  (plz                 	:url "https://github.com/alphapapa/plz.el.git"
   :ignored-files ("LICENSE")
-  :doc "README.org"
-  :auto-sync t)
+  :doc "README.org")
  (poke			:url "https://git.savannah.gnu.org/git/poke/poke-el.git"
   :doc "poke-el.texi"
-  :ignored-files ("COPYING")
-  :auto-sync t)
- (poke-mode		:url "https://git.savannah.gnu.org/git/poke/poke-mode.git"
-  :auto-sync t)
+  :ignored-files ("COPYING"))
+ (poke-mode		:url "https://git.savannah.gnu.org/git/poke/poke-mode.git")
  (poker			:url nil)
  (polymode		:url "https://github.com/polymode/polymode"
   :ignored-files ("targets" "template" "tests")
-  :readme "readme.md"
-  :auto-sync t)
- (posframe		:url "https://github.com/tumashu/posframe"
-  :auto-sync t)
+  :readme "readme.md")
+ (posframe		:url "https://github.com/tumashu/posframe")
  (pq			:url "https://github.com/anse1/emacs-libpq"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  (prefixed-core		:url nil)
  (project		:core "lisp/progmodes/project.el")
  (psgml               	:url nil) ;; Was https://github.com/lenst/psgml.git
@@ -619,183 +524,151 @@
  ;;         -- -- pspp-mode.el
  (pspp-mode		:url nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
  (pulsar		:url "https://git.sr.ht/~protesilaos/pulsar"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
- (pyim			:url "https://github.com/tumashu/pyim.git"
-  :auto-sync t)
- (pyim-basedict		:url "https://github.com/tumashu/pyim-basedict.git"
-  :auto-sync t)
+ (pyim			:url "https://github.com/tumashu/pyim.git")
+ (pyim-basedict		:url "https://github.com/tumashu/pyim-basedict.git")
  (python		:core "lisp/progmodes/python.el")
  (quarter-plane		:url nil)
- (queue			:url "http://www.dr-qubit.org/git/predictive.git")
+ (queue			:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
+  )
  ;; (rails-routes	:url "https://github.com/otavioschwanck/emacs-rails-routes")
  (rainbow-mode		:url nil)
  (rbit			:url nil)
  (rcirc-color		:url nil)
  (rcirc-menu		:url nil)
- (realgud             	:url "https://github.com/realgud/realgud"
-  :auto-sync t)
+ (realgud             	:url "https://github.com/realgud/realgud")
  (realgud-ipdb        	:url "https://github.com/realgud/realgud-ipdb")
  (realgud-jdb         	:url "https://github.com/realgud/realgud-jdb")
- (realgud-lldb        	:url "https://github.com/realgud/realgud-lldb"
-  :auto-sync t)
+ (realgud-lldb        	:url "https://github.com/realgud/realgud-lldb")
  (realgud-node-debug  	:url "https://github.com/realgud/realgud-node-debug")
  (realgud-node-inspect 	:url "https://github.com/realgud/realgud-node-inspect")
  (realgud-trepan-ni   	:url "https://github.com/realgud/realgud-trepan-ni")
- (rec-mode		:url "https://git.savannah.gnu.org/git/recutils/rec-mode.git"
-  :auto-sync t)
+ (rec-mode		:url "https://git.savannah.gnu.org/git/recutils/rec-mode.git")
  (register-list		:url nil)
  (relint		:url "https://github.com/mattiase/relint"
-  :ignored-files ("Makefile" ".github" "*-test.el*" "test")
-  :auto-sync t)
+  :ignored-files ("Makefile" ".github" "*-test.el*" "test"))
  (repology		:url nil)
  (rich-minority		:url "https://github.com/Malabarba/rich-minority")
  ;; FIXME: Missing some paperwork, maybe we should add it to NonGNU.
- ;; (rmsbolt		:url "https://gitlab.com/jgkamat/rmsbolt"
- ;;  :auto-sync t)
+ ;; (rmsbolt		:url "https://gitlab.com/jgkamat/rmsbolt")
  (rnc-mode		:url nil)
- (rt-liberation		:url "https://git.savannah.nongnu.org/git/rtliber"
-  :auto-sync t)
+ (rt-liberation		:url "https://git.savannah.nongnu.org/git/rtliber")
  (ruby-end		:url "https://github.com/rejeep/ruby-end.el"
   :ignored-files ("Makefile" "Cask" ".travis.yml" ".gitignore" "features")
-  :readme "README.markdown"
-  :auto-sync t)
+  :readme "README.markdown")
  (rudel			:url nil) ;; Was bzr::bzr://rudel.bzr.sourceforge.net/bzrroot/rudel/trunk
  (satchel		:url "https://git.sr.ht/~theo/satchel"
-  :ignored-files ("LICENSE")
-  :auto-sync t)
- (scanner		:url "https://gitlab.com/rstocker/scanner.git"
-  :auto-sync t)
+  :ignored-files ("LICENSE"))
+ (scanner		:url "https://gitlab.com/rstocker/scanner.git")
  (scroll-restore	:url nil)
  (sed-mode		:url nil)
  (seq			:url nil)
- (setup			:url "https://git.sr.ht/~pkal/setup"
-  :auto-sync t)
+ (setup			:url "https://git.sr.ht/~pkal/setup")
  (shelisp		:url nil)
- (shell-command+	:url "https://git.sr.ht/~pkal/shell-command-plus"
-  :auto-sync t)
+ (shell-command+	:url "https://git.sr.ht/~pkal/shell-command-plus")
  (shell-quasiquote	:url nil)
  (shen-mode		:url nil)
  (sisu-mode		:url nil)
- (sketch-mode		:url "https://github.com/dalanicolai/sketch-mode"
-  :auto-sync t)
+ (sketch-mode		:url "https://github.com/dalanicolai/sketch-mode")
  (slime-volleyball	:url nil)
  (sm-c-mode 		:url nil)
  (smalltalk-mode	:url nil) ;; Was "git://git.sv.gnu.org/smalltalk"
  (smart-yank		:url nil)
  (sml-mode		:url nil)
- (standard-themes		:url "https://git.sr.ht/~protesilaos/standard-themes"
-  :auto-sync t
-  :doc "README.org"
-  :news "CHANGELOG.org"
-  :ignored-files ("COPYING" "doclicense.texi"))
  (so-long		:core "lisp/so-long.el")
  (soap-client		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
  (sokoban		:url nil)
- (sotlisp		:url "https://github.com/Malabarba/speed-of-thought-lisp"
-  :auto-sync t)
- (spinner		:url "https://github.com/Malabarba/spinner.el"
-  :auto-sync t)
+ (sotlisp		:url "https://github.com/Malabarba/speed-of-thought-lisp")
+ (spinner		:url "https://github.com/Malabarba/spinner.el")
  (sql-beeline		:url nil)
  (sql-cassandra		:url nil)
- (sql-indent          	:url "https://github.com/alex-hhh/emacs-sql-indent"
-  :auto-sync t)
+ (sql-indent          	:url "https://github.com/alex-hhh/emacs-sql-indent")
  (sql-smie            	:url nil)
  (srht			:url "https://git.sr.ht/~akagi/srht.el"
   :ignored-files ("LICENSE")
-  :lisp-dir "lisp"
-  :auto-sync t)
+  :lisp-dir "lisp")
  (ssh-deploy		:url "https://github.com/cjohansson/emacs-ssh-deploy")
+ (standard-themes		:url "https://git.sr.ht/~protesilaos/standard-themes"
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (stream		:url nil)
  (substitute		:url "https://git.sr.ht/~protesilaos/substitute"
-  :auto-sync t
+  :doc "README.org"
   :readme "README.md"
-  :ignored-files ("COPYING"))
+  :ignored-files ("COPYING" "doclicense.texi"))
  (svg			:core ("lisp/svg.el"))
  (svg-clock		:url nil)
- (svg-lib		:url "https://github.com/rougier/svg-lib"
-  :auto-sync t)
- (svg-tag-mode		:url "https://github.com/rougier/svg-tag-mode"
-  :auto-sync t)
- (swiper		:url "https://github.com/abo-abo/swiper")
+ (svg-lib		:url "https://github.com/rougier/svg-lib")
+ (svg-tag-mode		:url "https://github.com/rougier/svg-tag-mode")
+ (swiper		:url "https://github.com/abo-abo/swiper"
+  :manual-sync t
+  )
  (sxhkdrc-mode		:url "https://git.sr.ht/~protesilaos/sxhkdrc-mode"
-  :auto-sync t
   :readme "README.md"
   :ignored-files ("COPYING"))
- (system-packages	:url "https://gitlab.com/jabranham/system-packages"
-  :auto-sync t)
+ (system-packages	:url "https://gitlab.com/jabranham/system-packages")
  (systemd		:url nil)
- (tNFA			:url "http://www.dr-qubit.org/git/predictive.git")
+ (tNFA			:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
+  )
  (taxy                	:url "https://github.com/alphapapa/taxy.el.git"
   :doc "taxy.info"
-  :ignored-files ("images")
-  :auto-sync t)
+  :ignored-files ("images"))
  (taxy-magit-section  	:url "https://github.com/alphapapa/taxy.el.git"
   :branch "package/taxy-magit-section"
-  :doc "taxy-magit-section.info"
-  :auto-sync t)
- (temp-buffer-browse  	:url "https://github.com/leoliu/temp-buffer-browse"
-  :auto-sync t)
+  :doc "taxy-magit-section.info")
+ (temp-buffer-browse  	:url "https://github.com/leoliu/temp-buffer-browse")
  (tempel		:url "https://github.com/minad/tempel"
-  :doc "README.org"
-  :auto-sync t)
- (test-simple         	:url "https://github.com/rocky/emacs-test-simple"
-  :auto-sync t)
+  :doc "README.org")
+ (test-simple         	:url "https://github.com/rocky/emacs-test-simple")
  (timerfunctions	:url nil)
- (tiny			:url "https://github.com/abo-abo/tiny"
-  :auto-sync t)
+ (tiny			:url "https://github.com/abo-abo/tiny")
  (tmr			:url "https://git.sr.ht/~protesilaos/tmr"
-  :auto-sync t
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi" "Makefile"))
  (tomelr		:url "https://github.com/kaushalmodi/tomelr"
   :ignored-files ("LICENSE")
-  :news "CHANGELOG.org"
-  :auto-sync t)
+  :news "CHANGELOG.org")
  (topspace		:url "https://github.com/trevorpogue/topspace"
   :ignored-files ("LICENSE")
-  :news "NEWS.md"
-  :auto-sync t)
+  :news "NEWS.md")
  (tramp			:url "https://git.savannah.gnu.org/git/tramp.git"
   :branch "externals/tramp"
   :main-file "trampver.el"
   :make ("autoloads" "info")
-  :doc "tramp.info"
-  :auto-sync t)
+  :doc "tramp.info")
  (tramp-nspawn		:url "https://github.com/bjc/tramp-nspawn"
-  :ignored-files ("COPYING")
-  :auto-sync t)
+  :ignored-files ("COPYING"))
  (tramp-theme		:url nil)
  (transcribe		:url nil)
  (transient		:url "https://github.com/magit/transient"
-  :auto-sync nil ;;Prefers manual control.
+  :manual-sync t ;;Author prefers manual control.
   :lisp-dir "lisp"
   :renames (("docs/" ""))
   :news "CHANGELOG"
   :doc "docs/transient.texi")
  (transient-cycles    	:url nil)
- (trie			:url "http://www.dr-qubit.org/git/predictive.git")
+ (trie			:url "http://www.dr-qubit.org/git/predictive.git"
+  :manual-sync t ;; The upstream doesn't exist any more!
+  )
+ (trinary		:url "https://github.com/emacs-elsa/trinary-logic")
  (triples		:url "https://github.com/ahyatt/triples"
-  :readme "README.org"
-  :auto-sync t)
- ;; FIXME: Waiting for copyright cleanups.
- ;;(trinary		:url "https://github.com/emacs-elsa/trinary-logic"
- ;; :auto-sync t)
+  :readme "README.org")
  ;; FIXME: The upstream of `undo-tree' has diverged.  I tried to
  ;; contact Toby but he's quite busy.  He mentioned thinking of using the
  ;; `elpa.git` branch as the official upstream.
- (undo-tree		:url "https://gitlab.com/tsc25/undo-tree"
-  :auto-sync t)
+ (undo-tree		:url "https://gitlab.com/tsc25/undo-tree")
  (uni-confusables 	:url nil
   :readme "README.md")
  (uniquify-files	:url nil)
  (url-http-ntlm 	:url nil)
  (url-scgi		:url "https://github.com/skangas/url-scgi"
-  :readme "README.org"
-  :auto-sync t)
+  :readme "README.org")
  (use-package
   :core ("lisp/use-package/"
          "doc/emacs/doclicense.texi"
@@ -806,41 +679,33 @@
   :doc "use-package.texi")
  (validate		:url "https://github.com/Malabarba/validate.el")
  (valign		:url "https://github.com/casouri/valign")
- (vc-backup		:url "https://git.sr.ht/~pkal/vc-backup"
-  :auto-sync t)
+ (vc-backup		:url "https://git.sr.ht/~pkal/vc-backup")
  (vc-got		:url "https://git.omarpolo.com/vc-got.git"
   ;; Mirror: https://github.com/omar-polo/vc-got/
-  :ignored-files ("targets" "LICENSE")
-  :auto-sync t)
- (vc-hgcmd		:url "https://github.com/muffinmad/emacs-vc-hgcmd"
-  :auto-sync t)
+  :ignored-files ("targets" "LICENSE"))
+ (vc-hgcmd		:url "https://github.com/muffinmad/emacs-vc-hgcmd")
  (vcard			:url nil)
  (vcl-mode	        :url "https://git.gnu.org.ua/vcl-mode.git")
- (vdiff               	:url "https://github.com/justbur/emacs-vdiff"
-  :auto-sync t)
+ (vdiff               	:url "https://github.com/justbur/emacs-vdiff")
  (verilog-mode		:core "lisp/progmodes/verilog-mode.el")
  (vertico		:url "https://github.com/minad/vertico"
   :doc "README.org"
   :ignored-files ("*.svg")
-  :renames (("extensions/" ""))
-  :auto-sync t)
- (vertico-posframe	:url "https://github.com/tumashu/vertico-posframe"
-  :auto-sync t)
+  :renames (("extensions/" "")))
+ (vertico-posframe	:url "https://github.com/tumashu/vertico-posframe")
  (vigenere 		:url nil)
  (visual-filename-abbrev :url nil)
  (visual-fill		:url nil)
  (vlf			:url "https://github.com/m00natic/vlfi")
  (vundo			:url "https://github.com/casouri/vundo"
   :ignored-files ("test")
-  :news "NEWS.txt"
-  :auto-sync t)
+  :news "NEWS.txt")
  (wcheck-mode		:url "https://github.com/tlikonen/wcheck-mode")
  (wconf			:url "https://github.com/ilohmar/wconf")
  (web-server		:url "https://github.com/eschulte/emacs-web-server.git")
  (webfeeder		:url "https://gitlab.com/ambrevar/emacs-webfeeder.git")
  (websocket		:url "https://github.com/ahyatt/emacs-websocket.git")
- (which-key           	:url "https://github.com/justbur/emacs-which-key"
-  :auto-sync t)
+ (which-key           	:url "https://github.com/justbur/emacs-which-key")
  (windower		:url "https://gitlab.com/ambrevar/emacs-windower")
  (windresize		:url nil)
  (wisi			:url nil
@@ -849,17 +714,14 @@
  (wisitoken-grammar-mode :url nil)
  (wpuzzle		:url nil)
  ;; FIXME: Waiting for copyright paperwork from Emanuel Berg.
- ;;(wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git"
- ;; :auto-sync t)
+ ;;(wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git")
  (xclip			:url nil)
  (xeft                  :url "https://git.sr.ht/~casouri/xeft"
-  :auto-sync t
   :ignored-files ("*.gif"))
  (xelb			:url "https://github.com/ch11ng/xelb.git")
  (xpm			:url nil)
  (xr			:url "https://github.com/mattiase/xr"
-  :ignored-files ("Makefile" ".github" "*-test.el*")
-  :auto-sync t)
+  :ignored-files ("Makefile" ".github" "*-test.el*"))
  (xref			:core "lisp/progmodes/xref.el")
  (yasnippet		:url "https://github.com/capitaomorte/yasnippet.git")
  (yasnippet-classic-snippets :url nil)
@@ -867,8 +729,7 @@
  (ztree			:url "https://github.com/fourier/ztree")
  (zuul			:url "https://git.sr.ht/~niklaseklund/zuul.el"
   :news "CHANGELOG.org"
-  :readme "README.md"
-  :auto-sync t)
+  :readme "README.md")
  )
 
 ;; Local Variables:
