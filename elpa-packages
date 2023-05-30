@@ -70,9 +70,11 @@
   :manual-sync t)
  (aumix-mode		:url nil)
  (auto-correct		:url nil)
+ (auto-header           :url "https://git.sr.ht/~pkal/auto-header")
  (auto-overlays		:url "http://www.dr-qubit.org/git/predictive.git"
   :manual-sync t ;; The upstream doesn't exist any more!
   :doc "docs/auto-overlay-manual.texinfo")
+ (autocrypt             :url "https://git.sr.ht/~pkal/autocrypt")
  (avy			:url "https://github.com/abo-abo/avy"
   ;; FIXME: Avy diverged https://github.com/abo-abo/avy/issues/344
   :merge t)
@@ -117,8 +119,11 @@
  ;;                            "lisp/progmodes/cc-vars.el"
  ;;                            "doc/misc/cc-mode.texi"
  ;;                      :doc "cc-mode.texi"))
+ (calibre               :url "https://git.disroot.org/kjartanoli/calibre.el")
  (cape			:url "https://github.com/minad/cape"
-  :doc "README.org")
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (capf-autosuggest	:url "https://repo.or.cz/emacs-capf-autosuggest.git")
  (caps-lock		:url nil)
  (captain		:url nil)
@@ -149,8 +154,8 @@
   :doc "compat.texi")
  (consult		:url "https://github.com/minad/consult"
   :doc "README.org"
-  :ignored-files ("images")
-  :news "CHANGELOG.org")
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (consult-recoll	:url "https://codeberg.org/jao/consult-recoll"
   :ignored-files ("license")
   :readme "readme.org")
@@ -158,12 +163,13 @@
  (context-coloring	:url "https://github.com/jacksonrayhamilton/context-coloring.git")
  (corfu			:url "https://github.com/minad/corfu"
   :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE")
   :renames (("extensions/" "")))
- ;; Merged into `corfu' (issue #178) instead of added as a separate package.
- ;;(corfu-doc		:url "https://github.com/galeo/corfu-doc"
- ;; :ignored-files ("LICENSE"))
  (coterm		:url "https://repo.or.cz/emacs-coterm.git")
- (counsel		:url "https://github.com/abo-abo/swiper")
+ (counsel		:url "https://github.com/abo-abo/swiper"
+  :manual-sync t
+  )
  (cpio-mode		:url "https://github.com/dlewan/cpio-mode")
  (cpupower		:url "https://gitlab.com/steve-emacs-stuff/cpupower-el")
  (crdt			:url "https://code.librehq.com/qhong/crdt.el")
@@ -230,7 +236,12 @@
   :readme "README.md"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi" "contrast-ratios.org"))
- (eglot			:core "lisp/progmodes/eglot.el")
+ (eglot			:core ("lisp/progmodes/eglot.el"
+                               "doc/emacs/doclicense.texi"
+                               "doc/emacs/docstyle.texi"
+                               "doc/misc/eglot.texi"
+                               "etc/EGLOT-NEWS")
+                        :news "EGLOT-NEWS")
  (el-search		:url nil)
  (eldoc			:core "lisp/emacs-lisp/eldoc.el")
  (eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
@@ -276,6 +287,7 @@
  (external-completion   :core "lisp/external-completion.el")
  (exwm			:url "https://github.com/ch11ng/exwm.git")
  (f90-interface-browser :url nil) ;; Was "https://github.com/wence-/f90-iface"
+ (face-shift            :url "https://git.sr.ht/~pkal/face-shift")
  (filladapt		:url nil)
  (flylisp		:url nil)
  (flymake		:core "lisp/progmodes/flymake.el")
@@ -359,6 +371,10 @@
   :ignored-files ("LICENSE"))
  (javaimp		:url nil)
  (jgraph-mode		:url nil)
+ (jinx			:url "https://github.com/minad/jinx"
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (jit-spell		:url "https://github.com/astoff/jit-spell")
  (js2-mode		:url "https://github.com/mooz/js2-mode.git")
  (json-mode		:url nil)
@@ -369,6 +385,8 @@
   :ignored-files ("*.png" "LICENSE"))
  (kmb			:url nil)
  (landmark		:url nil)
+ (latex-table-wizard    :url "https://github.com/enricoflor/latex-table-wizard"
+  :doc "latex-table-wizard.texi")
  (leaf			:url "https://github.com/conao3/leaf.el")
  ;; FIXME: In preparation (depends on `f` and `s`).
  ;; (lentic		:url "https://github.com/phillord/lentic")
@@ -398,7 +416,9 @@
  ;;  :doc "m-buffer-doc.org")
  (map			:core "lisp/emacs-lisp/map.el")
  (marginalia		:url "https://github.com/minad/marginalia"
-  :doc "README.org")
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (markchars		:url nil)
  (math-symbol-lists 	:url "https://github.com/vspinu/math-symbol-lists.git")
  (mct			:url "https://gitlab.com/protesilaos/mct"
@@ -442,6 +462,7 @@
  (objed        		:url "https://github.com/clemera/objed")
  (omn-mode            	:url nil)
  (on-screen           	:url "https://github.com/michael-heerdegen/on-screen.el.git")
+ (openpgp               :url "https://git.sr.ht/~pkal/openpgp")
  (orderless		:url "https://github.com/oantolin/orderless"
   :doc "orderless.texi"
   :readme "README.org")
@@ -459,7 +480,9 @@
  ;; FIXME: Waiting for copyright paperwork from Brandon Webster.
  ;;(org-drill		:url "https://gitlab.com/phillord/org-drill")
  (org-modern		:url "https://github.com/minad/org-modern"
-  :doc "README.org")
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (org-notify		:url "https://github.com/p-m/org-notify"
   ;; FIXME: Upstream diverged; https://github.com/p-m/org-notify/issues/9
   ;; :merge t
@@ -478,6 +501,7 @@
  (osc			:url nil)
  (osm			:url "https://github.com/minad/osm"
   :doc "README.org"
+  :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
  (other-frame-window	:url nil)
  (pabbrev             	:url "https://github.com/phillord/pabbrev.git")
@@ -545,7 +569,9 @@
  (realgud-lldb        	:url "https://github.com/realgud/realgud-lldb")
  (realgud-node-debug  	:url "https://github.com/realgud/realgud-node-debug")
  (realgud-node-inspect 	:url "https://github.com/realgud/realgud-node-inspect")
+ (realgud-pdbpp   	:url "https://github.com/realgud/realgud-pdbpp")
  (realgud-trepan-ni   	:url "https://github.com/realgud/realgud-trepan-ni")
+ (realgud-trepan-xpy   	:url "https://github.com/realgud/realgud-trepan-xpy")
  (rec-mode		:url "https://git.savannah.gnu.org/git/recutils/rec-mode.git")
  (register-list		:url nil)
  (relint		:url "https://github.com/mattiase/relint"
@@ -572,6 +598,7 @@
  (shell-quasiquote	:url nil)
  (shen-mode		:url nil)
  (sisu-mode		:url nil)
+ (site-lisp             :url "https://git.sr.ht/~pkal/site-lisp")
  (sketch-mode		:url "https://github.com/dalanicolai/sketch-mode")
  (slime-volleyball	:url nil)
  (sm-c-mode 		:url nil)
@@ -607,6 +634,8 @@
  (swiper		:url "https://github.com/abo-abo/swiper"
   :manual-sync t
   )
+ (switchy-window	:url "https://git.sr.ht/~tsdh/switchy-window"
+  :readme "README.md")
  (sxhkdrc-mode		:url "https://git.sr.ht/~protesilaos/sxhkdrc-mode"
   :readme "README.md"
   :ignored-files ("COPYING"))
@@ -623,7 +652,9 @@
   :doc "taxy-magit-section.info")
  (temp-buffer-browse  	:url "https://github.com/leoliu/temp-buffer-browse")
  (tempel		:url "https://github.com/minad/tempel"
-  :doc "README.org")
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE"))
  (test-simple         	:url "https://github.com/rocky/emacs-test-simple")
  (timerfunctions	:url nil)
  (tiny			:url "https://github.com/abo-abo/tiny")
@@ -653,6 +684,7 @@
   :news "CHANGELOG"
   :doc "docs/transient.texi")
  (transient-cycles    	:url nil)
+ (tree-inspector        :url "https://github.com/mmontone/emacs-tree-inspector")
  (trie			:url "http://www.dr-qubit.org/git/predictive.git"
   :manual-sync t ;; The upstream doesn't exist any more!
   )
@@ -662,11 +694,16 @@
  ;; FIXME: The upstream of `undo-tree' has diverged.  I tried to
  ;; contact Toby but he's quite busy.  He mentioned thinking of using the
  ;; `elpa.git` branch as the official upstream.
+ (typo                  :url "https://git.sr.ht/~pkal/typo")
  (undo-tree		:url "https://gitlab.com/tsc25/undo-tree")
  (uni-confusables 	:url nil
   :readme "README.md")
  (uniquify-files	:url nil)
+ (urgrep		:url "https://github.com/jimporter/urgrep"
+  :readme "README.md")
  (url-http-ntlm 	:url nil)
+ (url-http-oauth	:url "https://git.sr.ht/~fitzsim/url-http-oauth"
+  :readme ignore)
  (url-scgi		:url "https://github.com/skangas/url-scgi"
   :readme "README.org")
  (use-package
@@ -690,7 +727,8 @@
  (verilog-mode		:core "lisp/progmodes/verilog-mode.el")
  (vertico		:url "https://github.com/minad/vertico"
   :doc "README.org"
-  :ignored-files ("*.svg")
+  :news "CHANGELOG.org"
+  :ignored-files ("LICENSE")
   :renames (("extensions/" "")))
  (vertico-posframe	:url "https://github.com/tumashu/vertico-posframe")
  (vigenere 		:url nil)
@@ -723,6 +761,7 @@
  (xr			:url "https://github.com/mattiase/xr"
   :ignored-files ("Makefile" ".github" "*-test.el*"))
  (xref			:core "lisp/progmodes/xref.el")
+ (xref-union            :url "https://git.sr.ht/~pkal/xref-union")
  (yasnippet		:url "https://github.com/capitaomorte/yasnippet.git")
  (yasnippet-classic-snippets :url nil)
  (zones			:url nil)  ;https://www.emacswiki.org/emacs/zones.el
