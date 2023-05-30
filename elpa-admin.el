@@ -107,25 +107,10 @@ See variable `org-export-options-alist'.")
                      (and (consp val) (cl-every #'stringp val)))
                  t)
       (setf (pcase-exhaustive var
-              ('name			elpaa--name)
-              ('gitrepo			elpaa--gitrepo)
-              ('url			elpaa--url)
-              ('branch-prefix		elpaa--branch-prefix)
-              ('release-branch-prefix	elpaa--release-branch-prefix)
-              ('specs-file		elpaa--specs-file)
-              ('copyright-file		elpaa--copyright-file)
-              ('email-to		elpaa--email-to)
-              ('email-from		elpaa--email-from)
-              ('email-reply-to		elpaa--email-reply-to)
-              ('sandbox			elpaa--sandbox)
-              ('sandbox-extra-ro-dirs	elpaa--sandbox-extra-ro-dirs)
               ('doc-dir                 elpaa--doc-subdirectory)
-              ('debug			elpaa--debug)
               ((guard (boundp (intern (format "elpaa--%s" var))))
                (symbol-value (intern (format "elpaa--%s" var)))))
             val))))
-
-(when (file-readable-p "elpa-config") (elpaa-read-config "elpa-config"))
 
 (defun elpaa--message (&rest args)
   (when elpaa--debug (apply #'message args)))
@@ -746,6 +731,10 @@ auxiliary files unless TARBALL-ONLY is non-nil ."
       (progn
         (elpaa--message "Tarball %s already built!" tarball)
         nil)
+    (when (file-readable-p elpaa--copyright-file)
+      ;; Eagerly load this file, so that any spurious "Followed link to" is
+      ;; emitted here rather than being included in the build failure report.
+      (find-file-noselect elpaa--copyright-file))
     (let ((msg-start (with-current-buffer "*Messages*" (point-marker)))
           (res nil))
       (message "======== Building tarball %s..." tarball)
@@ -2588,6 +2577,15 @@ relative to elpa root."
 
 ;;; Fetch updates from upstream
 
+(defvar elpaa--manual-sync-re
+  regexp-unmatchable ;; "git\\.sr\\.ht/"
+  "Regexp matching URLs from which we shouldn't poll.")
+
+(defun elpaa--manual-sync-p (pkg-spec)
+  (or (elpaa--spec-get pkg-spec :manual-sync)
+      (let ((url (elpaa--spec-get pkg-spec :url)))
+        (and url (string-match elpaa--manual-sync-re url)))))
+
 (defun elpaa--branch (pkg-spec)
   (elpaa--spec-get pkg-spec :branch))
 
@@ -2772,7 +2770,7 @@ relative to elpa root."
     (dolist (pkg pkgs)
       (let* ((pkg-spec (elpaa--get-package-spec pkg specs)))
         (cond
-         ((and all (elpaa--spec-get pkg-spec :manual-sync)) nil) ;Skip.
+         ((and all (elpaa--manual-sync-p pkg-spec)) nil) ;Skip.
          ((or (eq condition ':)
               (elpaa--spec-get pkg-spec condition))
           ;; (unless (file-directory-p (expand-file-name pkg "packages"))
@@ -2913,6 +2911,7 @@ relative to elpa root."
                (skip-chars-backward " \t"))
              (lambda () (forward-comment (point-max)))))
 
+(when (file-readable-p "elpa-config") (elpaa-read-config "elpa-config"))
 (require 'entropy-elpa-admin-patch-1)
 (provide 'elpa-admin)
 
