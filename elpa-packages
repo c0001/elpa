@@ -119,6 +119,8 @@
  ;;                            "lisp/progmodes/cc-vars.el"
  ;;                            "doc/misc/cc-mode.texi"
  ;;                      :doc "cc-mode.texi"))
+ (buildbot		:url "https://g.ypei.me/buildbot.el.git"
+  :readme "README.org")
  (calibre               :url "https://git.disroot.org/kjartanoli/calibre.el")
  (cape			:url "https://github.com/minad/cape"
   :doc "README.org"
@@ -211,6 +213,10 @@
   :ignored-files ("LICENSE"))
  (dired-du		:url nil)
  (dired-git-info	:url "https://github.com/clemera/dired-git-info")
+ (dired-preview		:url "https://git.sr.ht/~protesilaos/dired-preview"
+  :doc "README.org"
+  :readme "README.md"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (disk-usage		:url "https://gitlab.com/ambrevar/emacs-disk-usage")
  (dismal		:url nil)
  (djvu			:url nil)
@@ -247,6 +253,8 @@
  (eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  (electric-spacing	:url nil)
  (elisp-benchmarks	:url nil)
+ (emacs-gc-stats	:url "https://git.sr.ht/~yantar92/emacs-gc-stats"
+  :ignored-files ("COPYING"))
  ;; FIXME: Work in progress.  The copyright paperwork is ready.
  ;;(elsa		:url "https://github.com/emacs-elsa/Elsa")
  ;;(emacspeak		:url "https://github.com/tvraman/emacspeak"
@@ -289,6 +297,7 @@
  (f90-interface-browser :url nil) ;; Was "https://github.com/wence-/f90-iface"
  (face-shift            :url "https://git.sr.ht/~pkal/face-shift")
  (filladapt		:url nil)
+ (firefox-javascript-repl	:url "https://git.sr.ht/~fitzsim/firefox-javascript-repl")
  (flylisp		:url nil)
  (flymake		:core "lisp/progmodes/flymake.el")
  (flymake-proselint	:url "https://git.sr.ht/~manuel-uberti/flymake-proselint")
@@ -383,6 +392,11 @@
  (kind-icon		:url "https://github.com/jdtsmith/kind-icon")
  (kiwix			:url "https://repo.or.cz/kiwix.el.git"
   :ignored-files ("*.png" "LICENSE"))
+ ;; While kixtart mode's author has signed the copyright paperwork,
+ ;; there is no Free implementation of the KiXtart language :-(
+ ;; (kixtart-mode	:url "https://github.com/morganwillcock/kixtart-mode"
+ ;;  :ignored-files ("LICENSE")
+ ;;  :readme "README")
  (kmb			:url nil)
  (landmark		:url nil)
  (latex-table-wizard    :url "https://github.com/enricoflor/latex-table-wizard"
@@ -405,6 +419,7 @@
  (loccur		:url "https://github.com/fourier/loccur")
  (logos			:url "https://git.sr.ht/~protesilaos/logos"
   :doc "README.org"
+  :readme "README.md"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (luwak			:url "https://g.ypei.me/luwak.git"
@@ -517,8 +532,7 @@
  (perl-doc		:url "https://github.com/HaraldJoerg/emacs-perl-doc"
   :ignored-files ("LICENSE"))
  (persist             	:url "https://gitlab.com/phillord/persist")
- ;; FIXME: Waiting for copyright paperwork.
- ;; (phpinspect		:url "https://git.sr.ht/~hugot/phpinspect.el")
+ (phpinspect		:url "https://github.com/hugot/phpinspect.el")
  (phps-mode		:url "https://github.com/cjohansson/emacs-phps-mode"
   ;; Christian Johansson works on a private Git and pushes to both Github
   ;; and elpa.git anyway, so there's no need to auto-sync.
@@ -609,6 +623,9 @@
  (soap-client		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
  (sokoban		:url nil)
  (sotlisp		:url "https://github.com/Malabarba/speed-of-thought-lisp")
+ (spacious-padding		:url "https://git.sr.ht/~protesilaos/spacious-padding"
+  :readme "README.md"
+  :ignored-files ("COPYING"))
  (spinner		:url "https://github.com/Malabarba/spinner.el")
  (sql-beeline		:url nil)
  (sql-cassandra		:url nil)
@@ -695,6 +712,7 @@
  ;; contact Toby but he's quite busy.  He mentioned thinking of using the
  ;; `elpa.git` branch as the official upstream.
  (typo                  :url "https://git.sr.ht/~pkal/typo")
+ (ulisp-repl		:url "https://git.sr.ht/~fitzsim/ulisp-repl")
  (undo-tree		:url "https://gitlab.com/tsc25/undo-tree")
  (uni-confusables 	:url nil
   :readme "README.md")
@@ -744,6 +762,10 @@
  (webfeeder		:url "https://gitlab.com/ambrevar/emacs-webfeeder.git")
  (websocket		:url "https://github.com/ahyatt/emacs-websocket.git")
  (which-key           	:url "https://github.com/justbur/emacs-which-key")
+ (window-commander	:url "https://git.sr.ht/~dsemy/window-commander"
+  :readme ignore
+  :doc "window-commander.texi"
+  :news "NEWS")
  (windower		:url "https://gitlab.com/ambrevar/emacs-windower")
  (windresize		:url nil)
  (wisi			:url nil
