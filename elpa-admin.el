@@ -104,7 +104,7 @@ See variable `org-export-options-alist'.")
   (let ((config (elpaa--form-from-file-contents file)))
     (pcase-dolist (`(,var ,val) config)
       (cl-assert (or (stringp val) (booleanp val)
-                     (and (consp val) (cl-every #'stringp val)))
+                     (and (consp val) (seq-every-p #'stringp val)))
                  t)
       (setf (pcase-exhaustive var
               ('doc-dir                 elpaa--doc-subdirectory)
@@ -760,8 +760,16 @@ auxiliary files unless TARBALL-ONLY is non-nil ."
                                        msg))))))
 
 
+(defun elpa-admin--tar-command ()
+  (if (and (memq system-type '(berkeley-unix darwin))
+           (not (string-match-p (rx "tar (GNU tar)")
+                                (shell-command-to-string "tar --version"))))
+      (or (executable-find "gtar")
+          (error "Please install GNU tar"))
+    "tar"))
+
 (defun elpaa--make-one-tarball-1 ( tarball dir pkg-spec metadata-or-version
-                                 &optional revision-function tarball-only)
+                              &optional revision-function tarball-only)
   (elpaa--with-temp-files
    dir
    (let* ((destdir (file-name-directory tarball))
@@ -813,7 +821,7 @@ auxiliary files unless TARBALL-ONLY is non-nil ."
      (cl-assert (not (string-match "[][*\\|?]" pkgname)))
      (cl-assert (not (string-match "[][*\\|?]" vers)))
      (apply #'elpaa--call
-            nil "tar"
+            nil (elpa-admin--tar-command)
             `("--exclude-vcs"
               ,@(mapcar (lambda (i) (format "--exclude=packages/%s/%s" pkg i))
                         ignores)
@@ -908,20 +916,55 @@ of the current `process-environment'.  Return the modified copy."
                0)))
     (encode-time (list s mi h d mo y nil nil zs))))
 
+(defun elpaa--core-files (pkg-spec)
+  "Get a list of core files (and only files) for PKG-SPEC.
+Core folders are recursively searched, excluded files are ignored."
+  (let* ((file-patterns (ensure-list (elpaa--spec-get pkg-spec :core)))
+         (excludes (elpaa--spec-get pkg-spec :excludes))
+         (default-directory (expand-file-name "emacs/"))
+         (core-files nil))
+
+    ;; Ensure we look at files from a core package.
+    (cl-assert file-patterns)
+
+    ;; We look at each file or files in folder and add them
+    ;; to core-files.
+    (dolist (item file-patterns)
+      (if (file-directory-p item)
+          (setq core-files (nconc (directory-files-recursively item ".*")
+                                  core-files))
+        (push item core-files)))
+
+    ;; Remove all files which match a wildcard in the excludes.
+    (if (null excludes)
+        core-files
+      (let ((re (concat "\\(?: "
+                        (mapconcat #'wildcard-to-regexp excludes "\\)\\|\\(?:")
+                        "\\)")))
+        (seq-remove
+         (lambda (file-name)
+           (string-match-p re file-name))
+         core-files)))))
+
 (defun elpaa--get-devel-version (dir pkg-spec)
   "Compute the date-based pseudo-version used for devel builds."
-  (let* ((ftn (file-truename      ;; Follow symlinks!
-              (expand-file-name (elpaa--main-file pkg-spec) dir)))
-         (default-directory (file-name-directory ftn))
-         (gitdate
+  (let* ((gitdate
           (with-temp-buffer
-           (if (plist-get (cdr pkg-spec) :core)
-               ;; For core packages, don't use the date of the last
-               ;; commit to the branch, but that of the last commit
-               ;; to the main file.
-               (elpaa--call t "git" "log" "--pretty=format:%cI" "--no-patch"
-                            "-1" "--" (file-name-nondirectory ftn))
-             (elpaa--call t "git" "show" "--pretty=format:%cI" "--no-patch"))
+            (if (plist-get (cdr pkg-spec) :core)
+                (let ((core-files (elpaa--core-files pkg-spec))
+                      (default-directory (expand-file-name "emacs/")))
+                  ;; For core packages, don't use the date of the last
+                  ;; commit to the branch, but that of the last commit
+                  ;; to the core files.
+                  (apply #'elpaa--call t "git" "log" "--pretty=format:%cI" "--no-patch"
+                         "-1" "--" core-files))
+              ;; FIXME: Why follow symlinks?  I have the nagging feeling that
+              ;; this used to be needed for the :core case only, so not needed
+              ;; here any more.
+              (let* ((ftn (file-truename      ;; Follow symlinks!
+                           (expand-file-name (elpaa--main-file pkg-spec) dir)))
+                     (default-directory (file-name-directory ftn)))
+                (elpaa--call t "git" "show" "--pretty=format:%cI" "--no-patch")))
             (buffer-string)))
          (verdate
           ;; Convert Git's date into something that looks like a version number.
@@ -1425,8 +1468,8 @@ Rename DIR/ to PKG-VERS/, and return the descriptor."
      (concat (format ";; Generated package description from %s.el  -*- no-byte-compile: t -*-\n"
 		     name)
 	     (prin1-to-string
-              (cl-destructuring-bind (version desc requires extras)
-                  (cdr metadata)
+              (pcase-let ((`(,version ,desc ,requires ,extras)
+                           (cdr metadata)))
                 (nconc
                  (list 'define-package
                        (format "%s" name) ;It's been a string, historically :-(
@@ -1837,8 +1880,8 @@ arbitrary code."
                   ".</dd>\n")
         (let* ((file (cdr (assoc latest files)))
                (attrs (file-attributes file)))
-          (insert (format "<dt>Latest</dt> <dd><a href=%S>%s</a>, %s, %s</dd>\n"
-                          file (elpaa--html-quote file)
+          (insert (format "<dt>Latest</dt> <dd><a href=%S>%s</a> (<a href=%S>.sig</a>), %s, %s</dd>\n"
+                          file (elpaa--html-quote file) (concat file ".sig")
                           (format-time-string "%Y-%b-%d" (nth 5 attrs))
                           (elpaa--html-bytes-format (nth 7 attrs))))))
       (let ((maints (elpaa--get-prop "Maintainer" name srcdir mainsrcfile)))
@@ -1863,10 +1906,12 @@ arbitrary code."
       (insert (format "<dt>Badge</dt><dd><img src=\"%s.svg\"/></dd>\n" (elpaa--html-quote name)))
       (elpaa--html-insert-docs pkg-spec)
       (insert "</dl>")
-      (insert (format "<p>To install this package, run in Emacs:</p>
-                       <pre>M-x <span class=\"kw\">list-packages</span> RET</pre>
-                       <p>Then, find <span class=\"kw\">%s</span> in the list, click on the link, and click <pre>Install</pre>.</p>"
-                      name))
+      (insert (format "<p>To install this package from Emacs, use %s%s.</p>"
+                      (if (elpaa--spec-get pkg-spec :core)
+                          ;; Just `package-install' doesn't really work for
+                          ;; :core packages :-(
+                          "" "<code>package-install</code> or ")
+                      "<code>list-packages</code>"))
       (let* ((readme-content (elpaa--get-README pkg-spec srcdir))
              (readme-text plain-readme)
              (readme-html (elpaa--section-to-html readme-content))
@@ -2087,8 +2132,8 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
                                       "-B" branch "--no-track"
                                       name (elpaa--urtb pkg-spec)))
                       (t
-                       (error "No branch %s for the worktree of %s:\n%s"
-                              branch name (buffer-string))))
+                       (message "No branch %s for the worktree of %s:\n%s"
+                                branch name (buffer-string))))
                      (buffer-string))))
 	     (message "%s" output)))
           ((not (file-exists-p (format "%s/.git" name)))
@@ -2231,13 +2276,13 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
                         ".github" ".travis.yml"
                         "test" "tests"))
          (dir-files (lambda (d)
-                      (cl-set-difference (directory-files d)
-                                         all-ignores :test #'equal)))
-         (pending (cl-set-difference
+                      (seq-difference (directory-files d)
+                                      all-ignores #'equal)))
+         (pending (seq-difference
                    (funcall dir-files ".")
                    (list (format "%s-pkg.el" pkg)
                          (format "%s-autoloads.el" pkg))
-                   :test #'equal))
+                   #'equal))
          (files '()))
     (while pending
       (pcase (pop pending)
