@@ -71,8 +71,7 @@
  (aumix-mode		:url nil)
  (auto-correct		:url nil)
  (auto-header           :url "https://git.sr.ht/~pkal/auto-header")
- (auto-overlays		:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
+ (auto-overlays		:url nil ;"http://www.dr-qubit.org/git/predictive.git"
   :doc "docs/auto-overlay-manual.texinfo")
  (autocrypt             :url "https://git.sr.ht/~pkal/autocrypt")
  (avy			:url "https://github.com/abo-abo/avy"
@@ -91,14 +90,15 @@
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
- (bind-key		:core "lisp/use-package/bind-key.el")
+ (bind-key		:core "lisp/bind-key.el")
  (blist			:url "https://gitlab.com/mmemmew/blist"
   :doc "blist.texinfo"
   :readme "README.org")
  (bluetooth		:url "https://gitlab.com/rstocker/emacs-bluetooth")
  (bnf-mode		:url "https://github.com/sergeyklay/bnf-mode")
- (boxy			:url "https://gitlab.com/tygrdev/boxy")
- (boxy-headings		:url "https://gitlab.com/tygrdev/boxy-headings")
+ (boxy			:url "https://gitlab.com/grinn.amy/boxy")
+ (boxy-headings		:url "https://gitlab.com/grinn.amy/boxy-headings")
+ (breadcrumb		:url "https://github.com/joaotavora/breadcrumb")
  (brief			:url nil)
  (buffer-env		:url "https://github.com/astoff/buffer-env")
  (buffer-expose		:url "https://github.com/clemera/buffer-expose")
@@ -192,7 +192,7 @@
  (dbus-codegen		:url "https://github.com/ueno/dbus-codegen-el.git"
   :ignored-files ("COPYING"))
  (debbugs		:url nil :doc ("debbugs.texi" "debbugs-ug.texi"))
- (delight		:url "https://git.savannah.gnu.org/r/delight.git")
+ (delight		:url "https://git.savannah.gnu.org/git/delight.git")
  (denote		:url "https://git.sr.ht/~protesilaos/denote"
   :doc "README.org"
   :news "CHANGELOG.org"
@@ -204,14 +204,13 @@
   :news "CHANGELOG.org"
   :readme "README.md")
  (devdocs		:url "https://github.com/astoff/devdocs.el")
- (dict-tree		:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
-  )
+ (dict-tree		:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (diff-hl		:url "https://github.com/dgutov/diff-hl.git")
  (diffview            	:url "https://github.com/mgalgs/diffview-mode.git")
  (diminish            	:url "https://github.com/myrjola/diminish.el.git"
   :ignored-files ("LICENSE"))
  (dired-du		:url nil)
+ (dired-duplicates	:url "https://codeberg.org/hjudt/dired-duplicates")
  (dired-git-info	:url "https://github.com/clemera/dired-git-info")
  (dired-preview		:url "https://git.sr.ht/~protesilaos/dired-preview"
   :doc "README.org"
@@ -220,6 +219,7 @@
  (disk-usage		:url "https://gitlab.com/ambrevar/emacs-disk-usage")
  (dismal		:url nil)
  (djvu			:url nil)
+ (do-at-point           :url "https://git.sr.ht/~pkal/do-at-point")
  (doc-toc		:url "https://github.com/dalanicolai/doc-tools-toc"
   :ignored-files ("LICENSE"))
  (docbook		:url nil)
@@ -250,7 +250,8 @@
                         :news "EGLOT-NEWS")
  (el-search		:url nil)
  (eldoc			:core "lisp/emacs-lisp/eldoc.el")
- (eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
+ ;; `eldoc-eval' is obsoleted by core support for eldoc in minibuffer (2013).
+ ;;(eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  (electric-spacing	:url nil)
  (elisp-benchmarks	:url nil)
  (emacs-gc-stats	:url "https://git.sr.ht/~yantar92/emacs-gc-stats"
@@ -292,6 +293,7 @@
   :doc "doc/ess.texi")
  (excorporate		:url nil)
  (expand-region		:url "https://github.com/magnars/expand-region.el")
+ (expreg                :url "https://github.com/casouri/expreg.git")
  (external-completion   :core "lisp/external-completion.el")
  (exwm			:url "https://github.com/ch11ng/exwm.git")
  (f90-interface-browser :url nil) ;; Was "https://github.com/wence-/f90-iface"
@@ -300,6 +302,8 @@
  (firefox-javascript-repl	:url "https://git.sr.ht/~fitzsim/firefox-javascript-repl")
  (flylisp		:url nil)
  (flymake		:core "lisp/progmodes/flymake.el")
+ (flymake-codespell	:url "https://github.com/skangas/flymake-codespell"
+  :readme "README.org")
  (flymake-proselint	:url "https://git.sr.ht/~manuel-uberti/flymake-proselint")
  (fontaine		:url "https://git.sr.ht/~protesilaos/fontaine"
   :doc "README.org"
@@ -321,7 +325,7 @@
  (gnu-elpa-keyring-update :url nil)
  (gnugo			:url nil)
  (gnus-mock		:url nil)
- (gpastel		:url "https://gitlab.petton.fr/DamienCassou/gpastel")
+ (gpastel		:url "https://github.com/DamienCassou/gpastel")
  (gpr-mode		:url nil
   :release-branch t
   :doc ("gpr-mode.texi"))
@@ -335,9 +339,7 @@
  (gtags-mode		:url "https://github.com/Ergus/gtags-mode")
  (guess-language	:url "https://github.com/tmalsburg/guess-language.el")
  (hcel			:url "https://g.ypei.me/hc.el.git")
- (heap			:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
-  )
+ (heap			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (hiddenquote		:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote")
  (highlight-escape-sequences
   			:url "https://github.com/dgutov/highlight-escape-sequences/")
@@ -350,7 +352,7 @@
   :merge t
   :ignored-files ("lv.el")
   :news "doc/Changelog.org")
- (hyperbole           	:url "https://git.savannah.gnu.org/r/hyperbole.git"
+ (hyperbole           	:url "https://git.savannah.gnu.org/git/hyperbole.git"
   :make ("kotl/kotl-autoloads.el")
   :news "HY-NEWS")
  (ilist			:url "https://gitlab.com/mmemmew/ilist"
@@ -412,6 +414,7 @@
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (llm			:url "https://github.com/ahyatt/llm")
  (lmc			:url nil)
  (load-dir		:url nil)
  (load-relative		:url "https://github.com/rocky/emacs-load-relative")
@@ -468,11 +471,14 @@
  (nlinum		:url nil)
  (notes-mode		:url nil)
  (notmuch-indicator	:url "https://git.sr.ht/~protesilaos/notmuch-indicator"
+  :doc "README.org"
   :readme "README.md"
-  :ignored-files ("COPYING"))
+  :ignored-files ("COPYING" "doclicense.texi"))
  (ntlm			:core "lisp/net/ntlm.el")
  (num3-mode		:url nil)
  (oauth2		:url nil)
+ (ob-asymptote		:url "https://github.com/hurrja/ob-asymptote"
+  :ignored-files ("LICENSE"))
  (ob-haxe		:url "https://github.com/ianxm/ob-haxe.el")
  (objed        		:url "https://github.com/clemera/objed")
  (omn-mode            	:url nil)
@@ -489,7 +495,7 @@
   :shell-command "make autoloads info; mv doc/org.info org.info; mv doc/orgguide.info orgguide.info"
   :doc ("org.info" "orgguide.info"))
  (org-contacts		:url "https://repo.or.cz/org-contacts.git")
- (org-edna		:url "bzr::https://bzr.savannah.gnu.org/r/org-edna-el"
+ (org-edna		:url "bzr::https://bzr.savannah.gnu.org/git/org-edna-el"
   ;; The Bzr<->Git bridge wasn't working well enough last time I tried.
   :manual-sync t)
  ;; FIXME: Waiting for copyright paperwork from Brandon Webster.
@@ -502,7 +508,7 @@
   ;; FIXME: Upstream diverged; https://github.com/p-m/org-notify/issues/9
   ;; :merge t
   )
- (org-real		:url "https://gitlab.com/tygrdev/org-real"
+ (org-real		:url "https://gitlab.com/grinn.amy/org-real"
   :ignored-files ("LICENSE"))
  (org-remark		:url "https://github.com/nobiot/org-remark"
   :readme "README.org"
@@ -523,7 +529,8 @@
  (paced			:url "bzr::bzr://bzr.savannah.nongnu.org/paced-el/trunk"
   ;; The Bzr<->Git bridge wasn't working well enough last time I tried.
   :manual-sync t)
- (package-fixes		:url nil)
+ ;; `package-fixes` is obsolete and was never released.
+ ;; (package-fixes		:url nil)
  (parsec              	:url "https://github.com/cute-jumper/parsec.el.git")
  (parser-generator	:url "https://github.com/cjohansson/emacs-parser-generator")
  (path-iterator		:url nil)
@@ -541,6 +548,8 @@
  (plz                 	:url "https://github.com/alphapapa/plz.el.git"
   :ignored-files ("LICENSE")
   :doc "README.org")
+ (plz-see		:url "https://github.com/astoff/plz-see.el"
+  :readme "README.org")
  (poke			:url "https://git.savannah.gnu.org/git/poke/poke-el.git"
   :doc "poke-el.texi"
   :ignored-files ("COPYING"))
@@ -549,6 +558,7 @@
  (polymode		:url "https://github.com/polymode/polymode"
   :ignored-files ("targets" "template" "tests")
   :readme "readme.md")
+ (popper                :url "https://github.com/karthink/popper")
  (posframe		:url "https://github.com/tumashu/posframe")
  (pq			:url "https://github.com/anse1/emacs-libpq"
   :readme "README.org")
@@ -560,7 +570,7 @@
  ;;         --index-filter "git read-tree --empty;                  \
  ;;                         git reset \$GIT_COMMIT -- pspp-mode.el" \
  ;;         -- -- pspp-mode.el
- (pspp-mode		:url nil) ;; Was "https://git.sv.gnu.org/r/pspp.git"
+ (pspp-mode		:url nil) ;; Was "https://git.sv.gnu.org/git/pspp.git"
  (pulsar		:url "https://git.sr.ht/~protesilaos/pulsar"
   :doc "README.org"
   :news "CHANGELOG.org"
@@ -569,9 +579,7 @@
  (pyim-basedict		:url "https://github.com/tumashu/pyim-basedict.git")
  (python		:core "lisp/progmodes/python.el")
  (quarter-plane		:url nil)
- (queue			:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
-  )
+ (queue			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  ;; (rails-routes	:url "https://github.com/otavioschwanck/emacs-rails-routes")
  (rainbow-mode		:url nil)
  (rbit			:url nil)
@@ -658,9 +666,8 @@
   :ignored-files ("COPYING"))
  (system-packages	:url "https://gitlab.com/jabranham/system-packages")
  (systemd		:url nil)
- (tNFA			:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
-  )
+ (tNFA			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
+ (tam			:url "https://github.com/owinebar/emacs-table-allocation-manager")
  (taxy                	:url "https://github.com/alphapapa/taxy.el.git"
   :doc "taxy.info"
   :ignored-files ("images"))
@@ -702,17 +709,15 @@
   :doc "docs/transient.texi")
  (transient-cycles    	:url nil)
  (tree-inspector        :url "https://github.com/mmontone/emacs-tree-inspector")
- (trie			:url "http://www.dr-qubit.org/git/predictive.git"
-  :manual-sync t ;; The upstream doesn't exist any more!
-  )
+ (trie			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (trinary		:url "https://github.com/emacs-elsa/trinary-logic")
  (triples		:url "https://github.com/ahyatt/triples"
   :readme "README.org")
+ (typo                  :url "https://git.sr.ht/~pkal/typo")
+ (ulisp-repl		:url "https://git.sr.ht/~fitzsim/ulisp-repl")
  ;; FIXME: The upstream of `undo-tree' has diverged.  I tried to
  ;; contact Toby but he's quite busy.  He mentioned thinking of using the
  ;; `elpa.git` branch as the official upstream.
- (typo                  :url "https://git.sr.ht/~pkal/typo")
- (ulisp-repl		:url "https://git.sr.ht/~fitzsim/ulisp-repl")
  (undo-tree		:url "https://gitlab.com/tsc25/undo-tree")
  (uni-confusables 	:url nil
   :readme "README.md")
@@ -752,7 +757,7 @@
  (vigenere 		:url nil)
  (visual-filename-abbrev :url nil)
  (visual-fill		:url nil)
- (vlf			:url "https://github.com/m00natic/vlfi")
+ (vlf			:url "https://github.com/m00natic/vlfi") ;FIXME:Dead?
  (vundo			:url "https://github.com/casouri/vundo"
   :ignored-files ("test")
   :news "NEWS.txt")
@@ -773,6 +778,7 @@
   :release-branch t)
  (wisitoken-grammar-mode :url nil)
  (wpuzzle		:url nil)
+ (wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git")
  ;; FIXME: Waiting for copyright paperwork from Emanuel Berg.
  ;;(wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git")
  (xclip			:url nil)
