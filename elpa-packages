@@ -1,6 +1,6 @@
 ;; -*- lisp-data -*-
 
-;; Copyright (C) 2020-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2020-2024 Free Software Foundation, Inc.
 
 ;; List of packages that are maintained externally.
 ;; The list is made of elements of the form (NAME KIND URL OPTS...).
@@ -35,6 +35,9 @@
 
 ((ace-window		:url "https://github.com/abo-abo/ace-window")
  (ack			:url "https://github.com/leoliu/ack-el")
+ (activities           	:url "https://github.com/alphapapa/activities.el.git"
+   :release-branch "stable"
+   :doc "README.org")
  (ada-mode		:url nil
   :doc ("ada-mode.texi")
   :release-branch t)
@@ -44,7 +47,7 @@
  (advice-patch		:url nil)
  (aggressive-completion :url nil)
  (aggressive-indent	:url "https://github.com/Malabarba/aggressive-indent-mode")
- (agitate		:url "https://git.sr.ht/~protesilaos/agitate"
+ (agitate		:url "https://github.com/protesilaos/agitate"
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -53,7 +56,7 @@
   :ignored-files ("README" "COPYING")
   :readme ignore)
  (all			:url nil)
- (altcaps		:url "https://git.sr.ht/~protesilaos/altcaps"
+ (altcaps		:url "https://github.com/protesilaos/altcaps"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -86,10 +89,12 @@
  (beacon		:url "https://github.com/Malabarba/beacon")
  (beardbolt		:url "https://github.com/joaotavora/beardbolt"
   :readme "README.md")
- (beframe		:url "https://git.sr.ht/~protesilaos/beframe"
+ (beframe		:url "https://github.com/protesilaos/beframe"
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (bicep-ts-mode		:url "https://github.com/josteink/bicep-ts-mode"
+  :ignored-files ("LICENSE"))
  (bind-key		:core "lisp/bind-key.el")
  (blist			:url "https://gitlab.com/mmemmew/blist"
   :doc "blist.texinfo"
@@ -102,6 +107,8 @@
  (brief			:url nil)
  (buffer-env		:url "https://github.com/astoff/buffer-env")
  (buffer-expose		:url "https://github.com/clemera/buffer-expose")
+ (bufferlo		:url "https://github.com/florommel/bufferlo"
+  :readme "README.org")
  ;; FIXME: https://github.com/Malabarba/elisp-bug-hunter/issues/31
  (bug-hunter		:url "https://github.com/Malabarba/elisp-bug-hunter")
  ;; (cc-mode		:core ("lisp/progmodes/cc-align.el"
@@ -158,6 +165,8 @@
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
+ (consult-hoogle	:url "https://codeberg.org/rahguzar/consult-hoogle"
+  :ignored-files ("LICENSE"))
  (consult-recoll	:url "https://codeberg.org/jao/consult-recoll"
   :ignored-files ("license")
   :readme "readme.org")
@@ -180,11 +189,12 @@
  (csharp-mode		:url "https://github.com/emacs-csharp/csharp-mode"
   :readme "README.org")
  (csv-mode		:url nil)
- (cursory		:url "https://git.sr.ht/~protesilaos/cursory"
+ (cursory		:url "https://github.com/protesilaos/cursory"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (cycle-quotes		:url nil)
+ (dape                  :url "https://github.com/svaante/dape")
  (darkroom            	:url "https://github.com/capitaomorte/darkroom.git")
  (dash			:url "https://github.com/magnars/dash.el.git"
   :doc "dash.texi"
@@ -193,7 +203,7 @@
   :ignored-files ("COPYING"))
  (debbugs		:url nil :doc ("debbugs.texi" "debbugs-ug.texi"))
  (delight		:url "https://git.savannah.gnu.org/git/delight.git")
- (denote		:url "https://git.sr.ht/~protesilaos/denote"
+ (denote		:url "https://github.com/protesilaos/denote"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -204,6 +214,7 @@
   :news "CHANGELOG.org"
   :readme "README.md")
  (devdocs		:url "https://github.com/astoff/devdocs.el")
+ (devicetree-ts-mode    :url "https://git.sr.ht/~akagi/devicetree-ts-mode")
  (dict-tree		:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (diff-hl		:url "https://github.com/dgutov/diff-hl.git")
  (diffview            	:url "https://github.com/mgalgs/diffview-mode.git")
@@ -212,7 +223,7 @@
  (dired-du		:url nil)
  (dired-duplicates	:url "https://codeberg.org/hjudt/dired-duplicates")
  (dired-git-info	:url "https://github.com/clemera/dired-git-info")
- (dired-preview		:url "https://git.sr.ht/~protesilaos/dired-preview"
+ (dired-preview		:url "https://github.com/protesilaos/dired-preview"
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -227,6 +238,7 @@
  ;;(dtache		:url "https://git.sr.ht/~niklaseklund/dtache"
  ;; :news "CHANGELOG.org"
  ;; :readme "README.md")
+ (drepl                 :url "https://github.com/astoff/drepl")
  (dts-mode		:url nil) ;; Was "https://github.com/bgamari/dts-mode.git"
  (easy-escape		:url "https://github.com/cpitclaudel/easy-escape")
  (easy-kill		:url "https://github.com/leoliu/easy-kill")
@@ -237,7 +249,7 @@
   :readme "README.md")
  (eev			:url "https://github.com/edrx/eev.git"
   :branch "UTF-8")
- (ef-themes		:url "https://git.sr.ht/~protesilaos/ef-themes"
+ (ef-themes		:url "https://github.com/protesilaos/ef-themes"
   :doc "README.org"
   :readme "README.md"
   :news "CHANGELOG.org"
@@ -254,6 +266,7 @@
  ;;(eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  (electric-spacing	:url nil)
  (elisp-benchmarks	:url nil)
+ (ellama		:url "https://github.com/s-kostyaev/ellama")
  (emacs-gc-stats	:url "https://git.sr.ht/~yantar92/emacs-gc-stats"
   :ignored-files ("COPYING"))
  ;; FIXME: Work in progress.  The copyright paperwork is ready.
@@ -295,9 +308,11 @@
  (expand-region		:url "https://github.com/magnars/expand-region.el")
  (expreg                :url "https://github.com/casouri/expreg.git")
  (external-completion   :core "lisp/external-completion.el")
- (exwm			:url "https://github.com/ch11ng/exwm.git")
+ (exwm			:url "https://github.com/emacs-exwm/exwm.git")
  (f90-interface-browser :url nil) ;; Was "https://github.com/wence-/f90-iface"
  (face-shift            :url "https://git.sr.ht/~pkal/face-shift")
+ (filechooser		:url "https://codeberg.org/rahguzar/filechooser"
+  :ignored-files ("LICENSE"))
  (filladapt		:url nil)
  (firefox-javascript-repl	:url "https://git.sr.ht/~fitzsim/firefox-javascript-repl")
  (flylisp		:url nil)
@@ -305,7 +320,7 @@
  (flymake-codespell	:url "https://github.com/skangas/flymake-codespell"
   :readme "README.org")
  (flymake-proselint	:url "https://git.sr.ht/~manuel-uberti/flymake-proselint")
- (fontaine		:url "https://git.sr.ht/~protesilaos/fontaine"
+ (fontaine		:url "https://github.com/protesilaos/fontaine"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -376,6 +391,8 @@
   :manual-sync t
   )
  (ivy-posframe		:url "https://github.com/tumashu/ivy-posframe")
+ (jami-bot              :url "https://gitlab.com/hperrey/jami-bot"
+  :ignored-files ("LICENSE"))
  (jarchive		:url "https://git.sr.ht/~dannyfreeman/jarchive"
   :readme "README.md"
   :news "CHANGELOG.md"
@@ -410,7 +427,7 @@
  ;; (lentic-server	:url "https://github.com/phillord/lentic-server")
  (let-alist		:core "lisp/emacs-lisp/let-alist.el")
  (lex			:url nil)
- (lin			:url "https://git.sr.ht/~protesilaos/lin"
+ (lin			:url "https://github.com/protesilaos/lin"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -420,7 +437,7 @@
  (load-relative		:url "https://github.com/rocky/emacs-load-relative")
  (loc-changes		:url "https://github.com/rocky/emacs-loc-changes")
  (loccur		:url "https://github.com/fourier/loccur")
- (logos			:url "https://git.sr.ht/~protesilaos/logos"
+ (logos			:url "https://github.com/protesilaos/logos"
   :doc "README.org"
   :readme "README.md"
   :news "CHANGELOG.org"
@@ -451,14 +468,16 @@
  (minimap		:url nil)
  (mmm-mode		:url "https://github.com/purcell/mmm-mode.git"
   :doc "mmm.texi")
- (modus-themes		:url "https://git.sr.ht/~protesilaos/modus-themes"
+ (modus-themes		:url "https://github.com/protesilaos/modus-themes"
   :doc "doc/modus-themes.org"
   :readme "README.md"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (multi-mode		:url nil)
  (multishell		:url "https://github.com/kenmanheimer/EmacsMultishell")
- (muse			:url "https://github.com/alexott/muse") ;FIXME: Not nearly in-sync
+ (muse			:url "https://github.com/alexott/muse" ;FIXME: Not nearly in-sync
+  :lisp-dir "lisp"
+  :doc "texi/muse.texi")
  (myers			:url nil)
  (nadvice		:url nil)
  (nameless		:url "https://github.com/Malabarba/Nameless")
@@ -470,7 +489,7 @@
  (nhexl-mode		:url nil)
  (nlinum		:url nil)
  (notes-mode		:url nil)
- (notmuch-indicator	:url "https://git.sr.ht/~protesilaos/notmuch-indicator"
+ (notmuch-indicator	:url "https://github.com/protesilaos/notmuch-indicator"
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -498,6 +517,8 @@
  (org-edna		:url "bzr::https://bzr.savannah.gnu.org/git/org-edna-el"
   ;; The Bzr<->Git bridge wasn't working well enough last time I tried.
   :manual-sync t)
+ (org-jami-bot		:url "https://gitlab.com/hperrey/org-jami-bot"
+  :ignored-files ("LICENSE"))
  ;; FIXME: Waiting for copyright paperwork from Brandon Webster.
  ;;(org-drill		:url "https://gitlab.com/phillord/org-drill")
  (org-modern		:url "https://github.com/minad/org-modern"
@@ -538,7 +559,7 @@
   :ignored-files ("COPYING"))
  (perl-doc		:url "https://github.com/HaraldJoerg/emacs-perl-doc"
   :ignored-files ("LICENSE"))
- (persist             	:url "https://gitlab.com/phillord/persist")
+ (persist             	:url nil) ; was https://gitlab.com/phillord/persist
  (phpinspect		:url "https://github.com/hugot/phpinspect.el")
  (phps-mode		:url "https://github.com/cjohansson/emacs-phps-mode"
   ;; Christian Johansson works on a private Git and pushes to both Github
@@ -546,6 +567,7 @@
   :manual-sync t)
  (pinentry		:url "https://github.com/ueno/pinentry-el.git")
  (plz                 	:url "https://github.com/alphapapa/plz.el.git"
+  :release-branch "stable"
   :ignored-files ("LICENSE")
   :doc "README.org")
  (plz-see		:url "https://github.com/astoff/plz-see.el"
@@ -571,7 +593,7 @@
  ;;                         git reset \$GIT_COMMIT -- pspp-mode.el" \
  ;;         -- -- pspp-mode.el
  (pspp-mode		:url nil) ;; Was "https://git.sv.gnu.org/git/pspp.git"
- (pulsar		:url "https://git.sr.ht/~protesilaos/pulsar"
+ (pulsar		:url "https://github.com/protesilaos/pulsar"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -585,6 +607,9 @@
  (rbit			:url nil)
  (rcirc-color		:url nil)
  (rcirc-menu		:url nil)
+ (rcirc-sqlite		:url "https://codeberg.org/mattof/rcirc-sqlite"
+  :ignored-files ("LICENSE")
+  :doc "rcirc-sqlite.texi")
  (realgud             	:url "https://github.com/realgud/realgud")
  (realgud-ipdb        	:url "https://github.com/realgud/realgud-ipdb")
  (realgud-jdb         	:url "https://github.com/realgud/realgud-jdb")
@@ -631,9 +656,11 @@
  (soap-client		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
  (sokoban		:url nil)
  (sotlisp		:url "https://github.com/Malabarba/speed-of-thought-lisp")
- (spacious-padding		:url "https://git.sr.ht/~protesilaos/spacious-padding"
+ (spacious-padding		:url "https://github.com/protesilaos/spacious-padding"
+  :doc "README.org"
   :readme "README.md"
-  :ignored-files ("COPYING"))
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (spinner		:url "https://github.com/Malabarba/spinner.el")
  (sql-beeline		:url nil)
  (sql-cassandra		:url nil)
@@ -643,12 +670,12 @@
   :ignored-files ("LICENSE")
   :lisp-dir "lisp")
  (ssh-deploy		:url "https://github.com/cjohansson/emacs-ssh-deploy")
- (standard-themes		:url "https://git.sr.ht/~protesilaos/standard-themes"
+ (standard-themes		:url "https://github.com/protesilaos/standard-themes"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (stream		:url nil)
- (substitute		:url "https://git.sr.ht/~protesilaos/substitute"
+ (substitute		:url "https://github.com/protesilaos/substitute"
   :doc "README.org"
   :readme "README.md"
   :ignored-files ("COPYING" "doclicense.texi"))
@@ -661,7 +688,7 @@
   )
  (switchy-window	:url "https://git.sr.ht/~tsdh/switchy-window"
   :readme "README.md")
- (sxhkdrc-mode		:url "https://git.sr.ht/~protesilaos/sxhkdrc-mode"
+ (sxhkdrc-mode		:url "https://github.com/protesilaos/sxhkdrc-mode"
   :readme "README.md"
   :ignored-files ("COPYING"))
  (system-packages	:url "https://gitlab.com/jabranham/system-packages")
@@ -680,9 +707,10 @@
   :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
  (test-simple         	:url "https://github.com/rocky/emacs-test-simple")
+ (theme-buffet		:url "https://git.sr.ht/~bboal/theme-buffet")
  (timerfunctions	:url nil)
  (tiny			:url "https://github.com/abo-abo/tiny")
- (tmr			:url "https://git.sr.ht/~protesilaos/tmr"
+ (tmr			:url "https://github.com/protesilaos/tmr"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi" "Makefile"))
@@ -696,7 +724,7 @@
   :branch "externals/tramp"
   :main-file "trampver.el"
   :make ("autoloads" "info")
-  :doc "tramp.info")
+  :doc "texi/tramp.texi")
  (tramp-nspawn		:url "https://github.com/bjc/tramp-nspawn"
   :ignored-files ("COPYING"))
  (tramp-theme		:url nil)
@@ -784,7 +812,7 @@
  (xclip			:url nil)
  (xeft                  :url "https://git.sr.ht/~casouri/xeft"
   :ignored-files ("*.gif"))
- (xelb			:url "https://github.com/ch11ng/xelb.git")
+ (xelb			:url "https://github.com/emacs-exwm/xelb.git")
  (xpm			:url nil)
  (xr			:url "https://github.com/mattiase/xr"
   :ignored-files ("Makefile" ".github" "*-test.el*"))
