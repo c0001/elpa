@@ -38,7 +38,7 @@
  (activities           	:url "https://github.com/alphapapa/activities.el.git"
    :release-branch "stable"
    :doc "README.org")
- (ada-mode		:url nil
+ (ada-mode		:url nil ;https://git.savannah.nongnu.org/git/ada-mode
   :doc ("ada-mode.texi")
   :release-branch t)
  (ada-ref-man		:url nil)
@@ -63,14 +63,20 @@
  (ampc			:url nil)
  (arbitools		:url nil)
  (ascii-art-to-unicode 	:url nil)
- ;; FIXME: Need to fix the manual's build problem.
- ;; (assess		:url "https://github.com/phillord/assess"
- ;;  :doc "assess-doc.org")
+ (assess		:url "https://github.com/phillord/assess"
+  ;; FIXME: This is fairly ugly, we should clean it up.
+  :shell-command "emacs --batch -L . -L ../lentic -L ../m-buffer -L ../dash -l lentic-doc --eval '(lentic-doc-orgify-package `assess)'"
+  :doc "assess-doc.org"
+  )
  (async			:url "https://github.com/jwiegley/emacs-async"
   :ignored-files ("COPYING"))
- (auctex		:url "https://git.savannah.gnu.org/git/auctex.git"
-  ;; AUCTeX is currently sync'd manually and elpa.git isn't quite a mirror :-(
-  :manual-sync t)
+ (auctex :url "https://git.savannah.gnu.org/git/auctex.git"
+  :branch "main"
+  :news "NEWS.org"
+  :make "elpa"
+  :doc ("doc/auctex.texi" "doc/preview-latex.texi"))
+ (auctex-cont-latexmk	:url "https://github.com/ultronozm/auctex-cont-latexmk.el")
+ (auctex-label-numbers	:url "https://github.com/ultronozm/auctex-label-numbers.el")
  (aumix-mode		:url nil)
  (auto-correct		:url nil)
  (auto-header           :url "https://git.sr.ht/~pkal/auto-header")
@@ -101,7 +107,7 @@
   :readme "README.org")
  (bluetooth		:url "https://gitlab.com/rstocker/emacs-bluetooth")
  (bnf-mode		:url "https://github.com/sergeyklay/bnf-mode")
- (boxy			:url "https://gitlab.com/grinn.amy/boxy")
+ (boxy			:url "https://gitlab.com/grinn.amy/boxy.git")
  (boxy-headings		:url "https://gitlab.com/grinn.amy/boxy-headings")
  (breadcrumb		:url "https://github.com/joaotavora/breadcrumb")
  (brief			:url nil)
@@ -145,9 +151,10 @@
  ;; The `cl-print' code doesn't try to work outside of Emacs any more.
  ;;(cl-print		:core "lisp/emacs-lisp/cl-print.el")
  (clipboard-collector 	:url "https://github.com/clemera/clipboard-collector")
- (cobol-mode          	:url nil) ;; Was "https://gist.github.com/Edward-H/6768e7dc53ea3dd2adca"
+ (cobol-mode          	:url "https://git.sr.ht/~hjelmtech/cobol-mode")
  (code-cells		:url "https://github.com/astoff/code-cells.el"
   :ignored-files ("LICENSE"))
+ (colorful-mode         :url "https://github.com/DevelopmentCool2449/colorful-mode")
  (comint-mime		:url "https://github.com/astoff/comint-mime")
  ;; The upstream has incompatible copyrights, so we moved it to NonGNU.
  ;; (coffee-mode		:url "https://github.com/defunkt/coffee-mode")
@@ -165,6 +172,8 @@
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
+ (consult-denote		:url "https://github.com/protesilaos/consult-denote"
+  :readme "README.md")
  (consult-hoogle	:url "https://codeberg.org/rahguzar/consult-hoogle"
   :ignored-files ("LICENSE"))
  (consult-recoll	:url "https://codeberg.org/jao/consult-recoll"
@@ -189,6 +198,7 @@
  (csharp-mode		:url "https://github.com/emacs-csharp/csharp-mode"
   :readme "README.org")
  (csv-mode		:url nil)
+ (cursor-undo		:url nil)
  (cursory		:url "https://github.com/protesilaos/cursory"
   :doc "README.org"
   :news "CHANGELOG.org"
@@ -208,13 +218,14 @@
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
  (denote-menu		:url "https://github.com/namilus/denote-menu"
-  :doc "README.org"
+  :readme "README.org"
   :ignored-files ("COPYING"))
  (detached		:url "https://git.sr.ht/~niklaseklund/detached.el"
   :news "CHANGELOG.org"
   :readme "README.md")
  (devdocs		:url "https://github.com/astoff/devdocs.el")
- (devicetree-ts-mode    :url "https://git.sr.ht/~akagi/devicetree-ts-mode")
+ (devicetree-ts-mode	:url "https://git.sr.ht/~akagi/devicetree-ts-mode"
+  :ignored-files ("LICENSE"))
  (dict-tree		:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (diff-hl		:url "https://github.com/dgutov/diff-hl.git")
  (diffview            	:url "https://github.com/mgalgs/diffview-mode.git")
@@ -265,6 +276,7 @@
  ;; `eldoc-eval' is obsoleted by core support for eldoc in minibuffer (2013).
  ;;(eldoc-eval		:url "https://github.com/thierryvolpiatto/eldoc-eval.git")
  (electric-spacing	:url nil)
+ (elisa                 :url "https://github.com/s-kostyaev/elisa")
  (elisp-benchmarks	:url nil)
  (ellama		:url "https://github.com/s-kostyaev/ellama")
  (emacs-gc-stats	:url "https://git.sr.ht/~yantar92/emacs-gc-stats"
@@ -352,7 +364,8 @@
  (greader		:url "https://gitlab.com/michelangelo-rodriguez/greader")
  (greenbar		:url nil)
  (gtags-mode		:url "https://github.com/Ergus/gtags-mode")
- (guess-language	:url "https://github.com/tmalsburg/guess-language.el")
+ (guess-language	:url "https://github.com/tmalsburg/guess-language.el"
+  :merge t)
  (hcel			:url "https://g.ypei.me/hc.el.git")
  (heap			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (hiddenquote		:url "https://gitlab.com/mauroaranda/hiddenquote/hiddenquote")
@@ -370,6 +383,10 @@
  (hyperbole           	:url "https://git.savannah.gnu.org/git/hyperbole.git"
   :make ("kotl/kotl-autoloads.el")
   :news "HY-NEWS")
+ (idlwave		:url "https://github.com/jdtsmith/idlwave"
+  :doc "idlwave.texi"
+  :news "CHANGES"
+  :readme "README.md")
  (ilist			:url "https://gitlab.com/mmemmew/ilist"
   :doc "ilist.texinfo"
   :readme "README.org")
@@ -421,22 +438,28 @@
  (latex-table-wizard    :url "https://github.com/enricoflor/latex-table-wizard"
   :doc "latex-table-wizard.texi")
  (leaf			:url "https://github.com/conao3/leaf.el")
- ;; FIXME: In preparation (depends on `f` and `s`).
- ;; (lentic		:url "https://github.com/phillord/lentic")
- ;; FIXME: In preparation (depends on `lentic`).
- ;; (lentic-server	:url "https://github.com/phillord/lentic-server")
+ (lentic		:url "https://github.com/phillord/lentic"
+  ;; FIXME: This is fairly ugly, we should clean it up.
+  :shell-command "emacs --batch -L . -L ../m-buffer -L ../dash -l lentic-doc --eval '(lentic-doc-orgify-package `lentic)'"
+  :doc "lenticular.org"
+  )
+ (lentic-server		:url "https://github.com/phillord/lentic-server")
  (let-alist		:core "lisp/emacs-lisp/let-alist.el")
  (lex			:url nil)
  (lin			:url "https://github.com/protesilaos/lin"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (listen		:url "https://github.com/alphapapa/listen.el"
+  :release-branch "stable"
+  :doc "README.org")
+ (literate-scratch      :url nil)
  (llm			:url "https://github.com/ahyatt/llm")
  (lmc			:url nil)
  (load-dir		:url nil)
  (load-relative		:url "https://github.com/rocky/emacs-load-relative")
  (loc-changes		:url "https://github.com/rocky/emacs-loc-changes")
- (loccur		:url "https://github.com/fourier/loccur")
+ (loccur		:url "https://codeberg.org/fourier/loccur.git")
  (logos			:url "https://github.com/protesilaos/logos"
   :doc "README.org"
   :readme "README.md"
@@ -446,9 +469,11 @@
   :readme "README.org")
  (lv			:url "https://github.com/abo-abo/hydra"
   :ignored-files ("hydra*" "README.md" "doc" "targets"))
- ;; FIXME: Need to fix the manual's build problem.
- ;; (m-buffer		:url "https://github.com/phillord/m-buffer-el"
- ;;  :doc "m-buffer-doc.org")
+ (m-buffer		:url "https://github.com/phillord/m-buffer-el"
+  ;; FIXME: This is fairly ugly, we should clean it up.
+  :shell-command "emacs --batch -L . -L ../lentic -L ../dash -l lentic-doc --eval '(lentic-doc-orgify-package `m-buffer)'"
+  :doc "m-buffer-doc.org" ;; FIXME: Need to fix the manual's build problem!
+  )
  (map			:core "lisp/emacs-lisp/map.el")
  (marginalia		:url "https://github.com/minad/marginalia"
   :doc "README.org"
@@ -473,6 +498,7 @@
   :readme "README.md"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (mpdired	:url "https://ledu-giraud.fr/mpdired.git")
  (multi-mode		:url nil)
  (multishell		:url "https://github.com/kenmanheimer/EmacsMultishell")
  (muse			:url "https://github.com/alexott/muse" ;FIXME: Not nearly in-sync
@@ -500,7 +526,7 @@
   :ignored-files ("LICENSE"))
  (ob-haxe		:url "https://github.com/ianxm/ob-haxe.el")
  (objed        		:url "https://github.com/clemera/objed")
- (omn-mode            	:url nil)
+ (omn-mode            	:url "https://github.com/phillord/omn-mode")
  (on-screen           	:url "https://github.com/michael-heerdegen/on-screen.el.git")
  (openpgp               :url "https://git.sr.ht/~pkal/openpgp")
  (orderless		:url "https://github.com/oantolin/orderless"
@@ -570,6 +596,10 @@
   :release-branch "stable"
   :ignored-files ("LICENSE")
   :doc "README.org")
+ (plz-event-source        :url "https://github.com/r0man/plz-event-source"
+  :doc "plz-event-source.org")
+ (plz-media-type        :url "https://github.com/r0man/plz-media-type"
+  :doc "plz-media-type.org")
  (plz-see		:url "https://github.com/astoff/plz-see.el"
   :readme "README.org")
  (poke			:url "https://git.savannah.gnu.org/git/poke/poke-el.git"
@@ -585,6 +615,8 @@
  (pq			:url "https://github.com/anse1/emacs-libpq"
   :readme "README.org")
  (prefixed-core		:url nil)
+ (preview-auto		:url "https://github.com/ultronozm/preview-auto.el")
+ (preview-tailor	:url "https://github.com/ultronozm/preview-tailor.el")
  (project		:core "lisp/progmodes/project.el")
  (psgml               	:url nil) ;; Was https://github.com/lenst/psgml.git
  ;; FIXME: We actually used a filtered version of pspp.git using:
@@ -652,11 +684,12 @@
  (smalltalk-mode	:url nil) ;; Was "git://git.sv.gnu.org/smalltalk"
  (smart-yank		:url nil)
  (sml-mode		:url nil)
+ ;; (snippet		:url "https://github.com/joaotavora/snippet")
  (so-long		:core "lisp/so-long.el")
  (soap-client		:core ("lisp/net/soap-client.el" "lisp/net/soap-inspect.el"))
  (sokoban		:url nil)
  (sotlisp		:url "https://github.com/Malabarba/speed-of-thought-lisp")
- (spacious-padding		:url "https://github.com/protesilaos/spacious-padding"
+ (spacious-padding	:url "https://github.com/protesilaos/spacious-padding"
   :doc "README.org"
   :readme "README.md"
   :news "CHANGELOG.org"
@@ -707,6 +740,8 @@
   :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
  (test-simple         	:url "https://github.com/rocky/emacs-test-simple")
+ (tex-item		:url "https://github.com/ultronozm/tex-item.el")
+ (tex-parens    	:url "https://github.com/ultronozm/tex-parens.el")
  (theme-buffet		:url "https://git.sr.ht/~bboal/theme-buffet")
  (timerfunctions	:url nil)
  (tiny			:url "https://github.com/abo-abo/tiny")
@@ -720,6 +755,7 @@
  (topspace		:url "https://github.com/trevorpogue/topspace"
   :ignored-files ("LICENSE")
   :news "NEWS.md")
+ (track-changes		:core "lisp/emacs-lisp/track-changes.el")
  (tramp			:url "https://git.savannah.gnu.org/git/tramp.git"
   :branch "externals/tramp"
   :main-file "trampver.el"
@@ -794,14 +830,15 @@
  (web-server		:url "https://github.com/eschulte/emacs-web-server.git")
  (webfeeder		:url "https://gitlab.com/ambrevar/emacs-webfeeder.git")
  (websocket		:url "https://github.com/ahyatt/emacs-websocket.git")
- (which-key           	:url "https://github.com/justbur/emacs-which-key")
+ (which-key           	:core "lisp/which-key.el")
  (window-commander	:url "https://git.sr.ht/~dsemy/window-commander"
   :readme ignore
   :doc "window-commander.texi"
   :news "NEWS")
+ (window-tool-bar       :core "lisp/window-tool-bar.el")
  (windower		:url "https://gitlab.com/ambrevar/emacs-windower")
  (windresize		:url nil)
- (wisi			:url nil
+ (wisi			:url nil ;https://git.savannah.nongnu.org/git/ada-mode
   :doc ("wisi.texi" "wisitoken-user_guide.texinfo")
   :release-branch t)
  (wisitoken-grammar-mode :url nil)
