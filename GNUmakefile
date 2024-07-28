@@ -49,6 +49,13 @@ readme:
 			  (find-file \"README\")\
 			  (org-export-to-file 'html \"html/readme.html\"))"
 
+########## Updating specific files ############################################
+
+# Apparently `%` can't match the empty string!
+archiv%/index.html: archiv%/archive-contents
+	$(EMACS) -l admin/elpa-admin.el \
+	         -f elpaa-batch-html-make-index $< $*
+
 ########## Rules for in-place installation ####################################
 pkgs := $(wildcard packages/*)
 
@@ -121,7 +128,7 @@ packages/%.elc: packages/%.el
                           (list \"$(abspath other-packages)\")       \
 			  load-prefer-newer t			     \
 	                  package-user-dir \"$(abspath packages)\")" \
-	    -f package-initialize 		       	     	     \
+	    -f package-activate-all 		       	     	     \
 	    -L $(dir $@) -f batch-byte-compile $<
 
 # .PHONY: elcs

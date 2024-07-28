@@ -32,6 +32,8 @@
 ;;; Code:
 (load (expand-file-name "entropy-elpa-admin-vars.el" (file-name-directory load-file-name)))
 (require 'cl-lib)
+(eval-when-compile (require 'map))
+(require 'xml)
 (require 'lisp-mnt)
 (require 'package)
 
@@ -40,9 +42,15 @@
   "Subdirectory where the ELPA release files (tarballs, ...) will be placed.")
 (defvar elpaa--devel-subdir "archive-devel/"
   "Subdirectory where the ELPA bleeding edge files (tarballs, ...) will be placed.")
+
+(defvar elpaa--wsl-stats-file "wsl-stats.eld"
+  "File where web-server access stats are kept.")
+
 (defvar elpaa--name "NonGNU")
 (defvar elpaa--gitrepo "emacs/nongnu.git")
 (defvar elpaa--url "https://elpa.gnu.org/nongnu/")
+(defvar elpaa--devel-url "https://elpa.gnu.org/nongnu-devel/")
+(defvar elpaa--css-url "https://www.gnu.org/software/emacs/manual.css")
 
 (defvar elpaa--branch-prefix "elpa/")
 (defvar elpaa--release-branch-prefix "elpa-release/")
@@ -78,6 +86,8 @@ Directory is relative to the tarball directory.
 Can be set in elpa-config via `doc-dir'.")
 
 (defvar elpaa--sync-failures-dir "sync-failures/")
+
+(defvar elpaa--aggregated-feed-filename ".aggregated-feed.xml")
 
 (defvar elpaa--debug (getenv "ELPA_DEBUG")
   "Non-nil means to print debug messages.")
@@ -168,9 +178,7 @@ Delete backup files also."
                          (lambda (x y)
                            (string-lessp (symbol-name (car x)) (symbol-name (car y))))))
     (elpaa--message "new AC: %S" ac)
-    (elpaa--write-archive-contents ac dir)
-    (let ((default-directory (expand-file-name dir)))
-      (elpaa--html-make-index (cdr ac)))))
+    (elpaa--write-archive-contents ac dir)))
 
 (defun elpaa--get-specs ()
   (elpaa--form-from-file-contents elpaa--specs-file))
@@ -492,20 +500,21 @@ returns.  Return the selected revision."
             (let* ((bucket (car buckets))
                    (len (length (try-completion "" bucket)))
                    (newbuckets ()))
-              (dolist (oldtarball (cdr bucket))
-                (let ((tvers (car oldtarball)))
-                  (push oldtarball
-                        (alist-get (substring tvers 0
-                                              (min (length tvers) (1+ len)))
-                                   newbuckets nil nil #'equal))))
-              (when (< (+ (length newbuckets) (length (cdr buckets)))
-                       (- n (length kept)))
-                ;; (message "Spreading one bucket")
-                (setq buckets (nconc (cdr buckets)
-                                     (mapcar (lambda (b)
-                                               (cons (length (car b)) (cdr b)))
-                                             newbuckets)))
-                t)))
+              (when (cddr bucket) ;There's more than 1 entry in this bucket.
+                (dolist (oldtarball (cdr bucket))
+                  (let ((tvers (car oldtarball)))
+                    (push oldtarball
+                          (alist-get (substring tvers 0
+                                                (min (length tvers) (1+ len)))
+                                     newbuckets nil nil #'equal))))
+                (when (< (+ (length newbuckets) (length (cdr buckets)))
+                         (- n (length kept)))
+                  ;; (message "Spreading one bucket into: %S" newbuckets)
+                  (setq buckets (nconc (cdr buckets)
+                                       (mapcar (lambda (b)
+                                                 (cons (length (car b)) (cdr b)))
+                                               newbuckets)))
+                  t))))
         ;; Finally, evenly select elements from every bucket.
         (setq buckets (sort buckets (lambda (b1 b2) (<= (length b1) (length b2)))))
         (while buckets
@@ -725,7 +734,10 @@ auxiliary files unless TARBALL-ONLY is non-nil ."
                (let ((pkgname (car pkg-spec))
 		     (default-directory
 		      (expand-file-name (file-name-directory tarball))))
+		 ;; FIXME: We shouldn't rebuild the tarball but only the
+		 ;; particular missing file(s)!!!
 		 (and (file-readable-p (format "%s-readme.txt" pkgname))
+                      (file-readable-p (format "%s.xml" pkgname))
 		      (file-readable-p (format "%s.html" pkgname))
 		      (file-readable-p (format "%s.svg" pkgname))))))
       (progn
@@ -869,7 +881,7 @@ auxiliary files unless TARBALL-ONLY is non-nil ."
                                             (if revision-function
                                                 (* 60 60 24 365 2)))))
          (let ((default-directory (expand-file-name destdir)))
-           ;; This also creates <pkg>-readme.txt and <pkg>.svg.
+           ;; This also creates <pkg>.xml (atom feed), <pkg>-readme.txt and <pkg>.svg.
            (elpaa--html-make-pkg pkgdesc pkg-spec
                                  `((,vers . ,(file-name-nondirectory tarball))
                                    . ,oldtarballs)
@@ -1222,7 +1234,8 @@ place the resulting tarball into the file named TARBALL-ONLY."
                                   elpaa--devel-subdir
                                   pkgname devel-vers)))
              (new
-              (let ((elpaa--name (concat elpaa--name "-devel")))
+              (let ((elpaa--name (concat elpaa--name "-devel"))
+                    (elpaa--url elpaa--devel-url))
                 ;; Build the archive-devel tarball.
                 (elpaa--make-one-tarball tarball
                                          dir pkg-spec
@@ -1509,11 +1522,12 @@ readme file has an unconventional name"
         rendered))
      ((let* ((readme-file (elpaa--spec-get pkg-spec :readme))
              (known-readme-names            ;see `package--get-description'
-              '("README-elpa"
-                "README-elpa.md"
+              '("README-elpa.md"
+                "README-elpa"
                 "README"
+                "README.org"
                 "README.rst"
-                "README.org")))
+                "README.md")))
         (when (and readme-file
                    (not (eq readme-file 'ignore))
                    (not (member readme-file known-readme-names)))
@@ -1553,23 +1567,21 @@ readme file has an unconventional name"
 
         <div class=\"wrapper\">
 
-            <div class=\"header small\">
+            <header class=\"small\">
                 <div class=\"container\">
                     <h1>%s</h1>
                 </div>
-            </div>
+            </header>
 
-            <div class=\"container\">\n"
+            <main class=\"container\">\n"
           title (or head-extra "") (or header title)))
 
 (defvar elpaa--index-javascript-headers "
-        <script src=\"../javascript/jquery.min.js\" type=\"text/javascript\"></script>
-        <script src=\"../javascript/jquery.filtertable.min.js\" type=\"text/javascript\"></script>
         <script src=\"../javascript/package-search.js\" type=\"text/javascript\"></script>")
 
 (defun elpaa--html-footer ()
   (format "\n
-        <div class=\"footer\">
+        <footer>
             <div class=\"container\">
                 <p>Last refreshed on %s</p>
                 <p>Copyright 2016-%s <a href=\"https://fsf.org\">Free Software Foundation</a>, Inc.</p>
@@ -1581,7 +1593,7 @@ readme file has an unconventional name"
                 </p>
                 <p><a href=\"/jslicense.html\" data-jslicense=\"1\">JavaScript Licenses</a></p>
             </div>
-        </div>
+        </footer>
 
 </body>\n"
           (format-time-string "%Y-%b-%d %R %Z" nil t)
@@ -1647,7 +1659,7 @@ which see."
   (if (executable-find "markdown2")
       ;; Presumably https://github.com/trentm/python-markdown2.
       ;; Stay conservative in the set of extensions we support.
-      '("markdown2" "-x" "code-friendly,tables")
+      '("markdown2" "-x" "code-friendly,tables,fenced-code-blocks,nofollow")
     '("markdown")))
 
 (cl-defmethod elpaa--section-to-html ((section (head text/markdown)))
@@ -1865,6 +1877,36 @@ arbitrary code."
 	  ))
       (insert "</dd>\n"))))
 
+(defun elpaa--make-atom-feed (pkg pkg-spec srcdir files)
+  (let* ((name (symbol-name (car pkg)))
+         (path (if (string-match "\\`https?://[^/]+/\\(.*\\)" elpaa--url)
+                   (match-string 1 elpaa--url)
+                 (error "Failed to infer path from %S" elpaa--url)))
+         (metadata (elpaa--metadata srcdir pkg-spec))
+         (desc (nth 2 metadata)))
+    (with-temp-buffer
+      (elpaa--render-atom
+       (format "Update feed for %s" name)
+       (concat "/" path  name ".xml")
+       (mapcan
+        (lambda (file)
+          (let ((version (car file)))
+            `(( :title ,(format "%s ELPA: Release of \"%s\", Version %s"
+                                elpaa--name name version)
+                :time ,(file-attribute-modification-time
+                        (file-attributes (cdr file)))
+                :path ,(format "%s%s.xml#v%s" path name version)
+                :content
+                ((p nil
+                    ,(concat "Version " version " of package ")
+                    (a ((href . ,(elpaa--default-url name))) ,name)
+                    ,(concat " has just been released in " elpaa--name " ELPA."))
+                 (p nil "You can now find it in " (kbd nil "M-x list-packages RET") ".")
+                 (p nil ,(concat name " describes itself as:"))
+                 (blockquote nil ,desc))))))
+        files))
+      (write-region (point-min) (point-max) (concat name ".xml")))))
+
 (defun elpaa--html-make-pkg (pkg pkg-spec files srcdir plain-readme)
   (let* ((name (symbol-name (car pkg)))
          (latest (package-version-join (aref (cdr pkg) 0)))
@@ -1874,12 +1916,17 @@ arbitrary code."
     (elpaa--make-badge (concat name ".svg")
                        (format "%s ELPA" elpaa--name)
                        (format "%s %s" name latest))
+    (elpaa--make-atom-feed pkg pkg-spec srcdir files)
     (with-temp-buffer
       (insert (elpaa--html-header
                (format "%s ELPA - %s" elpaa--name name)
                (format "<a href=\"index.html\">%s ELPA</a> - %s"
-                       elpaa--name name)))
-      (insert (format "<h2 class=\"package\">%s</h2>" name))
+                       elpaa--name name)
+               (format "<link href=\"%s.xml\" type=\"application/atom+xml\" rel=\"alternate\" />"
+                       name)))
+      (insert (format "<h2 class=\"package\">%s" name))
+      (insert " <a class=\"badge\" href=\"" name ".xml\"><img src=\"/images/rss.svg\" alt=\"Atom Feed\"></a>")
+      (insert "</h2>")
       (insert "<dl>")
       (insert (format "<dt>Description</dt><dd>%s</dd>\n" (elpaa--html-quote desc)))
       (if (zerop (length latest))
@@ -1950,28 +1997,206 @@ arbitrary code."
                   "<div class=\"splice news\">\n"
                   (elpaa--section-to-html news)
                   "\n</div>\n")))
-      (insert "</div>\n")
+      (insert "</main>\n")
       (insert (elpaa--html-footer))
       (write-region (point-min) (point-max) (concat name ".html")))))
 
 (defun elpaa--html-make-index (pkgs)
   (with-temp-buffer
-    (insert (elpaa--html-header
-             (concat elpaa--name " ELPA Packages")
-             nil elpaa--index-javascript-headers))
-    (insert "<table>\n")
-    (insert "<tr><th>Package</th><th>Version</th><th>Description</th></tr>\n")
-    (dolist (pkg pkgs)
-      (insert (format "<tr><td><a href=\"%s.html\">%s</a></td><td>%s</td><td>%s</td></tr>\n"
-                      (car pkg) (car pkg)
-                      (package-version-join (aref (cdr pkg) 0))
-                      (aref (cdr pkg) 2))))
-    (insert "                </table>
-            </div>
+    (let ((scores (and elpaa--wsl-stats-file
+                       (file-readable-p elpaa--wsl-stats-file)
+                       (nth 3 (elpaa--form-from-file-contents
+                               elpaa--wsl-stats-file)))))
+      (insert (elpaa--html-header
+               (concat elpaa--name " ELPA Packages") nil
+               (concat
+                elpaa--index-javascript-headers
+                (format "<link href=\"%s\" type=\"application/atom+xml\" rel=\"alternate\" />"
+                        elpaa--aggregated-feed-filename))))
+      (insert "<table id=\"packages\">\n")
+      (insert "<thead><tr><th>Package</th><th>Version</th><th>Description</th><th>Rank</th></tr></thead>\n")
+      (insert "<tbody>")
+      (dolist (pkg pkgs)
+        (insert (format "<tr><td><a href=\"%s.html\">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>\n"
+                        (car pkg) (car pkg)
+                        (package-version-join (aref (cdr pkg) 0))
+                        (aref (cdr pkg) 2)
+                        ;; Average rank over all the weeks' ranks.
+                        ;; FIXME: Only use the more recent weeks?
+                        (let* ((ranks (and (hash-table-p scores)
+                                           (gethash (symbol-name (car pkg))
+                                                    scores)))
+                               (total (apply #'+ (mapcar #'cdr ranks))))
+                          (if (null ranks) "?"
+                            (format "%d%%" (/ total (length ranks))))))))
+      (insert "</tbody></table>
             <div class=\"push\"></div>
-        </div>")
-    (insert (elpaa--html-footer))
-    (write-region (point-min) (point-max) "index.html")))
+        </main>")
+      (insert (elpaa--html-footer))
+      (write-region (point-min) (point-max) "index.html"))))
+
+(defun elpaa-batch-html-make-index ()
+  (let* ((ac-file (pop command-line-args-left))
+         (devel (string-match "devel" (pop command-line-args-left)))
+         (elpaa--name (concat elpaa--name (if devel "-devel" "")))
+         (elpaa--url (if devel elpaa--devel-url elpaa--url))
+         (ac (elpaa--form-from-file-contents ac-file))
+         (default-directory (file-name-directory (expand-file-name ac-file))))
+    (elpaa--html-make-index (cdr ac))
+    (elpaa--make-aggregated-atom-feed elpaa--aggregated-feed-filename)))
+
+;;; Statistics from the web server log
+
+(defconst elpaa--wsl-time-re
+  (rx (group (repeat 2 digit))          ;Day
+      "/" (group (repeat 3 alpha))      ;Month
+      "/" (group (repeat 4 digit))      ;Year
+      ":" (group                        ;Time
+           (repeat 2 digit) ":" (repeat 2 digit) ":" (repeat 2 digit)
+           " " (or "+" "-") (repeat 4 digit))))
+
+(defconst elpaa--wsl-line-re
+  (rx bol
+      (\? (+ (not " ")) " ")            ; VHost
+      (+ (or xdigit "." ":"))           ; IP of client
+      " - - "
+      "[" (group (+ (not "]"))) "]"                    ; Date/time
+      " \"" (or (seq (+ (or alpha "_"))                ; Method
+                     " " (group (+ (not (any blank)))) ; Path
+                     " " "HTTP/" (+ (or alnum ".")))   ; Protocol
+                (* (not (any "\"" " "))))              ; Garbage
+      "\""
+      " " (group (+ digit))                        ; Status code
+      " " (or (+ digit) "-")                       ; Size
+      " \"" (* (or (not (any "\"")) "\\\"")) "\" " ; Referrer
+      "\"" (* (or (not (any "\"")) "\\\"")) "\""   ; User-Agent
+      eol))
+
+(defun elpaa--wsl-read (logfile fn)
+  (with-temp-buffer
+    (insert-file-contents logfile)
+    (goto-char (point-min))
+    (while (not (eobp))
+      (if (not (looking-at elpaa--wsl-line-re))
+          (message "Unrecognized log line: %s"
+                   (buffer-substring (point) (line-end-position)))
+        (let* ((line (match-string 0))
+               (timestr (match-string 1))
+               (file (match-string 2))
+               (status (match-string 3))
+               (timestr
+                (if (string-match "/\\([^/]*\\)/\\([^/:]*\\):" timestr)
+                    (replace-match " \\1 \\2 " t nil timestr)
+                  (message "Unrecognized timestamp: %s" timestr)
+                  timestr))
+               (time (encode-time (parse-time-string timestr))))
+          (when (and file (not (member status '("404"))))
+            (let ((pkg (if (string-match
+                            (rx bos "/"
+                                (or "packages" "devel" "nongnu" "nongnu-devel")
+                                (+ "/")
+                                (group (+? any))
+                                (\?
+                                 "-" (or
+                                      (seq
+                                       (+ (or digit "."))
+                                       (* (or "pre" "beta" "alpha" "snapshot")
+                                          (* (or digit "."))))
+                                      "readme"
+                                      "sync-failure"
+                                      "build-failure"))
+                                "."
+                                (or "tar" "txt" "el" "html"))
+                            file)
+                           (match-string 1 file))))
+              (funcall fn time pkg file line)))))
+      (forward-line 1))))
+
+(defun elpaa--wsl-one-file (logfile stats)
+  (elpaa--wsl-read
+   logfile
+   ;; Keep a counter of accesses indexed by package and week.
+   (lambda (time pkg file line)
+     (let* ((secs (time-convert time 'integer))
+            (week (/ secs 3600 24 7))
+            (old (gethash pkg stats)))
+       (unless old
+         (message "New package: %S %S %S %S" time pkg file line))
+       (cl-incf (alist-get week (gethash pkg stats) 0))))))
+
+(defvar elpaa--wsl-directory "/var/log/apache2/")
+
+(defun elpaa--wsl-scores (table)
+  (let ((scores-by-week ()))
+    (maphash (lambda (pkg data)
+               (when (and pkg (not (string-match "/" pkg)))
+                 (pcase-dolist (`(,week . ,count) data)
+                   (push (cons count pkg) (alist-get week scores-by-week)))))
+             table)
+    ;; For each week, we sort packages by number of downloads, to
+    ;; compute their percentile ranking.
+    ;; FIXME: We don't take into account that several (many?) packages can
+    ;; have the same number of downloads, in which case their relative ranking
+    ;; (within the equiv class) is a lie.
+    (dolist (scores scores-by-week)
+      (setf (cdr scores)
+            (nreverse (mapcar #'cdr (sort (cdr scores)
+                                          #'car-less-than-car)))))
+    (let ((score-table (make-hash-table :test 'equal)))
+      (pcase-dolist (`(,week . ,pkgs) scores-by-week)
+        (let* ((total (length pkgs))
+               (rest total))
+          (dolist (pkg pkgs)
+            (setq rest (1- rest))
+            (let ((percentile (/ (* 100 rest) total)))
+              (push (cons week percentile) (gethash pkg score-table))))))
+      score-table)))
+
+(defun elpaa--wsl-collect ()
+  (let* ((stats (elpaa--form-from-file-contents elpaa--wsl-stats-file))
+         (seen (nth 1 stats))
+         (table (nth 2 stats))
+         (changed nil)
+         (newseen ()))
+    (cl-assert (eq :web-server-log-stats (nth 0 stats)))
+    (unless table (setq table (make-hash-table :test 'equal)))
+    ;; Only consider the compressed files, because we don't want to process
+    ;; files that may still be modified.
+    (dolist (logfile (directory-files elpaa--wsl-directory t "\\.[lgx]z\\'"))
+      (let ((attrs (file-attributes logfile)))
+        ;; The log files get renamed, which changes their `ctime', so let's
+        ;; throw out this information.
+        (setf (nth 6 attrs) nil)
+        (cond
+         ((string-match "error.log" logfile) nil) ;Ignore the error log files.
+         ((member attrs seen) (push attrs newseen)) ;Already processed.
+         (t
+          (push attrs newseen)
+          (setq changed t)
+          (elpaa--wsl-one-file logfile table)))))
+    (when changed
+      (with-temp-buffer
+        (funcall (if (fboundp 'pp-28) #'pp-28 #'pp)
+                 `(:web-server-log-stats ,newseen ,table
+                   ;; Rebuild the scoreboard "by week".
+                   ,(elpaa--wsl-scores table))
+                 (current-buffer))
+        (princ "\n" (current-buffer))
+        (write-region nil nil elpaa--wsl-stats-file)))))
+
+;; (defun elpaa--wsl-foo ()
+;;   (let ((diff (time-convert (time-subtract curtime time) 'integer))
+;;         (diff-weeks (/ diff 3600 24 7))
+;;         (timelog (/ (logb (1+ diff-weeks)) 2))
+;;         (vec (gethash pkg stats)))
+;;     (unless vec
+;;       (setf (gethash pkg stats) (setq vec (make-vector 4 0))))
+;;     (if (> timelog (length vec))
+;;         (message "Entry too old: %s" timestr)
+;;       (cl-incf (aref vec timelog)))))
+;;       stats)))
+
+;;; Maintain worktrees in the `packages' subdirectory
 
 (defun elpaa--pull (dirname)
   (let ((default-directory (elpaa--dirname dirname)))
@@ -2023,8 +2248,6 @@ arbitrary code."
                           (eq (line-beginning-position 0) (point-min)))
                      " " "\n")
                  (buffer-string))))))
-
-;;; Maintain worktrees in the `packages' subdirectory
 
 (defun elpaa--sync-emacs-repo ()
   "Sync Emacs repository, if applicable.
@@ -2443,7 +2666,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
           (insert "\n## Summary:\n\n")
           (let ((beg (point)))
             (insert (if (not readme)
-                        "[Not available 🙁]"
+                        "[Not provided 🙁]"
                       (elpaa--section-to-plain-text readme)))
             ;; Keep a max of about 10 lines of full-length text.
             (delete-region (min (+ beg 800) (point)) (point))
@@ -2459,7 +2682,7 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
           (unless (bolp) (insert "\n"))
           (insert "\n## Recent NEWS:\n\n"
                   (if (not news)
-                      "[Not available 🙁]"
+                      "[Not provided 🙁]"
                     (elpaa--section-to-plain-text news))))
         (elpaa--send-email
          `((From    . ,elpaa--email-from)
@@ -2514,6 +2737,9 @@ directory; one of archive, archive-devel."
       (let ((default-directory
              (if input-dir (expand-file-name input-dir)
                default-directory)))
+        ;; FIXME: The name of the output file is splattered all over the output
+        ;; file, so it ends up wrong after renaming.  Maybe it's harmless,
+        ;; I don't know, but it's not satisfactory.
         (apply #'elpaa--call-sandboxed
                t "makeinfo" "--no-split" input-name "-o" tmpfile extraargs))
       (message "%s" (buffer-string)))
@@ -2526,20 +2752,25 @@ directory; one of archive, archive-devel."
 	 (html-file (expand-file-name destname html-dir))
 	 (html-xref-file
 	  (expand-file-name destname (file-name-directory html-dir))))
-    (elpaa--makeinfo docfile html-file '("--html"))
-    ;; FIXME: Use `push' in Emacs≥28
-    (plist-put (cdr pkg-spec)
-               :internal--html-docs
-               (cons (cons (file-name-base html-file)
-                           (file-name-nondirectory html-file))
-                     (plist-get (cdr pkg-spec) :internal--html-docs)))
+    (elpaa--makeinfo docfile html-file
+                     (list "--html" (format "--css-ref=%s" elpaa--css-url)))
+    (push (cons (file-name-base html-file)
+                (file-name-nondirectory html-file))
+          (plist-get (cdr pkg-spec) :internal--html-docs))
 
     ;; Create a symlink from elpa/archive[-devel]/doc/* to
     ;; the actual file, so html references work.
-    (with-demoted-errors "%S" ;; 'make-symbolic-link' doesn't work on Windows
-      (make-symbolic-link
-       (concat (file-name-nondirectory html-dir) "/" destname)
-       html-xref-file t))))
+    (let ((target (file-name-concat (file-name-nondirectory html-dir)
+                                    destname))
+          (current-target (file-attribute-type
+                           (file-attributes html-xref-file))))
+      (cond
+       ((not (stringp current-target))
+        (with-demoted-errors "%S" ;; 'make-symbolic-link' fails on Windows.
+          (make-symbolic-link target html-xref-file)))
+       ((equal target current-target) nil) ;Nothing to do.
+       (t (error "Manual name %S conflicts with %S"
+                 destname current-target))))))
 
 (defun elpaa--build-Info-1 (pkg-spec docfile dir html-dir)
   "Build an info file from DOCFILE (a texinfo source file).
@@ -2658,7 +2889,7 @@ relative to elpa root."
   "Return non-nil iff BRANCH is an existing branch."
   (equal 0 (elpaa--call t "git" "show-ref" "--verify" "--quiet" branch)))
 
-(defun elpaa--is-ancestor (candidate rev)
+(defun elpaa--is-ancestor-p (candidate rev)
   "Return non-nil if CANDIDATE is ancestor of REV."
   (zerop (elpaa--call t "git" "merge-base" "--is-ancestor"
                       candidate rev)))
@@ -2671,6 +2902,12 @@ relative to elpa root."
       (if (null msg)
           (delete-file logfile)
         (write-region msg nil logfile nil 'silent)))))
+
+(defun elpaa--git-short-log (from to)
+  (elpaa--call t "git" "log"
+               "--date=format:%Y-%m"
+               "--format=%h %cd  %<(16,trunc)%ae  %s"
+               (format "%s..%s" from to)))
 
 (defun elpaa--fetch (pkg-spec &optional k show-diverged)
   (let* ((pkg (car pkg-spec))
@@ -2703,23 +2940,19 @@ relative to elpa root."
 	 ((not (elpaa--git-branch-p ortb))
 	  (message "New package %s hasn't been pushed to origin yet" pkg)
 	  (when k (funcall k pkg-spec)))
-         ((elpaa--is-ancestor urtb ortb)
+         ((elpaa--is-ancestor-p urtb ortb)
           (message "Nothing new upstream for %s" pkg))
-         ((not (or (elpaa--is-ancestor ortb urtb)
+         ((not (or (elpaa--is-ancestor-p ortb urtb)
                    (elpaa--spec-get pkg-spec :merge)))
           (let ((output (delete-and-extract-region (point-min) (point-max))))
             (if (> (length output) 0) (message "%s" output)))
           (let* ((msg (format "Upstream of %s has DIVERGED!" pkg)))
             (when (or show-diverged (eq k #'elpaa--push))
               (let ((msgs (list "\n\n" msg)))
-                (elpaa--call t "git" "log"
-                             "--format=%h  %<(16,trunc)%ae  %s"
-                             (format "%s..%s" urtb ortb))
+                (elpaa--git-short-log urtb ortb)
                 (push "  Local changes:\n" msgs)
                 (push (delete-and-extract-region (point-min) (point-max)) msgs)
-                (elpaa--call t "git" "log"
-                             "--format=%h  %<(16,trunc)%ae  %s"
-                             (format "%s..%s" ortb urtb))
+                (elpaa--git-short-log ortb urtb)
                 (push "\n  Upstream changes:\n" msgs)
                 (push (delete-and-extract-region (point-min) (point-max)) msgs)
                 (let ((total-msg
@@ -2728,9 +2961,7 @@ relative to elpa root."
                   (when (eq k #'elpaa--push)
                     (elpaa--record-sync-failure pkg-spec total-msg)))))
             (message "%s" msg)))
-         ((not (zerop (elpaa--call t "git" "log"
-                                   "--format=%h  %<(16,trunc)%ae  %s"
-                                   (format "%s..%s" ortb urtb))))
+         ((not (zerop (elpaa--git-short-log ortb urtb)))
           (message "Log error for %s:\n%s" pkg (buffer-string)))
          ((eq (point-min) (point-max))
           (message "No pending upstream changes for %s" pkg)
@@ -2757,7 +2988,7 @@ relative to elpa root."
       (while (and (setq last-release
                         (elpaa--get-last-release-commit pkg-spec
                                                         (concat urtb "~")))
-                  (not (elpaa--is-ancestor last-release ortb)))
+                  (not (elpaa--is-ancestor-p last-release ortb)))
         (message "NOTE: merging from %s only up to release %s!!"
                  urtb last-release)
         (setq urtb last-release))
@@ -2784,9 +3015,9 @@ relative to elpa root."
     (elpaa--record-sync-failure pkg-spec nil)
     (with-temp-buffer
       (cond
-       ((and ortb-p (elpaa--is-ancestor urtb ortb))
+       ((and ortb-p (elpaa--is-ancestor-p urtb ortb))
         (message "Nothing to push for %s" pkg))
-       ((xor (and ortb-p (not (elpaa--is-ancestor ortb urtb)))
+       ((xor (and ortb-p (not (elpaa--is-ancestor-p ortb urtb)))
              merge)
         (if merge
             (message "Error: ':merge' used when not needed: %S\n%S"
@@ -2893,7 +3124,7 @@ relative to elpa root."
             (insert
              (format "%s/%s-pkg.el: %s/%s\n"
                      dir pkgname dir (elpaa--main-file pkg-spec)))
-            (let ((make-targets (elpaa--spec-get pkg-spec :make)))
+            (let ((make-targets (ensure-list (elpaa--spec-get pkg-spec :make))))
               (when (consp make-targets)
                 (dolist (target make-targets)
                   (insert (format "%s: %s/%s\n" dir dir target))
@@ -2969,7 +3200,103 @@ relative to elpa root."
              (lambda () (forward-comment (point-max)))))
 
 (when (file-readable-p "elpa-config") (elpaa-read-config "elpa-config"))
+
 (require 'entropy-elpa-admin-patch-1)
+
+;;; Atom feed generation
+
+(defun elpaa--rfc3339 (time)
+  (format-time-string "%Y-%m-%dT%H:%M:%SZ" time))
+
+(defun elpaa--render-atom (title path articles)
+  "Insert an Atom feed at point.
+TITLE sets the title of the feed, PATH is the request path
+relative to the server route of where the Atom feed will be
+hosted.  ARTICLES is a list of plists, consisting of the keys
+`:title' for an article title, `:time' a timestamp in in
+`current-time'-format, `:path' is a root-relative HTTP path to
+the article."
+  (cl-flet ((newer-p (a1 a2)
+              (time-less-p (plist-get a1 :time) (plist-get a2 :time))))
+    ;; FIXME: Why do we need to split elpaa--url into a domain and a path?
+    (let* ((articles (sort articles #'newer-p))
+           (domain (if (string-match "\\`https?://\\([^/]+/\\)" elpaa--url)
+                       (match-string 1 elpaa--url)
+                     (error "Failed to infer domain from %S" elpaa--url)))
+           (self (concat "https://" domain path)))
+      (insert "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+      (xml-print
+       ;; See https://validator.w3.org/feed/docs/rfc4287.html
+       `((feed
+          ((xmlns . "http://www.w3.org/2005/Atom"))
+          (title nil ,title)
+          (link ((href . ,self) (rel . "self")))
+          (id nil ,self)
+          (updated nil ,(elpaa--rfc3339 (plist-get :time (car articles))))
+          ,@(mapcar
+             (pcase-lambda ((map (:title title) (:time time)
+                                 (:path path) (:content content)))
+               `(entry
+                 nil
+                 (title nil ,title)
+                 (updated nil ,(elpaa--rfc3339 time))
+                 (author
+                  nil
+                  (name nil "elpa-admin")
+                  (email nil "emacs-devel@gnu.org"))
+                 (id nil ,(format "tag:%s,%s:%s"
+                                  domain
+                                  (format-time-string "%F" time)
+                                  path))
+                 (link ((href . ,(concat "https://" domain path))
+                        (rel . "self")))
+                 (content
+                  ((type . "html"))
+                  ,(with-temp-buffer
+                     (xml-print content)
+                     (buffer-string)))))
+             articles)))))))
+
+(defun elpaa--make-aggregated-atom-feed (filename)
+  (let* ((files (sort
+                 (directory-files "." nil "\\.xml\\'" 'nosort)
+                 (lambda (f1 f2)
+                   (time-less-p
+                    (file-attribute-modification-time (file-attributes f2))
+                    (file-attribute-modification-time (file-attributes f1))))))
+         (tail (nthcdr 100 files))
+         (entries '()))
+    (when tail (setcdr tail nil))
+    (setq files (delete filename files))
+    ;; Fetch the last entry (which seems to be where the most recent
+    ;; entry is placed) of each feed.
+    (with-temp-buffer
+      (dolist (file files)
+        (erase-buffer)
+        (insert-file-contents file)
+        (let* ((xml (with-demoted-errors "%S" (libxml-parse-xml-region
+                                               (point-min) (point-max))))
+               (lastentry (assq 'entry (nreverse xml))))
+          (when lastentry
+            (push lastentry entries))))
+      ;; Wrap the list into an actual Atom feed.
+      ;; We don't bother to sort the entries because we assume that the
+      ;; time of the last entry of each input feed is about the same as the
+      ;; modification time of the file, so they should already be ordered.
+      (erase-buffer)
+      (let* ((self (concat elpaa--url filename)))
+        (insert "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+        (xml-print
+         ;; See https://validator.w3.org/feed/docs/rfc4287.html
+         `((feed
+            ((xmlns . "http://www.w3.org/2005/Atom"))
+            (title nil ,(concat elpaa--name " ELPA News"))
+            (link ((href . ,self) (rel . "self")))
+            (id nil ,self)
+            (updated nil ,(elpaa--rfc3339 (current-time)))
+            ,@entries)))
+        (write-region (point-min) (point-max) filename)))))
+
 (provide 'elpa-admin)
 
 ;; Local Variables:
