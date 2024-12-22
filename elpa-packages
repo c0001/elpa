@@ -105,7 +105,7 @@
  (blist			:url "https://gitlab.com/mmemmew/blist"
   :doc "blist.texinfo"
   :readme "README.org")
- (bluetooth		:url "https://gitlab.com/rstocker/emacs-bluetooth")
+ (bluetooth		:url "https://codeberg.org/rstocker/emacs-bluetooth")
  (bnf-mode		:url "https://github.com/sergeyklay/bnf-mode")
  (boxy			:url "https://gitlab.com/grinn.amy/boxy.git")
  (boxy-headings		:url "https://gitlab.com/grinn.amy/boxy-headings")
@@ -163,16 +163,21 @@
   :shell-command "cp -R doc/images ."
   :doc "doc/company.texi"
   :ignored-files ("doc"))
+ ;; (company-coq		:url "https://github.com/cpitclaudel/company-coq"
+ ;;  :ignored-files ("LICENSE"))
  (company-ebdb		:url nil)
  (company-math		:url "https://github.com/vspinu/company-math.git")
  (company-statistics	:url "https://github.com/company-mode/company-statistics")
  (compat		:url "https://github.com/emacs-compat/compat"
   :doc "compat.texi")
+ (constants             :url "https://github.com/cdominik/constants-for-Emacs")
  (consult		:url "https://github.com/minad/consult"
   :doc "README.org"
   :news "CHANGELOG.org"
   :ignored-files ("LICENSE"))
  (consult-denote		:url "https://github.com/protesilaos/consult-denote"
+  :doc "README.org"
+  :news "CHANGELOG.org"
   :readme "README.md")
  (consult-hoogle	:url "https://codeberg.org/rahguzar/consult-hoogle"
   :ignored-files ("LICENSE"))
@@ -198,7 +203,8 @@
  (csharp-mode		:url "https://github.com/emacs-csharp/csharp-mode"
   :readme "README.org")
  (csv-mode		:url nil)
- (cursor-undo		:url nil)
+ (cursor-undo		:url nil
+  :readme "README.org")
  (cursory		:url "https://github.com/protesilaos/cursory"
   :doc "README.org"
   :news "CHANGELOG.org"
@@ -225,6 +231,9 @@
   :readme "README.md")
  (devdocs		:url "https://github.com/astoff/devdocs.el")
  (devicetree-ts-mode	:url "https://git.sr.ht/~akagi/devicetree-ts-mode"
+  :ignored-files ("LICENSE"))
+ (dicom			:url "https://github.com/minad/dicom"
+  :doc "README.org"
   :ignored-files ("LICENSE"))
  (dict-tree		:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (diff-hl		:url "https://github.com/dgutov/diff-hl.git")
@@ -270,7 +279,8 @@
                                "doc/emacs/docstyle.texi"
                                "doc/misc/eglot.texi"
                                "etc/EGLOT-NEWS")
-                        :news "EGLOT-NEWS")
+  :news "EGLOT-NEWS"
+  :doc "eglot.texi")
  (el-search		:url nil)
  (eldoc			:core "lisp/emacs-lisp/eldoc.el")
  ;; `eldoc-eval' is obsoleted by core support for eldoc in minibuffer (2013).
@@ -390,6 +400,8 @@
  (ilist			:url "https://gitlab.com/mmemmew/ilist"
   :doc "ilist.texinfo"
   :readme "README.org")
+ (indent-bars		:url "https://github.com/jdtsmith/indent-bars"
+  :ignored-files ("LICENSE"))
  ;; (infix-notation-calculator :url "https://github.com/cjohansson/emacs-infix-notation-calculator")
  (inspector		:url "https://github.com/mmontone/emacs-inspector"
   :ignored-files ("LICENSE"))
@@ -434,6 +446,8 @@
  ;;  :ignored-files ("LICENSE")
  ;;  :readme "README")
  (kmb			:url nil)
+ (kubed			:url "https://git.sr.ht/~eshel/kubed"
+  :doc "kubed.texi")
  (landmark		:url nil)
  (latex-table-wizard    :url "https://github.com/enricoflor/latex-table-wizard"
   :doc "latex-table-wizard.texi")
@@ -481,6 +495,10 @@
   :ignored-files ("LICENSE"))
  (markchars		:url nil)
  (math-symbol-lists 	:url "https://github.com/vspinu/math-symbol-lists.git")
+ (mathjax               :url "https://github.com/astoff/mathjax.el"
+  :make "elpa")
+ (matlab-mode           :url "https://github.com/mathworks/Emacs-MATLAB-Mode.git"
+  :main-file "matlab.el")
  (mct			:url "https://gitlab.com/protesilaos/mct"
   :doc "README.org")
  (memory-usage		:url nil)
@@ -676,6 +694,10 @@
  (shell-command+	:url "https://git.sr.ht/~pkal/shell-command-plus")
  (shell-quasiquote	:url nil)
  (shen-mode		:url nil)
+ (show-font		:url "https://github.com/protesilaos/show-font"
+  :doc "README.org"
+  :news "CHANGELOG.org"
+  :ignored-files ("COPYING" "doclicense.texi"))
  (sisu-mode		:url nil)
  (site-lisp             :url "https://git.sr.ht/~pkal/site-lisp")
  (sketch-mode		:url "https://github.com/dalanicolai/sketch-mode")
@@ -694,6 +716,7 @@
   :readme "README.md"
   :news "CHANGELOG.org"
   :ignored-files ("COPYING" "doclicense.texi"))
+ (speedrect             :url "https://github.com/jdtsmith/speedrect")
  (spinner		:url "https://github.com/Malabarba/spinner.el")
  (sql-beeline		:url nil)
  (sql-cassandra		:url nil)
@@ -729,6 +752,7 @@
  (tNFA			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
  (tam			:url "https://github.com/owinebar/emacs-table-allocation-manager")
  (taxy                	:url "https://github.com/alphapapa/taxy.el.git"
+  :release-branch "stable"
   :doc "taxy.info"
   :ignored-files ("images"))
  (taxy-magit-section  	:url "https://github.com/alphapapa/taxy.el.git"
@@ -766,11 +790,16 @@
  (tramp-theme		:url nil)
  (transcribe		:url nil)
  (transient		:url "https://github.com/magit/transient"
+  ;; The author of this package views its branch in the GNU ELPA
+  ;; repository as nothing but a distribution mechanism, and requests
+  ;; that you make no changes whatsoever to that branch, and instead
+  ;; open a pull-request in the above upstream repository, even for
+  ;; the most trivial of changes.
   :manual-sync t ;;Author prefers manual control.
   :lisp-dir "lisp"
   :renames (("docs/" ""))
   :news "CHANGELOG"
-  :doc "docs/transient.texi")
+  :doc "docs/transient.org")
  (transient-cycles    	:url nil)
  (tree-inspector        :url "https://github.com/mmontone/emacs-tree-inspector")
  (trie			:url nil) ;"http://www.dr-qubit.org/git/predictive.git"
@@ -844,8 +873,6 @@
  (wisitoken-grammar-mode :url nil)
  (wpuzzle		:url nil)
  (wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git")
- ;; FIXME: Waiting for copyright paperwork from Emanuel Berg.
- ;;(wrap-search		:url "https://dataswamp.org/~incal/wrap-search.git")
  (xclip			:url nil)
  (xeft                  :url "https://git.sr.ht/~casouri/xeft"
   :ignored-files ("*.gif"))
@@ -855,6 +882,7 @@
   :ignored-files ("Makefile" ".github" "*-test.el*"))
  (xref			:core "lisp/progmodes/xref.el")
  (xref-union            :url "https://git.sr.ht/~pkal/xref-union")
+ (yaml			:url "https://github.com/zkry/yaml.el")
  (yasnippet		:url "https://github.com/capitaomorte/yasnippet.git")
  (yasnippet-classic-snippets :url nil)
  (zones			:url nil)  ;https://www.emacswiki.org/emacs/zones.el
