@@ -1208,8 +1208,8 @@ place the resulting tarball into the file named TARBALL-ONLY."
              ((eq (nth 1 pkg-spec) :core) (elpaa--core-package-sync pkg-spec))
              (t (elpaa--worktree-sync pkg-spec))))
          (_ (elpaa--message "pkg-spec for %s: %S" pkgname pkg-spec))
-         (metadata (elpaa--metadata dir pkg-spec))
-         (vers (nth 1 metadata)))
+         (metadata (with-demoted-errors "elpaa--metadata error: %S"
+                     (elpaa--metadata dir pkg-spec))))
     (elpaa--message "metadata = %S" metadata)
     (elpaa--check-sync-failures pkg-spec metadata)
     (if (null metadata)
@@ -1220,7 +1220,8 @@ place the resulting tarball into the file named TARBALL-ONLY."
       ;; First, try and build the devel tarball
       ;; Do it before building the release tarball, because building
       ;; the release tarball may revert to some older commit.
-      (let* ((date-version (elpaa--get-devel-version dir pkg-spec))
+      (let* ((vers (nth 1 metadata))
+             (date-version (elpaa--get-devel-version dir pkg-spec))
              ;; Add a ".0." so that when the version number goes from
              ;; NN.MM to NN.MM.1 we don't end up with the devel build
              ;; of NN.MM comparing as more recent than NN.MM.1.
@@ -1877,36 +1878,6 @@ arbitrary code."
 	  ))
       (insert "</dd>\n"))))
 
-(defun elpaa--make-atom-feed (pkg pkg-spec srcdir files)
-  (let* ((name (symbol-name (car pkg)))
-         (path (if (string-match "\\`https?://[^/]+/\\(.*\\)" elpaa--url)
-                   (match-string 1 elpaa--url)
-                 (error "Failed to infer path from %S" elpaa--url)))
-         (metadata (elpaa--metadata srcdir pkg-spec))
-         (desc (nth 2 metadata)))
-    (with-temp-buffer
-      (elpaa--render-atom
-       (format "Update feed for %s" name)
-       (concat "/" path  name ".xml")
-       (mapcan
-        (lambda (file)
-          (let ((version (car file)))
-            `(( :title ,(format "%s ELPA: Release of \"%s\", Version %s"
-                                elpaa--name name version)
-                :time ,(file-attribute-modification-time
-                        (file-attributes (cdr file)))
-                :path ,(format "%s%s.xml#v%s" path name version)
-                :content
-                ((p nil
-                    ,(concat "Version " version " of package ")
-                    (a ((href . ,(elpaa--default-url name))) ,name)
-                    ,(concat " has just been released in " elpaa--name " ELPA."))
-                 (p nil "You can now find it in " (kbd nil "M-x list-packages RET") ".")
-                 (p nil ,(concat name " describes itself as:"))
-                 (blockquote nil ,desc))))))
-        files))
-      (write-region (point-min) (point-max) (concat name ".xml")))))
-
 (defun elpaa--html-make-pkg (pkg pkg-spec files srcdir plain-readme)
   (let* ((name (symbol-name (car pkg)))
          (latest (package-version-join (aref (cdr pkg) 0)))
@@ -2061,16 +2032,19 @@ arbitrary code."
       (+ (or xdigit "." ":"))           ; IP of client
       " - - "
       "[" (group (+ (not "]"))) "]"                    ; Date/time
-      " \"" (or (seq (+ (or alpha "_"))                ; Method
-                     " " (group (+ (not (any blank)))) ; Path
-                     " " "HTTP/" (+ (or alnum ".")))   ; Protocol
-                (* (not (any "\"" " "))))              ; Garbage
+      " \"" (group (* (or (not (any "\"" "\\"))
+                          (seq "\\" anychar))))
       "\""
       " " (group (+ digit))                        ; Status code
       " " (or (+ digit) "-")                       ; Size
       " \"" (* (or (not (any "\"")) "\\\"")) "\" " ; Referrer
       "\"" (* (or (not (any "\"")) "\\\"")) "\""   ; User-Agent
       eol))
+
+(defconst elpaa--wsl-request-re
+  (rx (seq (+ (or alpha "_"))                ; Method
+           " " (group (+ (not (any blank)))) ; Path
+           " " "HTTP/" (+ (or alnum "."))))) ; Protocol
 
 (defun elpaa--wsl-read (logfile fn)
   (with-temp-buffer
@@ -2082,7 +2056,7 @@ arbitrary code."
                    (buffer-substring (point) (line-end-position)))
         (let* ((line (match-string 0))
                (timestr (match-string 1))
-               (file (match-string 2))
+               (request (match-string 2))
                (status (match-string 3))
                (timestr
                 (if (string-match "/\\([^/]*\\)/\\([^/:]*\\):" timestr)
@@ -2090,26 +2064,35 @@ arbitrary code."
                   (message "Unrecognized timestamp: %s" timestr)
                   timestr))
                (time (encode-time (parse-time-string timestr))))
-          (when (and file (not (member status '("404"))))
-            (let ((pkg (if (string-match
-                            (rx bos "/"
-                                (or "packages" "devel" "nongnu" "nongnu-devel")
-                                (+ "/")
-                                (group (+? any))
-                                (\?
-                                 "-" (or
-                                      (seq
-                                       (+ (or digit "."))
-                                       (* (or "pre" "beta" "alpha" "snapshot")
-                                          (* (or digit "."))))
-                                      "readme"
-                                      "sync-failure"
-                                      "build-failure"))
-                                "."
-                                (or "tar" "txt" "el" "html"))
-                            file)
-                           (match-string 1 file))))
-              (funcall fn time pkg file line)))))
+          (when (not (member status '("404" "400" "408")))
+            (if (not (string-match elpaa--wsl-request-re request))
+                (message "Unrecognized request (status=%s): %s" status request)
+              (let* ((file (match-string 1 request))
+                     (pkg (if (string-match
+                               (rx bos "/"
+                                   (or "packages" "devel"
+                                       "nongnu" "nongnu-devel")
+                                   (+ "/")
+                                   (group (+? any))
+                                   (\?
+                                    "-" (or
+                                         (seq
+                                          (+ (or digit "."))
+                                          (* (or "pre" "beta" "alpha"
+                                                 "snapshot")
+                                             (* (or digit "."))))
+                                         "readme"
+                                         "sync-failure"
+                                         "build-failure"))
+                                   "."
+                                   (or "tar" "txt" "el" "html"))
+                               file)
+                              (match-string 1 file))))
+                ;; It would make sense to include accesses to "doc/<NAME>" in
+                ;; the counts, except that <NAME> is not always the name of the
+                ;; corresponding package.
+                (when (and pkg (not (string-match-p "/" pkg)))
+                  (funcall fn time pkg file line)))))))
       (forward-line 1))))
 
 (defun elpaa--wsl-one-file (logfile stats)
@@ -2617,8 +2600,9 @@ If WITH-CORE is non-nil, it means we manage :core packages as well."
 
 (defun elpaa--maintainers (pkg-spec metadata)
   (let* ((metadata (or metadata
-                       (elpaa--metadata (elpaa--pkg-root (car pkg-spec))
-                                        pkg-spec)))
+                       (with-demoted-errors "elpaa--maintainers: %S"
+                         (elpaa--metadata (elpaa--pkg-root (car pkg-spec))
+                                          pkg-spec))))
          (maint (cdr (assq :maintainer (nth 4 metadata))))
          ;; `:maintainer' can hold a list or a single maintainer.
          (maints (if (consp (car maint)) maint (list maint)))
@@ -3208,22 +3192,32 @@ relative to elpa root."
 (defun elpaa--rfc3339 (time)
   (format-time-string "%Y-%m-%dT%H:%M:%SZ" time))
 
-(defun elpaa--render-atom (title path articles)
-  "Insert an Atom feed at point.
-TITLE sets the title of the feed, PATH is the request path
-relative to the server route of where the Atom feed will be
-hosted.  ARTICLES is a list of plists, consisting of the keys
-`:title' for an article title, `:time' a timestamp in in
-`current-time'-format, `:path' is a root-relative HTTP path to
-the article."
-  (cl-flet ((newer-p (a1 a2)
-              (time-less-p (plist-get a1 :time) (plist-get a2 :time))))
-    ;; FIXME: Why do we need to split elpaa--url into a domain and a path?
-    (let* ((articles (sort articles #'newer-p))
-           (domain (if (string-match "\\`https?://\\([^/]+/\\)" elpaa--url)
-                       (match-string 1 elpaa--url)
-                     (error "Failed to infer domain from %S" elpaa--url)))
-           (self (concat "https://" domain path)))
+(defun elpaa--rfc4151 (url time)
+  (unless (string-match "\\`\\(?:[^:/]*:\\)?/*\\([^/]+\\)/?" url)
+    (error "Can't find the \"domain\" of this URL: %S" url))
+  (let ((domain (match-string 1 url))
+        (specific (substring url (match-end 0))))
+    (concat "tag:" domain "," (format-time-string "%F" time)
+            ":" specific)))
+
+(defun elpaa--make-atom-feed (pkg pkg-spec srcdir files)
+  (let* ((name (symbol-name (car pkg)))
+         (metadata (elpaa--metadata srcdir pkg-spec))
+         (filename (concat name ".xml"))
+         (desc (nth 2 metadata))
+         ;; RFC4287 says "This specification assigns no significance
+         ;; to the order of atom:entry elements within the feed", but we
+         ;; sort them from oldest to newest.
+         (sorted (sort (mapcar
+                        (lambda (file)
+                          (cons (file-attribute-modification-time
+                                 (file-attributes (cdr file)))
+                                file))
+                        files)
+                       (lambda (a1 a2) (time-less-p (car a1) (car a2)))))
+         (title (format "Update feed for %s" name))
+         (self (concat elpaa--url filename)))
+    (with-temp-buffer
       (insert "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
       (xml-print
        ;; See https://validator.w3.org/feed/docs/rfc4287.html
@@ -3232,31 +3226,66 @@ the article."
           (title nil ,title)
           (link ((href . ,self) (rel . "self")))
           (id nil ,self)
-          (updated nil ,(elpaa--rfc3339 (plist-get :time (car articles))))
+          (updated nil ,(elpaa--rfc3339 (current-time)))
           ,@(mapcar
-             (pcase-lambda ((map (:title title) (:time time)
-                                 (:path path) (:content content)))
-               `(entry
-                 nil
-                 (title nil ,title)
-                 (updated nil ,(elpaa--rfc3339 time))
-                 (author
-                  nil
-                  (name nil "elpa-admin")
-                  (email nil "emacs-devel@gnu.org"))
-                 (id nil ,(format "tag:%s,%s:%s"
-                                  domain
-                                  (format-time-string "%F" time)
-                                  path))
-                 (link ((href . ,(concat "https://" domain path))
-                        (rel . "self")))
-                 (content
-                  ((type . "html"))
-                  ,(with-temp-buffer
-                     (xml-print content)
-                     (buffer-string)))))
-             articles)))))))
+             (pcase-lambda (`(,time ,version . ,_file))
+               (let ((self (concat elpaa--url
+                                   (format "%s.xml#v%s" name version)))
+                     (content
+                      `((p nil
+                           ,(concat "Version " version " of package ")
+                           (a ((href . ,(elpaa--default-url name))) ,name)
+                           ,(concat " has just been released in " elpaa--name
+                                    " ELPA."))
+                        (p nil "You can now find it in "
+                           (kbd nil "M-x list-packages RET") ".")
+                        (p nil ,(concat name " describes itself as:"))
+                        (blockquote nil ,desc))))
+                 `(entry
+                   nil
+                   (title nil
+                          ,(format "%s ELPA: Release of \"%s\", Version %s"
+                                   elpaa--name name version))
+                   (updated nil ,(elpaa--rfc3339 time))
+                   (author
+                    nil
+                    (name nil "elpa-admin")
+                    (email nil "emacs-devel@gnu.org"))
+                   (id nil ,(elpaa--rfc4151 self time))
+                   (link ((href . ,self) (rel . "self")))
+                   (content
+                    ((type . "html") (base . ,elpaa--url))
+                    ,(with-temp-buffer
+                       (xml-print content)
+                       (buffer-string))))))
+             sorted))))
+      (write-region (point-min) (point-max) filename))))
 
+(defun elpaa--package-oldfiles (pkgname dir)
+  ;; FIXME: Use it in `elpaa--make-one-tarball-1'.
+  (let ((re (concat "\\`" (regexp-quote pkgname)
+                      "-\\([0-9].*\\)\\.\\(tar\\|el\\)\\(\\.[a-z]*z\\)?\\'")))
+    (mapcar
+     (lambda (file)
+       (string-match re file)
+       (cons (match-string 1 file) file))
+     (directory-files dir nil re))))
+
+(defun elpaa--batch-make-atom-feed ()
+  (let* ((filename (pop command-line-args-left))
+         (devel (string-match "devel" (file-name-directory filename)))
+         (elpaa--url (if devel elpaa--devel-url elpaa--url))
+         (pkgname (file-name-sans-extension
+                       (file-name-nondirectory filename)))
+         (pkg (intern pkgname))
+         (pkg-spec (assoc-string pkg (elpaa--get-specs) t))
+         (srcdir (format "packages/%s" pkg))
+         (files 
+          (elpaa--package-oldfiles
+           pkgname
+           (file-name-directory (expand-file-name filename)))))
+    (elpaa--make-atom-feed pkg pkg-spec srcdir files)))
+            
 (defun elpaa--make-aggregated-atom-feed (filename)
   (let* ((files (sort
                  (directory-files "." nil "\\.xml\\'" 'nosort)
