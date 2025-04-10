@@ -15,10 +15,10 @@
             (message
              ">>>>>> Reset emacs repo head to entropy-master"
              )))))))
-(advice-add
- 'elpaa--make-one-tarball
- :around
- #'__adv/around/elpaa--make-one-tarball/for-reset-emacs-repo-head)
+;; (advice-add
+;;  'elpaa--make-one-tarball
+;;  :around
+;;  #'__adv/around/elpaa--make-one-tarball/for-reset-emacs-repo-head)
 
 (defun entropy/elpaa--patch-elpaa--make-one-package
     (orig-func &rest orig-args)
@@ -39,8 +39,8 @@
   "Ignore copyright check while building tarball since its
 unnecessary while local building for eemacs. "
   (ignore-errors (apply orig-func orig-args)))
-(advice-add 'elpaa--copyright-check
-            :around
-            #'entropy/elpaa--patch-elpaa--copyright-check)
+;; (advice-add 'elpaa--copyright-check
+;;             :around
+;;             #'entropy/elpaa--patch-elpaa--copyright-check)
 
 (provide 'entropy-elpa-admin-patch-1)
