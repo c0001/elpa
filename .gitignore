@@ -9,12 +9,13 @@ core
 
 # Generated during deployment
 /.pkg-descs.mk
+/doc/
 /packages/
 /other-packages
 # /archive/
 # /archive-devel/
 GNUmakefile
-manifest.scm
+/manifest.scm
 /admin
 
 # Testing file
@@ -22,4 +23,10 @@ manifest.scm
 *.buildlog
 
 # generated html
-html/readme.html
+*.html
+
+# except for the hand-written HTML
+!html/_*.html
+!html/about.html
+!html/contributing.html
+!html/jslicense.html
