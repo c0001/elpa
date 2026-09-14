@@ -25,6 +25,10 @@ build-all:
 	$(EMACS) -l $(CURDIR)/admin/elpa-admin.el	\
 	         -f elpaa-batch-make-all-packages
 
+archive/%.html archive-devel/%.html:
+	$(EMACS) -l $(CURDIR)/admin/elpa-admin.el	\
+	         -f elpaa-batch-make-one-webpage $@
+
 %.tar: dummy
 	$(EMACS) -l $(CURDIR)/admin/elpa-admin.el	\
 	         -f elpaa-batch-make-one-tarball $@
@@ -52,12 +56,18 @@ readme:
 ########## Updating specific files ############################################
 
 # Apparently `%` can't match the empty string!
-archiv%/index.html: archiv%/archive-contents
+archiv%/table.htm: archiv%/archive-contents
 	$(EMACS) -l admin/elpa-admin.el \
 	         -f elpaa-batch-html-make-index $< $*
 
+archive/index.html: archive/table.htm html/_index.html
+archive-devel/index.html: archive-devel/table.htm html/_devel.html
+archive/index.html archive-devel/index.html:
+	sed -e "/^<tr></d; /^<tbody>/r $<" $(word 2,$^) > $@
+
 ########## Rules for in-place installation ####################################
-pkgs := $(wildcard packages/*)
+PACKAGE_DIRS := $(shell find packages -mindepth 1 -maxdepth 1 -type d)
+pkgs := $(PACKAGE_DIRS) #$(wildcard packages/*)
 
 define SET-diff
 $(shell $(file > .tmp.setdiff, $(1))  \
@@ -127,6 +137,8 @@ packages/%.elc: packages/%.el
 	    --eval "(setq package-directory-list 		     \
                           (list \"$(abspath other-packages)\")       \
 			  load-prefer-newer t			     \
+                          byte-compile-debug t 			     \
+                          debug-on-error t 			     \
 	                  package-user-dir \"$(abspath packages)\")" \
 	    -f package-activate-all 		       	     	     \
 	    -L $(dir $@) -f batch-byte-compile $<
@@ -141,7 +153,7 @@ packages/%.elc: packages/%.el
 # $(extra_elcs):; rm $@
 
 packages:
-	mkdir $@
+	mkdir -p $@
 
 include $(PKG_DESCS_MK)
 $(PKG_DESCS_MK): elpa-packages packages
@@ -267,14 +279,11 @@ externals worktrees:	# "externals" is the old name we used to use.
 
 
 ################### Testing ###############
-
-PACKAGE_DIRS = $(shell find packages -maxdepth 1 -type d)
-PACKAGES=$(subst /,,$(subst packages,,$(PACKAGE_DIRS)))
+PACKAGES=$(subst packages/,,$(PACKAGE_DIRS))
 
 define test_template
 $(1)-test:
-	cd packages/$(1);				       	      \
-	$(EMACS) -l $(CURDIR)/admin/elpa-admin.el.el 		      \
+	$(EMACS) -l $(CURDIR)/admin/elpa-admin.el 		      \
 		--eval "(elpaa-ert-test-package \"$(CURDIR)\" '$(1))" \
 
 $(1)-test-log:
